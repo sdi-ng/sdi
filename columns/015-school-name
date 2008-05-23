@@ -1,0 +1,15 @@
+# 015-school-name
+
+function getcolumn()
+{
+    CITY=$(awk '{print $NF}' <<< $1|cut -d':' -f3|tr '_' ' ')
+    CITY=$(sed 's/^\(.\)\(.*\)/\1\L\2/' <<< $CITY)
+    CITY=$(sed 's/ \(.\)\(.*\)/ \u\1\L\2/g' <<< $CITY)
+    printf "<td>$CITY</td>"
+}
+function getcolumnname()
+{
+    printf "Escola"
+}
+
+# vim:tabstop=4:shiftwidth=4:encoding=utf-8:expandtab:filetype=sh

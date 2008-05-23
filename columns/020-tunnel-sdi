@@ -1,0 +1,33 @@
+# 020-tunnel-sdi
+
+function getcolumn()
+{
+    IP=$(awk '{print $2}' <<< $HOSTLINE)
+    STATUS=$((grep -q "$(awk '{print $NF}' <<< $IP):" <<< $NETSTAT && echo ONLINE)||echo OFFLINE)
+    VERSIONLINE=$(grep VERSION $DATA|tail -1)
+
+    if test $STATUS = "OFFLINE" && test "$VERSIONLINE" != ""; then
+        ((ATUAL= $(date +%k|sed -e 's/^0//')*60 + $(date +%M|sed -e 's/^0//')))
+        HORA=$(cut -d' ' -f3 <<< $VERSIONLINE|cut -d: -f1|sed -s 's/^0//')
+        MINUTO=$(cut -d':' -f2 <<< $VERSIONLINE|cut -d' ' -f1|sed -s 's/^0//')
+        ((ULTIMAMSG= HORA*60 + MINUTO))
+        if (( ATUAL - ULTIMAMSG > 90 )) || tail -2 $DATA|grep -q 'ssh'; then
+            STATUS=OFFLINE
+        else
+            STATUS=ONLINE
+        fi
+    fi
+
+    if test "$STATUS" = "ONLINE" ; then
+        printf "<td bgcolor=GREEN>ONLINE</td>"
+    else
+        printf "<td bgcolor=RED>OFFLINE</td>"
+    fi
+
+}
+function getcolumnname()
+{
+    printf "Status"
+}
+
+# vim:tabstop=4:shiftwidth=4:encoding=utf-8:expandtab:filetype=sh

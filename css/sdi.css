@@ -1,0 +1,11 @@
+body, td, th {
+   font-size: small;
+   text-align: left;
+}
+.painted {
+   background-color: #DDDDDD;
+}
+table.sortable thead {
+    font-weight: bold;
+    cursor: default;
+}
