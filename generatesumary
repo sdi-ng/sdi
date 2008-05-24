@@ -5,6 +5,7 @@ TMP=$(mktemp)
 exec > $TMP
 cat $PREFIX/html/header.html 
 echo "<h1>Sum&aacute;rio</h1>"
+echo "<p>Gerado em: <i>$(date)</i></p>"
 echo "<h2>Alguns N&uacute;meros</h2>"
 cat << EOF
 <b>
