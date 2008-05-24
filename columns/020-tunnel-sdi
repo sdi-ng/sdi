@@ -2,8 +2,8 @@
 
 function getcolumn()
 {
-    IP=$(awk '{print $2}' <<< $HOSTLINE)
-    STATUS=$((grep -q "$(awk '{print $NF}' <<< $IP):" <<< $NETSTAT && echo ONLINE)||echo OFFLINE)
+    IP=$(awk '{print $3}' <<< $HOSTLINE)
+    STATUS=$((grep -q "$IP:22" <<< $NETSTAT && echo ONLINE)||echo OFFLINE)
     VERSIONLINE=$(grep VERSION $DATA|tail -1)
 
     if test $STATUS = "OFFLINE" && test "$VERSIONLINE" != ""; then
