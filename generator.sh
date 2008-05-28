@@ -53,7 +53,7 @@ function generate()
     echo "<table class=\"sortable\" id=\"${TID}\" border=\"1\">"
     for NAME in columns/*; do
         source $NAME
-        COLUMNNAME="${COLUMNNAME}<td>$(getcolumnname)</td>"
+        COLUMNNAME="${COLUMNNAME}$(getcolumnname)"
     done
     printf "<tr>$COLUMNNAME</tr>\n"
     while read HOSTLINE; do
