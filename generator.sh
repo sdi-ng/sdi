@@ -29,7 +29,6 @@ test -f $PREFIX/wwwsdi.conf && source $PREFIX/wwwsdi.conf
 
 main()
 {
-    NoTYPES="$(ls $TYPEDIR|wc -l|awk '{print $1}')"
     NETSTAT="$(netstat -n --tcp --ip|grep ':22'|grep ESTAB)"
     printf "Generating:\n"
     for TYPE in $TYPEDIR/*; do
