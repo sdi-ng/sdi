@@ -6,13 +6,13 @@ source $PREFIX/sdi.conf
 
 #these are minimal configuracao needed, user may overwrite any of them by
 #defining at sdi.conf
-: ${TIMEOUT=240}
-: ${SSHOPT[0]="PreferredAuthentications=publickey"}
-: ${SSHOPT[1]="StrictHostKeyChecking=no"}
-: ${SSHOPT[2]="ConnectTimeOut=$TIMEOUT"}
-: ${SSHOPT[3]="TCPKeepAlive=yes"}
-: ${SSHOPT[4]="ServerAliveCountMax=3"}
-: ${SSHOPT[5]="ServerAliveInterval=100"}
+: ${TIMEOUT:=240}
+: ${SSHOPT[0]:="PreferredAuthentications=publickey"}
+: ${SSHOPT[1]:="StrictHostKeyChecking=no"}
+: ${SSHOPT[2]:="ConnectTimeOut=$TIMEOUT"}
+: ${SSHOPT[3]:="TCPKeepAlive=yes"}
+: ${SSHOPT[4]:="ServerAliveCountMax=3"}
+: ${SSHOPT[5]:="ServerAliveInterval=100"}
 
 : ${CMDDIR:=$PREFIX/cmds}
 : ${OUTDIR:=$PREFIX/coleta}
