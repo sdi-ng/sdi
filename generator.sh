@@ -20,16 +20,20 @@
 
 PREFIX=.
 
-: ${NREDIR:=$PREFIX/NRES}
+test -f $PREFIX/wwwsdi.conf && source $PREFIX/wwwsdi.conf
+
+: ${TYPEDIR:=$PREFIX/TYPES}
+: ${TYPENAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
+: ${DATADIR:=$PREFIX/coleta}
 
 main()
 {
-    NoNRES="$(ls $NREDIR|wc -l|awk '{print $1}')"
+    NoTYPES="$(ls $TYPEDIR|wc -l|awk '{print $1}')"
     NETSTAT="$(netstat -n --tcp --ip|grep ':22'|grep ESTAB)"
     printf "Generating:\n"
-    for NRE in $NREDIR/*; do
-        generate $NRE &
+    for TYPE in $TYPEDIR/*; do
+        generate $TYPE &
         sleep 5
     done
     #printf "Waiting Generations"
@@ -47,7 +51,7 @@ function generate()
     exec > $TMP
     TID=$$
     cat $PREFIX/html/header.html 
-    echo "<h1>NRE: $(basename $1|tr '_' ' ')</h1>"
+    echo "<h1>$TYPENAME: $(basename $1|tr '_' ' ')</h1>"
     echo "<div id=\"${TID}_div\">"
     echo "<span id=\"${TID}_cols\"></span>"
     echo "<table class=\"sortable\" id=\"${TID}\" border=\"1\">"
@@ -60,7 +64,7 @@ function generate()
         printf "<tr>"
         for COLUMN in columns/*; do
             ESC=$(awk '{print $1}' <<< $HOSTLINE)
-            DATA=$PREFIX/../SDI/coleta/$ESC
+            DATA=$DATADIR/$ESC
             source $COLUMN
             printf "$(getcolumn "$HOSTLINE")"
         done
