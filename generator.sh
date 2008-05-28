@@ -28,6 +28,7 @@ test -f $PREFIX/wwwsdi.conf && source $PREFIX/wwwsdi.conf
 : ${WWWDIR:=$PREFIX/www}
 : ${DATADIR:=$PREFIX/coleta}
 : ${TABLEATTRIBUTES:="border=\"1\""}
+: ${GENERATESUMMARY:=false}
 
 #Global variable, to avoid multiple generation of names
 COLUMNNAMES=
@@ -46,7 +47,7 @@ main()
     done
     #printf "Waiting Generations"
     wait $(jobs -p)
-    bash generatesumary
+    test "$GENERATESUMMARY" == "true" && bash generatesumary
 
 
 }
