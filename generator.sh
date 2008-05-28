@@ -22,15 +22,24 @@ PREFIX=.
 
 test -f $PREFIX/wwwsdi.conf && source $PREFIX/wwwsdi.conf
 
+#Customizable variables, please refer to wwwsdi.conf to change these values
 : ${TYPEDIR:=$PREFIX/TYPES}
 : ${TYPENAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
 : ${DATADIR:=$PREFIX/coleta}
+: ${TABLEATTRIBUTES:="border=\"1\""}
+
+#Global variable, to avoid multiple generation of names
+COLUMNNAMES=
 
 main()
 {
     NETSTAT="$(netstat -n --tcp --ip|grep ':22'|grep ESTAB)"
     printf "Generating:\n"
+    printf "  ColumnNames"
+    generatecolumnnames
+    echo "."
+
     for TYPE in $TYPEDIR/*; do
         generate $TYPE &
         sleep 5
@@ -42,23 +51,32 @@ main()
 
 }
 
+function generatecolumnnames()
+{
+    for NAME in $PREFIX/columns/*; do
+        source $NAME
+        COLUMNNAMES="${COLUMNNAMES}$(getcolumnname)"
+    done
+}
+
+function starttable()
+{
+    TID=$RANDOM
+    echo "<div id=\"${TID}_div\">"
+    echo "<span id=\"${TID}_cols\"></span>"
+    echo "<table class=\"sortable\" id=\"${TID}\" $TABLEATTRIBUTES>"
+    printf "<tr>$COLUMNNAMES</tr>\n"
+}
+
 #we will receive a file containing a DNS style list of hosts
 function generate()
 {
     START="$(date +%X)"
     TMP=$(mktemp)
     exec > $TMP
-    TID=$$
     cat $PREFIX/html/header.html 
     echo "<h1>$TYPENAME: $(basename $1|tr '_' ' ')</h1>"
-    echo "<div id=\"${TID}_div\">"
-    echo "<span id=\"${TID}_cols\"></span>"
-    echo "<table class=\"sortable\" id=\"${TID}\" border=\"1\">"
-    for NAME in columns/*; do
-        source $NAME
-        COLUMNNAME="${COLUMNNAME}$(getcolumnname)"
-    done
-    printf "<tr>$COLUMNNAME</tr>\n"
+    starttable
     while read HOSTLINE; do
         printf "<tr>"
         for COLUMN in columns/*; do
