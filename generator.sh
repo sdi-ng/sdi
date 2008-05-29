@@ -20,7 +20,11 @@
 
 PREFIX=.
 
-test -f $PREFIX/wwwsdi.conf && source $PREFIX/wwwsdi.conf
+if test -z "$CONFFILE"; then
+    test -f $PREFIX/wwwsdi.conf && source $PREFIX/wwwsdi.conf
+else
+    source $CONFFILE || exit $?
+fi
 
 #Customizable variables, please refer to wwwsdi.conf to change these values
 : ${TYPEDIR:=$PREFIX/TYPES}
