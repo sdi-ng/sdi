@@ -1,0 +1,6 @@
+#Print memory in MB
+
+memory="$(head -1 /proc/meminfo| cut -d: -f2 | cut -dk -f1)"
+((memory=(memory)/1024))
+
+PRINT "MEMORY+$memory"
