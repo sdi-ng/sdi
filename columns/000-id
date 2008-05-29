@@ -3,7 +3,7 @@
 function getcolumn()
 {
     #PRDID=$(awk '{print $1}' <<< $1)
-    printf "<td>$ESC</td>"
+    printf "<td>$HOSTID</td>"
 }
 function getcolumnname()
 {

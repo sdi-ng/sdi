@@ -85,8 +85,8 @@ function generate()
     while read HOSTLINE; do
         printf "<tr>"
         for COLUMN in columns/*; do
-            ESC=$(awk '{print $1}' <<< $HOSTLINE)
-            DATA=$DATADIR/$ESC
+            HOSTID=$(awk '{print $1}' <<< $HOSTLINE)
+            DATA=$DATADIR/$HOSTID
             source $COLUMN
             printf "$(getcolumn "$HOSTLINE")"
         done
