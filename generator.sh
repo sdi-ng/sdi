@@ -33,6 +33,8 @@ fi
 : ${DATADIR:=$PREFIX/coleta}
 : ${TABLEATTRIBUTES:="border=\"1\""}
 : ${GENERATESUMMARY:=false}
+: ${HISTORY:=true}
+: ${HISTORYFILEFORMAT:="%Y%m%d%H%M"}
 
 #Global variable, to avoid multiple generation of names
 COLUMNNAMES=
@@ -99,6 +101,10 @@ function generate()
     cat $PREFIX/html/footer.html 
     chmod a+r $TMP
     mv "$TMP" "$WWWDIR/$(basename $1)/index.html"
+    if test "$HISTORY" = "true"; then
+        FileEND=$(date +"$HISTORYFILEFORMAT")
+        cp "$WWWDIR/$(basename $1)/index.html"{,.$FileEND}
+    fi
     printf "$(basename $1): $START ..  $(date +%X)\n" >&2
 }
 
