@@ -1,11 +1,102 @@
+/* sdi css file */
+
+/* fixed element styles */
 body, td, th {
    font-size: small;
    text-align: left;
+   font-family: Verdana;
 }
+
+table {
+    margin-top: 10px;
+    width: 100%;
+}
+
+td {
+    padding: 0 5px 0 5px;
+}
+
+/* tables top bar styles */
+.table_bar {
+    height: 15px;
+    width: 100%;
+    padding-bottom: 5px;
+    padding-top: 20px;
+    border-bottom: 1px solid #666;
+}
+
+.table_bar h3 {
+    float: left;
+    margin:  0;
+    padding: 0;
+}
+
+.table_bar img {
+    border: none;
+}
+
+.table_bar a {
+    text-decoration: none;
+    color: #000;
+}
+
+.bar_right {
+    display: inline;
+    float: right;
+    text-align: right;
+}
+
+/* select columns menu styles */
+.select_cols {
+    text-align: left;
+    position: relative;
+    height: auto;
+    padding: 5px;
+    background-color: White;
+    border: 1px dashed #666;
+    top: 2px;
+}
+
+.select_cols li {
+    list-style: none;
+    padding: 0;
+    margin:  0;
+    margin-right: 5px;
+}
+
+.select_cols ul {
+    padding: 0;
+    margin:  0;
+}
+
+/* color styles */
 .painted {
-   background-color: #DDDDDD;
+    background-color: #DDD;
 }
-table.sortable thead {
+
+.gray {
+    background-color: gray;
+}
+
+.red {
+    background-color: red;
+}
+
+.green {
+    background-color: green;
+}
+
+/* simple styles */
+.hide {
+    display: none;
+}
+
+/* custom styles */
+.loading {
+    margin: 20px 0 20px 15px;
+}
+
+.sortable thead {
     font-weight: bold;
     cursor: default;
 }
