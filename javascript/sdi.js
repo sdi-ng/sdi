@@ -1,4 +1,5 @@
 var selected;
+var menu_scroll = true;
 
 function populate(){
     var tbls = document.getElementsByTagName('table');  
@@ -66,9 +67,11 @@ function table_expand(tbID){
     if (element.style.display=='none'){
         element.style.display='';
         image.innerHTML='<img src="img/expandUP.jpg" />';
+        menu_scroll = true;
     } else {
         element.style.display='none';
         image.innerHTML='<img src="img/expandDOWN.jpg" />';
+        menu_scroll = false;
     }
 }
 
@@ -152,7 +155,8 @@ function hide_menu(e, element){
 }
 
 function show_menu(elementID){
-    document.getElementById(elementID).className='select_cols';
+    if (menu_scroll)
+        document.getElementById(elementID).className='select_cols';
 }
 
 function setCookie(name, value, expireDays){
