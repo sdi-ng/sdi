@@ -53,7 +53,7 @@ main()
     done
     #printf "Waiting Generations"
     wait $(jobs -p)
-    test "$GENERATESUMMARY" == "true" && bash generatesumary
+    test "$GENERATESUMMARY" == "true" && source generatesumary
 
 
 }
