@@ -31,7 +31,7 @@ fi
 : ${TYPENAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
 : ${DATADIR:=$PREFIX/coleta}
-: ${TABLEATTRIBUTES:="border=\"1\""}
+: ${TABLEATTRIBUTES:="border=\"0\""}
 : ${GENERATESUMMARY:=false}
 : ${HISTORY:=true}
 : ${HISTORYFILEFORMAT:="%Y%m%d%H%M"}
@@ -69,9 +69,18 @@ function generatecolumnnames()
 function starttable()
 {
     TID=$RANDOM
-    echo "<div id=\"${TID}_div\">"
-    echo "<span id=\"${TID}_cols\"></span>"
-    echo "<table class=\"sortable\" id=\"${TID}\" $TABLEATTRIBUTES>"
+    echo "<div class=\"table_bar\" id=\"${TID}_bar\">
+    <h3><a href=\"javascript:table_expand('${TID}');\" id=\"${TID}_expand\">
+    <img src=\"img/expandUP.jpg\" /></a> $1</h3>
+    <div class=\"bar_right\">
+    <a href=\"#\" onmouseover=\"show_menu('${TID}_cols');\">
+    Selecionar colunas <img src=\"img/columns.jpg\" /></a>
+    <div class=\"hide\" id=\"${TID}_cols\" onmouseout=\"hide_menu(event, this);\">ID,Cidade,Escola,Status,Uptime</div>
+    </div></div>
+    <div id=\"${TID}_div\">
+    <div id=\"${TID}_load\" class=\"loading\"></div>
+    <table class=\"sortable\" style=\"display: none;\" id=\"${TID}\" $TABLEATTRIBUTES>"
+
     printf "<tr>$COLUMNNAMES</tr>\n"
 }
 
@@ -82,8 +91,8 @@ function generate()
     TMP=$(mktemp)
     exec > $TMP
     cat $PREFIX/html/header.html 
-    echo "<h1>$TYPENAME: $(basename $1|tr '_' ' ')</h1>"
-    starttable
+    TITLE="$TYPENAME: $(basename $1|tr '_' ' ')"
+    starttable "${TITLE}"
     while read HOSTLINE; do
         printf "<tr>"
         for COLUMN in columns/*; do
