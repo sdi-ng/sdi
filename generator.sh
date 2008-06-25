@@ -68,7 +68,7 @@ function generatecolumnnames()
 
 function starttable()
 {
-    TID=$RANDOM
+    TID="$(tr -d ' ' <<<$1)"
     echo "<div class=\"table_bar\" id=\"${TID}_bar\">
     <h3><a href=\"javascript:table_expand('${TID}');\" id=\"${TID}_expand\">
     <img src=\"img/expandUP.jpg\" /></a> $1</h3>
