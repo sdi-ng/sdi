@@ -1,5 +1,5 @@
 var selected;
-var menu_scroll = true;
+var menu_scroll = new Array();
 
 function populate(){
     var tbls = document.getElementsByTagName('table');  
@@ -14,8 +14,8 @@ function populate(){
         for (var col=0; col<cols.length; col++){
                 all[col] = cols[col].innerHTML;
         }
-	
-        var tbid = tbls[tb].id; 
+
+        var tbid = tbls[tb].id;
         colsID = tbid + '_cols';
 
         var loadID = tbid + '_load';
@@ -30,6 +30,14 @@ function populate(){
             selected = colsSel.innerHTML.split(',');
             setCookie(cookieName, selected.join(','), null);
         }
+
+        // insert table info on menu_scroll
+        // this is done cause all tables must have
+        // a separated scroll variable.
+        var info = new Array(2);
+        info[0] = tbid;
+        info[1] = true;
+        menu_scroll.push(info);
 
         create_list(tbid, all, selected, colsID);
         paint(tbid);
@@ -64,15 +72,22 @@ function table_expand(tbID){
     image = tbID + '_expand';
     image = document.getElementById(image);
 
+    // find table numeric id at menu_scroll
+    var i;
+    for (i=0; i<menu_scroll.length; i++)
+        if (menu_scroll[i][0]==tbID)
+            break;
+    
     if (element.style.display=='none'){
         element.style.display='';
         image.innerHTML='<img src="img/expandUP.jpg" />';
-        menu_scroll = true;
+        menu_scroll[i][1] = true;
     } else {
         element.style.display='none';
         image.innerHTML='<img src="img/expandDOWN.jpg" />';
-        menu_scroll = false;
+        menu_scroll[i][1] = false;
     }
+
 }
 
 
@@ -155,8 +170,15 @@ function hide_menu(e, element){
 }
 
 function show_menu(elementID){
-    if (menu_scroll)
-        document.getElementById(elementID).className='select_cols';
+    var i;
+    var tbid = elementID.split('_cols')[0];
+    for (i=0; i<menu_scroll.length; i++){
+        if (menu_scroll[i][0]==tbid && menu_scroll[i][1]){
+            document.getElementById(elementID).className='select_cols';
+            break;
+        }
+    }
+
 }
 
 function setCookie(name, value, expireDays){
