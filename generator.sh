@@ -35,6 +35,7 @@ fi
 : ${GENERATESUMMARY:=false}
 : ${HISTORY:=true}
 : ${HISTORYFILEFORMAT:="%Y%m%d%H%M"}
+: ${DEFAULTCOLUMNS:="ID,Cidade,Escola,Status,Uptime"}
 
 #Global variable, to avoid multiple generation of names
 COLUMNNAMES=
@@ -75,7 +76,7 @@ function starttable()
     <div class=\"bar_right\">
     <a href=\"#\" onmouseover=\"show_menu('${TID}_cols');\">
     Selecionar colunas <img src=\"img/columns.jpg\" /></a>
-    <div class=\"hide\" id=\"${TID}_cols\" onmouseout=\"hide_menu(event, this);\">ID,Cidade,Escola,Status,Uptime</div>
+    <div class=\"hide\" id=\"${TID}_cols\" onmouseout=\"hide_menu(event, this);\">$DEFAULTCOLUMNS</div>
     </div></div>
     <div id=\"${TID}_div\">
     <div id=\"${TID}_load\" class=\"loading\"></div>
