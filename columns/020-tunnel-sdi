@@ -19,9 +19,9 @@ function getcolumn()
     fi
 
     if test "$STATUS" = "ONLINE" ; then
-        printf "<td bgcolor=GREEN>ONLINE</td>"
+        printf "<td class=\"green\">ONLINE</td>"
     else
-        printf "<td bgcolor=RED>OFFLINE</td>"
+        printf "<td class=\"red\">OFFLINE</td>"
     fi
 
 }

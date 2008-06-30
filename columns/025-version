@@ -5,7 +5,7 @@ function getcolumn()
     VERSION=$(grep "VERSION" $DATA|tail -1|cut -d'+' -f2)
     LATEST="2.0r1 Quero-quero"
     if test "$VERSION" != "$LATEST"; then
-        ATTRIBUTE="bgcolor=gray"
+        ATTRIBUTE="class=\"gray\""
     fi
     if test -n "$VERSION"; then
         printf "<td $ATTRIBUTE>$VERSION</td>"

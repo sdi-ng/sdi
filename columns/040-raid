@@ -14,7 +14,7 @@ function getcolumn()
         if ! grep -q '_' <<< "$DIAGNOSE" ; then
             DIAGNOSE="DEGRADED"
         fi
-        printf "<td bgcolor=red>$DIAGNOSE</td>"
+        printf "<td class=\"red\">$DIAGNOSE</td>"
     else
         printf "<td></td>"
     fi
