@@ -2,6 +2,8 @@ WWWDIR=www
 PREFIX=.
 START="$(date +%X)"
 TMP=$(mktemp)
+MANDATORYCOLUMNS="ID,NRE,Cidade,Escola,Status"
+
 exec > $TMP
 cat $PREFIX/html/header.html 
 echo "<h1>Sum&aacute;rio</h1>"
@@ -21,7 +23,7 @@ cat << EOF
 <li>$(egrep "sd._MISSING"  $WWWDIR/*/index.html|wc -l) Falta um disco</li>
 <li>$(egrep "sd.._MISSING"  $WWWDIR/*/index.html|wc -l) Falta Parti&ccedil;&atilde;o</li>
 <li>$(egrep "FAULTY"  $WWWDIR/*/index.html|wc -l) Parti&ccedil;&atilde;o com problema</li>
-<li>$(egrep "DEGRADED"  $WWWDIR/*/index.html|wc -l) Estado incosistente n&atilde;o identificado</li>
+<li>$(egrep "DEGRADED"  $WWWDIR/*/index.html|wc -l) Estado inconsistente n&atilde;o identificado</li>
 </ul>
 </ul>
 
@@ -32,124 +34,97 @@ cat << EOF
 <li>$(grep -i 'publickey'  $WWWDIR/*/index.html|wc -l) SSH PublicKey Error</li>
 <li>$(grep -i 'refused'  $WWWDIR/*/index.html|wc -l) SSH Connection Refused</li>
 </ul>
+
+<ul>
+<li>$(grep -i 'input/output'  $WWWDIR/*/index.html|wc -l) Input/Output Error (no dia $(date +"%d/%m/%Y"))</li>
+<li>$(for DIA in $(find $WWWDIR/ -type f|grep index.html.$(date +"%Y%m"));do grep -i 'input/output' $DIA;done|sort -u|wc -l) Input/Output Error (no m&ecirc;s $(date +"%m/%Y"))</li>
+</ul>
 </b>
 EOF
 
-    for NAME in columns/*; do
-        source $NAME
-        COLUMNNAME="${COLUMNNAME}<td>$(getcolumnname)</td>"
-    done
-    TID=$RANDOM
 cat << EOF
 <br/>
 <h2>Escolas com algum erro</h2>
-<h3>--Ajuda Remota</h3>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "Ajuda Remota")
 $(grep -i 'Ajuda_Remota' $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 EOF
-TID=$RANDOM
 
 cat << EOF
-
 <br/><br/>
-<h3>--SSH ssh_exchange_identification</h3>
-<li>Deve-se reiniciar a escola, caso ela n&atilde;o retorne dever&aacute; ser
-feita a reinstala&ccedil;&atilde;o</li>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "SSH ssh_exchange_identification")
 $(grep -i 'ssh_exchange_identification' $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 EOF
-TID=$RANDOM
-cat << EOF
 
+cat << EOF
 <br/><br/>
 <h3>--Problema no RAID</h3>
-<h4>-Falta um disco</h4>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Falta um disco")
 $(egrep -r "sd._MISSING" $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 <br/>
 EOF
-TID=$RANDOM
-cat << EOF
 
-<h4>-Falta Parti&ccedil;&atilde;o</h4>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+cat << EOF
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Falta Parti&ccedil;&atilde;o")
 $(egrep -r "sd.._MISSING" $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 <br/>
 EOF
-TID=$RANDOM
 
 cat << EOF
-
-<h4>- Parti&ccedil;&atilde;o com problema</h4>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Parti&ccedil;&atilde;o com problema")
 $(egrep -r "FAULTY" $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 <br/>
 EOF
-TID=$RANDOM
-cat << EOF
 
-<h4>- Estado incosistente n&atilde;o identificado</h4>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+cat << EOF
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Estado incosistente n&atilde;o identificado")
 $(egrep -r "DEGRADED" $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 <br/>
 EOF
-TID=$RANDOM
+
 cat << EOF
-
 <br/><br/>
-
-<h3>--SSH PublicKey Error</h3>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "SSH PublicKey Error")
 $(grep -i 'publickey' $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 EOF
-TID=$RANDOM
 
 cat << EOF
 <br/><br/>
-<h3>--SSH Connection Refused</h3>
-<div id="${TID}_div">
-<span id="${TID}_cols"></span>
-<table class="sortable" id="${TID}" border="1">
-<tr>$COLUMNNAME</tr>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "SSH Connection Refused")
 $(grep -i 'refused' $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 EOF
+
+cat << EOF
+<br/><br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "Input/Output Error no dia $(date +"%d/%m/%Y") (HOJE)")
+$(grep -i 'input/output' $WWWDIR/*/index.html.$(date +"%Y%m%d")*|cut -d: -f2-|sort -u)
+</table>
+</div>
+EOF
+
+#cat << EOF
+#<br/><br/>
+#$(starttable "Input/Output Error no m&ecirc;s $(date +"%m/%Y")")
+#$(for DIA in $(find $WWWDIR/ -type f|grep index.html.$(date +"%Y%m"));do grep -i 'input/output' $DIA;done|sort -u)
+#</table>
+#</div>
+#EOF
+
 
     echo "--<br/>"
     echo "Last Modified: <i>$(date)</i>"
