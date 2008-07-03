@@ -26,12 +26,12 @@ function populate(){
         'src="img/loader.gif" /> Carregando...';
 	
         var cookieName = location.href+'#'+tbid;
-        if (getCookie(cookieName)){
-            selected = getCookie(cookieName).split(',');
+        if (get_cookie(cookieName)){
+            selected = get_cookie(cookieName).split(',');
         } else {
             var colsSel = document.getElementById(colsID);
             selected = colsSel.innerHTML.split(',');
-            setCookie(cookieName, selected.join(','), null);
+            set_cookie(cookieName, selected.join(','), null);
         }
 
         // insert table info on menu_scroll
@@ -117,7 +117,7 @@ function column(table, col, show){
     }
     
     var cookieName = location.href+'#'+table;
-    setCookie(cookieName, selected.join(','), null);
+    set_cookie(cookieName, selected.join(','), null);
 
     var tbl  = document.getElementById(table);
     var rows = tbl.getElementsByTagName('tr');
@@ -195,14 +195,14 @@ function show_menu(elementID){
 
 }
 
-function setCookie(name, value, expireDays){
+function set_cookie(name, value, expireDays){
     var exdate = new Date();
     exdate.setDate(exdate.getDate()+expireDays);
     document.cookie = name + '=' + escape(value) +
     ((expireDays==null) ? '' : '; expires='+exdate.toGMTString());
 }
 
-function getCookie(name){
+function get_cookie(name){
     if (document.cookie.length>0){
         start = document.cookie.indexOf(name + "=");
         if (start!=-1){ 
