@@ -5,6 +5,9 @@ function populate(){
     var tbls = document.getElementsByTagName('table');  
     var row;   
     var cols;
+
+    // fill sdi bar date field
+    set_date('date');
     
     for (var tb=0; tb<tbls.length; tb++) {
         row = tbls[tb].getElementsByTagName('tr');
@@ -45,6 +48,17 @@ function populate(){
         expand(loadID);
         expand(tbid);
     }
+}
+
+function set_date(elementID){
+    var Months = new Array('janeiro', 'fevereiro', 'março', 'abriu',
+                           'maio', 'junho', 'julho', 'agosto', 'setembro',
+                           'outubro', 'novembro', 'dezembro')
+    var now = new Date();
+    element = document.getElementById(elementID);
+
+    element.innerHTML = now.getDate() + " de " + Months[now.getMonth()-1] + 
+                                        " de " + now.getFullYear();
 }
 
 function paint(table){
