@@ -1,0 +1,32 @@
+BARHTML=$PREFIX/html/sdibar.html
+BARFILE=$PREFIX/html/sdibar_generated.html
+OPTIONS=""
+
+main()
+{
+    if [ "$GENERATESUMMARY" == "true" ]; then
+        add_option sumary SUMARIO
+    fi
+
+    for TYPE in $TYPEDIR/*; do
+        add_option single $TYPE
+    done
+    
+    sed "s/(PAGES)/${OPTIONS}/g" $BARHTML > $BARFILE
+}
+
+function add_option()
+{
+    if [ $1 == "sumary" ]; then
+        LOWER=$(echo $2 |tr '[:upper:]' '[:lower:]')
+        OPTIONS="${OPTIONS}<option value=\"${LOWER}.html\">$2<\/option>\n"
+    else
+        NAME=$(basename $2)
+        SHOW=$(echo $2 |sed -e "s#\/#\\\/#g" |tr '_' ' ')
+        OPTIONS="${OPTIONS}<option value=\"${NAME}\/\">${SHOW}<\/option>\n"
+    fi
+}
+
+main $*
+
+# vim:tabstop=4:shiftwidth=4:encoding=utf-8:expandtab
