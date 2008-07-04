@@ -1,5 +1,6 @@
 var selected;
 var menu_scroll = new Array();
+var pagetype;
 
 function populate(){
     var tbls = document.getElementsByTagName('table');  
@@ -8,6 +9,9 @@ function populate(){
 
     // fill sdi bar date field
     set_date('date');
+    
+    // get pagetype
+    pagetype = document.getElementById('pagetype').innerHTML;
     
     for (var tb=0; tb<tbls.length; tb++) {
         row = tbls[tb].getElementsByTagName('tr');
@@ -48,6 +52,13 @@ function populate(){
         expand(loadID);
         expand(tbid);
     }
+}
+
+function load_page(href){
+    if (pagetype=="sumary")
+        window.location.href = href;
+    else
+        window.location.href = '../' + href;
 }
 
 function set_date(elementID){
@@ -103,7 +114,6 @@ function table_expand(tbID){
     }
 
 }
-
 
 function column(table, col, show){
     var stl;
