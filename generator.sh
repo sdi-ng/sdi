@@ -44,8 +44,10 @@ main()
 {
     NETSTAT="$(netstat -n --tcp --ip|grep ':22'|grep ESTAB)"
     printf "Generating:\n"
-    printf "  ColumnNames"
+    printf "  ColumnNames\n"
     generatecolumnnames
+    printf "  SDIBar"
+    source generatebar
     echo "."
 
     for TYPE in $TYPEDIR/*; do
@@ -91,8 +93,12 @@ function generate()
     START="$(date +%X)"
     TMP=$(mktemp)
     exec > $TMP
-    cat $PREFIX/html/header.html 
+    cat $PREFIX/html/header.html
+    printf "<div class=\"hide\" id=\"pagetype\">single</div>"
+    NAME=$(basename $1)
     TITLE="$TYPENAME: $(basename $1|tr '_' ' ')"
+    cat $PREFIX/html/sdibar_generated.html | 
+    sed "s/$NAME\/\">/$NAME\/\" selected=\"selected\">/g"
     starttable "${TITLE}"
     while read HOSTLINE; do
         printf "<tr>"
