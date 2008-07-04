@@ -9,21 +9,21 @@ main()
     fi
 
     for TYPE in $TYPEDIR/*; do
-        add_option single $TYPE
+        add_option single "$TYPENAME/$(basename $TYPE)"
     done
     
-    sed "s/(PAGES)/${OPTIONS}/g" $BARHTML > $BARFILE
+    sed "s#(PAGES)#${OPTIONS}#g" $BARHTML > $BARFILE
 }
 
 function add_option()
 {
     if [ $1 == "sumary" ]; then
         LOWER=$(echo $2 |tr '[:upper:]' '[:lower:]')
-        OPTIONS="${OPTIONS}<option value=\"${LOWER}.html\">$2<\/option>\n"
+        OPTIONS="${OPTIONS}<option value=\"${LOWER}.html\">$2</option>\n"
     else
         NAME=$(basename $2)
-        SHOW=$(echo $2 |sed -e "s#\/#\\\/#g" |tr '_' ' ')
-        OPTIONS="${OPTIONS}<option value=\"${NAME}\/\">${SHOW}<\/option>\n"
+        SHOW=$(echo $2 |tr '_' ' ')
+        OPTIONS="${OPTIONS}<option value=\"${NAME}/\">${SHOW}</option>\n"
     fi
 }
 
