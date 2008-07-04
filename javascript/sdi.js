@@ -62,13 +62,13 @@ function load_page(href){
 }
 
 function set_date(elementID){
-    var Months = new Array('janeiro', 'fevereiro', 'março', 'abriu',
+    var Months = new Array('janeiro', 'fevereiro', 'março', 'abril',
                            'maio', 'junho', 'julho', 'agosto', 'setembro',
                            'outubro', 'novembro', 'dezembro')
     var now = new Date();
     element = document.getElementById(elementID);
 
-    element.innerHTML = now.getDate() + " de " + Months[now.getMonth()-1] + 
+    element.innerHTML = now.getDate() + " de " + Months[now.getMonth()] + 
                                         " de " + now.getFullYear();
 }
 
