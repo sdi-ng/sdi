@@ -48,6 +48,7 @@ main()
     generatecolumnnames
     printf "  SDIBar"
     source generatebar
+    BARFILE=$(generatebar)
     echo "."
 
     for TYPE in $TYPEDIR/*; do
@@ -97,8 +98,7 @@ function generate()
     printf "<div class=\"hide\" id=\"pagetype\">single</div>"
     NAME=$(basename $1)
     TITLE="$TYPENAME: $(basename $1|tr '_' ' ')"
-    cat $PREFIX/html/sdibar_generated.html | 
-    sed "s/$NAME\/\">/$NAME\/\" selected=\"selected\">/g"
+    echo $BARFILE | sed "s/$NAME\/\">/$NAME\/\" selected=\"selected\">/g"
     starttable "${TITLE}"
     while read HOSTLINE; do
         printf "<tr>"
