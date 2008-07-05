@@ -1,8 +1,7 @@
 BARHTML=$PREFIX/html/sdibar.html
-BARFILE=$PREFIX/html/sdibar_generated.html
 OPTIONS=""
 
-main()
+function generatebar()
 {
     if [ "$GENERATESUMMARY" == "true" ]; then
         add_option sumary SUMARIO
@@ -12,7 +11,7 @@ main()
         add_option single "$TYPENAME/$(basename $TYPE)"
     done
     
-    sed "s#(PAGES)#${OPTIONS}#g" $BARHTML > $BARFILE
+    sed "s#(PAGES)#${OPTIONS}#g" $BARHTML
 }
 
 function add_option()
@@ -26,7 +25,5 @@ function add_option()
         OPTIONS="${OPTIONS}<option value=\"${NAME}/\">${SHOW}</option>\n"
     fi
 }
-
-main $*
 
 # vim:tabstop=4:shiftwidth=4:encoding=utf-8:expandtab
