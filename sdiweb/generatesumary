@@ -1,0 +1,155 @@
+WWWDIR=www
+PREFIX=.
+START="$(date +%X)"
+TMP=$(mktemp)
+MANDATORYCOLUMNS="ID,NRE,Cidade,Escola,Status"
+
+exec > $TMP
+cat $PREFIX/html/header.html 
+echo "<div class=\"hide\" id=\"pagetype\">sumary</div>"
+echo "$BARFILE"
+echo "<h1>Sum&aacute;rio</h1>"
+echo "<p>Gerado em: <i>$(date)</i></p>"
+echo "<h2>Alguns N&uacute;meros</h2>"
+cat << EOF
+<b>
+<ul>
+<li>$(grep ONLINE $WWWDIR/*/index.html|wc -l) Online</li>
+</ul>
+<ul>
+<li>$(grep -i 'Ajuda_Remota' $WWWDIR/*/index.html|wc -l) Ajuda Remota</li>
+<li>$(grep '1\.1r' $WWWDIR/*/index.html|wc -l) Prd1.1</li>
+<li>$(grep 'NOTEXIST' $WWWDIR/*/index.html|wc -l) Sem prd_version</li>
+</ul>
+<ul>
+<li>$(egrep "(FAULTY|MISSING|DEGRADED)"  $WWWDIR/*/index.html|wc -l) Problema no RAID</li>
+<ul>
+<li>$(egrep "sd._MISSING"  $WWWDIR/*/index.html|wc -l) Falta um disco</li>
+<li>$(egrep "sd.._MISSING"  $WWWDIR/*/index.html|wc -l) Falta Parti&ccedil;&atilde;o</li>
+<li>$(egrep "FAULTY"  $WWWDIR/*/index.html|wc -l) Parti&ccedil;&atilde;o com problema</li>
+<li>$(egrep "DEGRADED"  $WWWDIR/*/index.html|wc -l) Estado inconsistente n&atilde;o identificado</li>
+</ul>
+</ul>
+
+<ul>
+<li>$(grep -i 'ssh_exchange_identification'  $WWWDIR/*/index.html|wc -l) SSH ssh_exchange_identification</li>
+<li>$(grep -i 'read'  $WWWDIR/*/index.html|wc -l) SSH Connection reset by peer</li>
+<li>$(egrep '(timed|route)'  $WWWDIR/*/index.html|wc -l) SSH Timed Out</li>
+<li>$(grep -i 'publickey'  $WWWDIR/*/index.html|wc -l) SSH PublicKey Error</li>
+<li>$(grep -i 'refused'  $WWWDIR/*/index.html|wc -l) SSH Connection Refused</li>
+</ul>
+
+<ul>
+<li>$(grep -i 'input/output'  $WWWDIR/*/index.html|wc -l) Input/Output Error (no dia $(date +"%d/%m/%Y"))</li>
+<li>$(for DIA in $(find $WWWDIR/ -type f|grep index.html.$(date +"%Y%m"));do grep -i 'input/output' $DIA;done|sort -u|wc -l) Input/Output Error (no m&ecirc;s $(date +"%m/%Y"))</li>
+</ul>
+</b>
+EOF
+
+cat << EOF
+<br/>
+<h2>Escolas com algum erro</h2>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "Ajuda Remota")
+$(grep -i 'Ajuda_Remota' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "PrD 1.1")
+$(grep '1\.1r' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "Sem Arquivo de Vers&atilde;o")
+$(grep 'NOTEXIST' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/><br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "SSH ssh_exchange_identification")
+$(grep -i 'ssh_exchange_identification' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/><br/>
+<h3>--Problema no RAID</h3>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Falta um disco")
+$(egrep -r "sd._MISSING" $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+<br/>
+EOF
+
+cat << EOF
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Falta Parti&ccedil;&atilde;o")
+$(egrep -r "sd.._MISSING" $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+<br/>
+EOF
+
+cat << EOF
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Parti&ccedil;&atilde;o com problema")
+$(egrep -r "FAULTY" $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+<br/>
+EOF
+
+cat << EOF
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,RAID" starttable "Estado incosistente n&atilde;o identificado")
+$(egrep -r "DEGRADED" $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+<br/>
+EOF
+
+cat << EOF
+<br/><br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "SSH PublicKey Error")
+$(grep -i 'publickey' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/><br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "SSH Connection Refused")
+$(grep -i 'refused' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/><br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,&Uacute;ltimo Contato/Erro" starttable "Input/Output Error no dia $(date +"%d/%m/%Y") (HOJE)")
+$(grep -i 'input/output' $WWWDIR/*/index.html.$(date +"%Y%m%d")*|cut -d: -f2-|sort -u)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/><br/>
+$(starttable "Input/Output Error no m&ecirc;s $(date +"%m/%Y")")
+$(for DIA in $(find $WWWDIR/ -type f|grep index.html.$(date +"%Y%m"));do grep -i 'input/output' $DIA;done|sort -u)
+</table>
+</div>
+EOF
+
+
+    echo "--<br/>"
+    echo "Last Modified: <i>$(date)</i>"
+    cat $PREFIX/html/footer.html 
+    chmod a+r $TMP
+    mv "$TMP" "$WWWDIR/sumario.html"
+    printf "Sumario: $START ..  $(date +%X)\n" >&2
+
