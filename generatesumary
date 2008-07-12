@@ -6,8 +6,8 @@ MANDATORYCOLUMNS="ID,NRE,Cidade,Escola,Status"
 
 exec > $TMP
 cat $PREFIX/html/header.html 
-echo "<div class="hide" id="pagetype">sumary</div>"
-cat $PREFIX/html/sdibar_generated.html
+echo "<div class=\"hide\" id=\"pagetype\">sumary</div>"
+echo "$BARFILE"
 echo "<h1>Sum&aacute;rio</h1>"
 echo "<p>Gerado em: <i>$(date)</i></p>"
 echo "<h2>Alguns N&uacute;meros</h2>"
@@ -18,6 +18,8 @@ cat << EOF
 </ul>
 <ul>
 <li>$(grep -i 'Ajuda_Remota' $WWWDIR/*/index.html|wc -l) Ajuda Remota</li>
+<li>$(grep '1\.1r' $WWWDIR/*/index.html|wc -l) Prd1.1</li>
+<li>$(grep 'NOTEXIST' $WWWDIR/*/index.html|wc -l) Sem prd_version</li>
 </ul>
 <ul>
 <li>$(egrep "(FAULTY|MISSING|DEGRADED)"  $WWWDIR/*/index.html|wc -l) Problema no RAID</li>
@@ -49,6 +51,22 @@ cat << EOF
 <h2>Escolas com algum erro</h2>
 $(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "Ajuda Remota")
 $(grep -i 'Ajuda_Remota' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "PrD 1.1")
+$(grep '1\.1r' $WWWDIR/*/index.html|cut -d: -f2-)
+</table>
+</div>
+EOF
+
+cat << EOF
+<br/>
+$(DEFAULTCOLUMNS="$MANDATORYCOLUMNS,Vers&atilde;o,Uptime" starttable "Sem Arquivo de Vers&atilde;o")
+$(grep 'NOTEXIST' $WWWDIR/*/index.html|cut -d: -f2-)
 </table>
 </div>
 EOF
@@ -119,13 +137,13 @@ $(grep -i 'input/output' $WWWDIR/*/index.html.$(date +"%Y%m%d")*|cut -d: -f2-|so
 </div>
 EOF
 
-#cat << EOF
-#<br/><br/>
-#$(starttable "Input/Output Error no m&ecirc;s $(date +"%m/%Y")")
-#$(for DIA in $(find $WWWDIR/ -type f|grep index.html.$(date +"%Y%m"));do grep -i 'input/output' $DIA;done|sort -u)
-#</table>
-#</div>
-#EOF
+cat << EOF
+<br/><br/>
+$(starttable "Input/Output Error no m&ecirc;s $(date +"%m/%Y")")
+$(for DIA in $(find $WWWDIR/ -type f|grep index.html.$(date +"%Y%m"));do grep -i 'input/output' $DIA;done|sort -u)
+</table>
+</div>
+EOF
 
 
     echo "--<br/>"
