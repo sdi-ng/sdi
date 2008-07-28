@@ -4,7 +4,7 @@ PREFIX=.
 
 source $PREFIX/sdi.conf
 
-#these are minimal configuracao needed, user may overwrite any of them by
+#these are minimal configuration needed, user may overwrite any of them by
 #defining at sdi.conf
 : ${TIMEOUT:=240}
 : ${SSHOPT[0]:="PreferredAuthentications=publickey"}
@@ -15,8 +15,18 @@ source $PREFIX/sdi.conf
 : ${SSHOPT[5]:="ServerAliveInterval=100"}
 
 : ${CMDDIR:=$PREFIX/cmds}
-: ${OUTDIR:=$PREFIX/coleta}
+: ${DATADIR:=$PREFIX/coleta}
 : ${TMPDIR:=/tmp/SDI}
+: ${PIDDIR:=$TMPDIR/pids}
+: ${HOOKS:=$PREFIX/commands-enabled}
+: ${CMDGENERAL:=$CMDDIR/general}
+: ${SDIUSER:=$USER}
+
+#Customizable variables, please refer to wwwsdi.conf to change these values
+: ${TYPEDIR:=$PREFIX/TYPES}
+: ${TYPENAME:=Class}
+: ${WWWDIR:=$PREFIX/www}
+: ${DEFAULTCOLUMNS:="ID,Cidade,Escola,Status,Uptime"}
 
 : ${LAUNCHDELAY:=0.1}
 : ${DAEMON:=false}
@@ -25,29 +35,144 @@ for OPT in "${SSHOPT[@]}"; do
     SSHOPTS="$SSHOPTS -o $OPT"
 done
 
-
-function SDISCRIPTS()
+function getvars()
 {
-     for SDI in $PREFIX/scripts/SDI/*; do
-         echo "echo '$(cat $SDI)' > /root/SDI/SDI/$(basename $SDI)"
-     done;
+    # Format of vars: nameofvar:obligation:default:webtag
+    # Separator is ','
+    local VARS="PVALUE:true::value
+    PSTATUS:::class
+    PSORTCUSTOM:::sortable_customkey
+    "
+
+    echo $VARS
 }
+
+function getattributes()
+{
+    VARS=$(getvars)
+
+    string=""
+    retcode=0
+    for VAR in $VARS; do
+        varname=$(cut -d: -f1 <<< $VAR)
+        varvalue=$(eval echo \$$varname)
+        varob=$(cut -d: -f2 <<< $VAR)
+        vardefault=$(cut -d: -f3 <<< $VAR)
+        vartag=$(cut -d: -f4 <<< $VAR)
+
+        if ! test -z "$varob"; then
+            if ! test -z "$varvalue"; then
+                string="$string $vartag=\"$varvalue\""
+            elif ! test -z "$vardefault"; then
+                string="$string $vartag=\"$vardefault\""
+            else
+                string="Var $varname must be defined."
+                retcode=1
+                break
+            fi
+        else
+            if ! test -z "$varvalue"; then
+                string="$string $vartag=\"$varvalue\""
+            elif ! test -z "$vardefault"; then
+                string="$string $vartag=\"$vardefault\""
+            fi
+        fi
+    done
+
+    echo $string
+    return $retcode
+}
+
+function PRINT() 
+{
+    echo "$(date +%s) $1" >> $2
+}
+
+#Prototype of PARSE() function
+function PARSE() 
+{
+    HOST=$1
+
+    while read LINE; do
+        FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
+        DATA=$(cut -d"+" -f2- <<< $LINE)
+
+        DATAPATHERR=$DATADIR/errors
+        DATAPATH=$DATADIR/$HOST/$FIELD
+
+        if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
+            mkdir -p $DATAPATHERR
+            PRINT "$LINE" "$DATAPATHERR/$HOST"
+        else
+            mkdir -p $DATAPATH
+            updatedata $DATA
+            PRINT "$UPDATA" "$DATAPATH/$FIELD"
+            www $DATA
+            ATTR=$(getattributes)
+            if test $? == 0; then
+                WWWLINE="<$FIELD $ATTR/>"
+                echo $WWWLINE > $DATAPATH/${FIELD}.xml
+            else
+                mkdir -p $DATAPATHERR
+                PRINT "Atribute error: $ATTR" "$DATAPATHERR/attrerror"
+            fi
+
+            #unset all variables used by script's
+            for var in $(getvars); do
+                unset $(cut -d: -f1 <<< $var)
+            done
+            unset DATA
+        fi
+    done
+}
+
 function SDITUNNEL()
 {
+    HOST=$1
     TMP=$(mktemp -p $TMPDIR)
-    CMDFILE=$CMDDIR/$1
-    while ! test -f $TMPDIR/SDIFINISH ;do
+    CMDFILE=$CMDDIR/$HOST
+    while true; do
         rm -f $CMDFILE
         touch $CMDFILE
-        (tail -f $CMDFILE & jobs -p > $TMP) |
-        (ssh $SSHOPTS $1 "rm -rf /root/SDI; mkdir -p /root/SDI/SDI;
-             $(SDISCRIPTS);
-             $(cat scripts/client.sh);
-             " >> $OUTDIR/$1 2>&1
-        kill $(cat $TMP) &>/dev/null )
+        (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE & 
+        tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
+        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" | PARSE $HOST
+        kill $(cat $TMP) &> /dev/null
+        test -f $TMPDIR/SDIFINISH && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
-    rm $TMP
+    rm -f $TMP
+    rm -f $PIDDIR/$HOST
+}
+
+function LAUNCH () 
+{
+    #If there are SDI tunnels opened, the execution should be stopped
+    pidsrunning=""
+    for HOST in $(ls $PIDDIR); do
+        PID=$(cat $PIDDIR/$HOST)
+        if ps --pid $PID &> /dev/null; then
+            pidsrunning="$pidsrunning $PID"
+        fi
+    done
+    if test ! -z $pidsrunning; then
+        echo "Some SDI tunnels still opened. Close them and try to run SDI again."
+        echo "PIDS:$pidsrunning"
+        exit 1
+    fi
+
+    rm -f $TMPDIR/SDIFINISH
+
+    # Create file that will be used to send commands to all hosts 
+    touch $CMDGENERAL
+
+    #Open a tunnel for each host
+    for HOST in $*; do
+        echo $HOST 
+        SDITUNNEL $HOST &
+        echo $! > $PIDDIR/$HOST
+        sleep $LAUNCHDELAY
+    done
 }
 
 if test $# -eq 0  ; then
@@ -56,17 +181,16 @@ if test $# -eq 0  ; then
     exit 1
 fi
 
-#Create temporary directory
+#Create directories
 mkdir -p $TMPDIR
+mkdir -p $PIDDIR
+mkdir -p $CMDDIR
+mkdir -p $DATADIR
 
 #Start launching SDI tunnels
-for HOST in $*; do
-    echo $HOST
-    SDITUNNEL $HOST &
-    sleep $LAUNCHDELAY
-done
+LAUNCH $*
 
-if test $DAEMON = true; then
+if test $DAEMON == true; then
     exit 0
 else
     printf "Waiting SDI Tunnels to finish"

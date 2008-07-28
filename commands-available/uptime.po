@@ -1,0 +1,15 @@
+function updatedata()
+{
+   UPDATA="$*"
+}
+
+function www()
+{
+    PVALUE="$*"
+    if test "$(cut -d' ' -f1 <<< $PVALUE)" -le "1"; then
+        PSTATUS="WARNING"
+    fi
+    PSTATETYPE=uptimebaixo
+    PSTATE=true
+}
+
