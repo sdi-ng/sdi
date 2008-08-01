@@ -1,2 +1,0 @@
-COUNT="$(/usr/local/sbin/administra-terminais --list|wc -l)"
-PRINT "TERMINAIS$SEPARATOR$COUNT"

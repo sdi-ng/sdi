@@ -1,5 +1,0 @@
-if test -f /etc/prd_version ; then
-    PRINT "VERSION${SEPARATOR}$(cat /etc/prd_version)"
-else
-    PRINT "VERSION${SEPARATOR}NOTEXIST"
-fi
