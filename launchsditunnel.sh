@@ -40,7 +40,7 @@ function getvars()
     # Separator is ','
     local VARS="PVALUE:true::value
     PSTATUS:::class
-    PSORTCUSTOM:::sortable_customkey
+    PSORTCUSTOM:::sorttable_customkey
     "
 
     echo $VARS
