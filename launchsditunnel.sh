@@ -4,8 +4,8 @@ PREFIX=.
 
 source $PREFIX/sdi.conf
 
-#these are minimal configuration needed, user may overwrite any of them by
-#defining at sdi.conf
+# These are minimal configuration needed, user may overwrite any of them by
+# defining at sdi.conf
 : ${TIMEOUT:=240}
 : ${SSHOPT[0]:="PreferredAuthentications=publickey"}
 : ${SSHOPT[1]:="StrictHostKeyChecking=no"}
@@ -15,7 +15,7 @@ source $PREFIX/sdi.conf
 : ${SSHOPT[5]:="ServerAliveInterval=100"}
 
 : ${CMDDIR:=$PREFIX/cmds}
-: ${DATADIR:=$PREFIX/coleta}
+: ${DATADIR:=$PREFIX/data}
 : ${TMPDIR:=/tmp/SDI}
 : ${PIDDIR:=$TMPDIR/pids}
 : ${HOOKS:=$PREFIX/commands-enabled}
@@ -23,10 +23,9 @@ source $PREFIX/sdi.conf
 : ${SDIUSER:=$USER}
 
 #Customizable variables, please refer to wwwsdi.conf to change these values
-: ${TYPEDIR:=$PREFIX/TYPES}
-: ${TYPENAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
-: ${DEFAULTCOLUMNS:="ID,Cidade,Escola,Status,Uptime"}
+: ${WEBMODE:=true}
+: ${SDIWEB:=$PREFIX/sdiweb}
 
 : ${LAUNCHDELAY:=0.1}
 : ${DAEMON:=false}
@@ -107,14 +106,17 @@ function PARSE()
             mkdir -p $DATAPATH
             updatedata $DATA
             PRINT "$UPDATA" "$DATAPATH/$FIELD"
-            www $DATA
-            ATTR=$(getattributes)
-            if test $? == 0; then
-                WWWLINE="<$FIELD $ATTR/>"
-                echo $WWWLINE > $DATAPATH/${FIELD}.xml
-            else
-                mkdir -p $DATAPATHERR
-                PRINT "Atribute error: $ATTR" "$DATAPATHERR/attrerror"
+            if test $WEBMODE = true; then
+                www $DATA
+                ATTR=$(getattributes)
+                if test $? == 0; then
+                    WWWLINE="<$FIELD $ATTR />"
+                    mkdir -p $SDIWEB/hosts/$HOST/
+                    echo $WWWLINE > $SDIWEB/hosts/$HOST/${FIELD}.xml
+                else
+                    mkdir -p $DATAPATHERR
+                    PRINT "Attribute error: $ATTR" "$DATAPATHERR/attrerror"
+                fi
             fi
 
             #unset all variables used by script's
