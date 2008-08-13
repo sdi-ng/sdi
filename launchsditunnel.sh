@@ -157,7 +157,7 @@ function LAUNCH ()
             pidsrunning="$pidsrunning $PID"
         fi
     done
-    if test ! -z $pidsrunning; then
+    if ! test -z "$pidsrunning"; then
         echo "Some SDI tunnels still opened. Close them and try to run SDI again."
         echo "PIDS:$pidsrunning"
         exit 1
