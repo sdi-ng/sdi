@@ -36,8 +36,11 @@ done
 
 function usage()
 {
-     echo "Usage:"
-     echo "  $0 host1 [host2 [host3 [host... ]]]"
+    echo "Usage:"
+    echo "  $0 [options] host1 [host2 [host3 [host... ]]]"
+    echo "Options:"
+    echo "  --kill=HOST    Close the SDI tunnel for HOST"
+    echo "  --killall      Close all SDI tunnels and stop SDI application"
 }
 
 function getvars()
@@ -102,6 +105,40 @@ function createdatastructure()
     echo "<status value=\"OFFLINE\" class=\"red\" />" > $datapath/status.xml
 }
 
+function waitend()
+{
+    for pid in $*; do
+        while ps --pid $pid &> /dev/null; do
+                sleep 0.5
+        done
+    done
+}
+
+function closehost()
+{
+    local HOST=$1
+    if test -f $PIDDIR/$HOST; then
+        touch $TMPDIR/${HOST}_FINISH
+        echo "exit 0" >> $CMDDIR/$HOST
+        echo "exit 0" >> $CMDDIR/$HOST
+        printf "Waiting $HOST tunnel finish... "
+        waitend $(cat $PIDDIR/$HOST)
+        printf "done\n"
+    else
+        printf "Host $HOST not running.\n"
+    fi
+}
+
+function closeallhosts()
+{
+    touch $TMPDIR/SDIFINISH
+    echo "exit 0" >> $CMDGENERAL
+    echo "exit 0" >> $CMDGENERAL
+    printf "Waiting tunnels to finish... "
+    waitend $(cat $PIDDIR/* | paste -d' ' -s)
+    printf "done\n"
+}
+
 function PRINT() 
 {
     echo "$(date +%s) $1" >> $2
@@ -151,7 +188,7 @@ function PARSE()
 function SDITUNNEL()
 {
     HOST=$1
-    TMP=$(mktemp -p $TMPDIR)
+    TMP=$(mktemp -p $TMPDIR $HOST.XXXXX)
     CMDFILE=$CMDDIR/$HOST
     while true; do
         rm -f $CMDFILE
@@ -161,7 +198,7 @@ function SDITUNNEL()
         ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" | PARSE $HOST
         kill $(cat $TMP) &> /dev/null
         printf "STATUS+OFFLINE\n" | PARSE $HOST
-        test -f $TMPDIR/SDIFINISH && break
+        (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break        
         sleep $(bc <<< "($RANDOM%600)+120")
     done
     rm -f $TMP
@@ -184,7 +221,7 @@ function LAUNCH ()
         exit 1
     fi
 
-    rm -f $TMPDIR/SDIFINISH
+    rm -f $TMPDIR/*FINISH
 
     # Create file that will be used to send commands to all hosts 
     touch $CMDGENERAL
@@ -211,9 +248,23 @@ if test $# -eq 0 ; then
 fi
 
 case $1 in
-    -h|--help) usage
-               exit 0
-           ;;
+    --kill=?*)
+        closehost $(echo $1| cut -d'=' -f2)
+        exit 0
+        ;;
+    --killall)
+        closeallhosts
+        exit 0
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    -*)
+        echo "Unknown option."
+        usage
+        exit 1
+        ;;
 esac
 
 #Create directories
