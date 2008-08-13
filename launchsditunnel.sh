@@ -34,6 +34,12 @@ for OPT in "${SSHOPT[@]}"; do
     SSHOPTS="$SSHOPTS -o $OPT"
 done
 
+function usage()
+{
+     echo "Usage:"
+     echo "  $0 host1 [host2 [host3 [host... ]]]"
+}
+
 function getvars()
 {
     # Format of vars: nameofvar:obligation:default:webtag
@@ -198,6 +204,17 @@ if test $# -eq 0  ; then
     echo "  $0 host1 [host2 [host3 [host... ]]]"
     exit 1
 fi
+
+if test $# -eq 0 ; then
+    usage
+    exit 1
+fi
+
+case $1 in
+    -h|--help) usage
+               exit 0
+           ;;
+esac
 
 #Create directories
 mkdir -p $TMPDIR
