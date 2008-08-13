@@ -93,6 +93,7 @@ function createdatastructure()
             echo "<$field value=\"\" />" > $datapath/$field.xml
         fi
     done
+    echo "<status value=\"OFFLINE\" class=\"red\" />" > $datapath/status.xml
 }
 
 function PRINT() 
@@ -153,6 +154,7 @@ function SDITUNNEL()
         tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
         ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" | PARSE $HOST
         kill $(cat $TMP) &> /dev/null
+        printf "STATUS+OFFLINE\n" | PARSE $HOST
         test -f $TMPDIR/SDIFINISH && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
