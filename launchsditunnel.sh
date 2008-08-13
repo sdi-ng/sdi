@@ -55,6 +55,25 @@ function getvars()
     echo $VARS
 }
 
+function removecronconfig()
+{
+    crontab -l | grep -v launchscripts.sh | crontab -
+}
+
+function configurecron()
+{
+    script=$(realpath launchscripts.sh)
+    cron[0]="* * * * * $script minutely"
+    cron[1]="\n0 * * * * $script hourly"
+    cron[2]="\n0 0 * * * $script daily"
+    cron[3]="\n0 0 1 * * $script montly"
+    cron[4]="\n0 0 * * 0 $script weekly"
+    cron[5]="\n$(crontab -l| grep -v launchscripts.sh | uniq)"
+    cron[6]="\n"
+    sed -i -e "s#^sdiroot=.*#sdiroot=$(realpath $PREFIX)#g" $script
+    printf "${cron[*]}" | crontab -
+}
+
 function getattributes()
 {
     VARS=$(getvars)
@@ -134,6 +153,9 @@ function closeallhosts()
     touch $TMPDIR/SDIFINISH
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
+    printf "Removing cron configuration... "
+    removecronconfig
+    printf "done\n"
     printf "Waiting tunnels to finish... "
     waitend $(cat $PIDDIR/* | paste -d' ' -s)
     printf "done\n"
@@ -277,6 +299,9 @@ mkdir -p $DATADIR
 
 #Start launching SDI tunnels
 LAUNCH $*
+
+#Initiate crontab
+configurecron
 
 if test $DAEMON == true; then
     exit 0
