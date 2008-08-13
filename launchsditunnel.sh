@@ -208,16 +208,18 @@ function SDITUNNEL()
 function LAUNCH () 
 {
     #If there are SDI tunnels opened, the execution should be stopped
-    pidsrunning=""
-    for HOST in $(ls $PIDDIR); do
-        PID=$(cat $PIDDIR/$HOST)
-        if ps --pid $PID &> /dev/null; then
-            pidsrunning="$pidsrunning $PID"
+    hostsrunning=""
+    for HOST in $*; do
+        if test -f $PIDDIR/$HOST; then
+            PID=$(cat $PIDDIR/$HOST)
+            if ps --pid $PID &> /dev/null; then
+                hostsrunning="$hostsrunning $HOST"
+            fi
         fi
     done
-    if ! test -z "$pidsrunning"; then
+    if ! test -z "$hostsrunning"; then
         echo "Some SDI tunnels still opened. Close them and try to run SDI again."
-        echo "PIDS:$pidsrunning"
+        printf "\tHosts:$hostsrunning\n"
         exit 1
     fi
 
