@@ -82,6 +82,19 @@ function getattributes()
     return $retcode
 }
 
+function createdatastructure()
+{
+    local HOST=$1
+    datapath=$SDIWEB/hosts/$HOST/
+    mkdir -p $datapath
+    for file in $(ls $HOOKS/*/*); do
+        field=$(basename $(realpath $file))
+        if ! test -f $datapath/$field.xml; then
+            echo "<$field value=\"\" />" > $datapath/$field.xml
+        fi
+    done
+}
+
 function PRINT() 
 {
     echo "$(date +%s) $1" >> $2
@@ -170,7 +183,8 @@ function LAUNCH ()
 
     #Open a tunnel for each host
     for HOST in $*; do
-        echo $HOST 
+        echo $HOST
+        test $WEBMODE = true && createdatastructure $HOST
         SDITUNNEL $HOST &
         echo $! > $PIDDIR/$HOST
         sleep $LAUNCHDELAY
