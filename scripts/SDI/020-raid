@@ -24,8 +24,13 @@ elif grep -q "_" /proc/mdstat; then
             fi
             MD=$(grep -B1 $MDSTAT /proc/mdstat|head -1| cut -d\  -f1)
             PARTITION=$(grep -B1 $MDSTAT /proc/mdstat|head -1|sed -e "s/.*raid1 sd.\([0-9]\).*/\1/")
-            if ! test -e /dev/$DISK$PARTITION ; then
+            if test -e /dev/$DISK$PARTITION ; then
+                PRINT RAID+DIAGNOSE+$CODE+$DISK${PARTITION}_OUT_OF_RAID
+            else
                 PRINT RAID+DIAGNOSE+$CODE+$DISK${PARTITION}_MISSING
+            fi
+            if grep -B1 $MDSTAT /proc/mdstat | grep -q recovery ; then
+                PRINT RAID+DIAGNOSE+$CODE+$DISK${PARTITION}_SYNCHRONIZING_RAID
             fi
         done
     fi
