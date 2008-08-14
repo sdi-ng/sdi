@@ -1,200 +1,101 @@
 #!/bin/bash
 
-PREFIX=.
+PREFIX=$(dirname $0)
 
 source $PREFIX/sdi.conf
 
-#these are minimal configuration needed, user may overwrite any of them by
-#defining at sdi.conf
-: ${TIMEOUT:=240}
-: ${SSHOPT[0]:="PreferredAuthentications=publickey"}
-: ${SSHOPT[1]:="StrictHostKeyChecking=no"}
-: ${SSHOPT[2]:="ConnectTimeOut=$TIMEOUT"}
-: ${SSHOPT[3]:="TCPKeepAlive=yes"}
-: ${SSHOPT[4]:="ServerAliveCountMax=3"}
-: ${SSHOPT[5]:="ServerAliveInterval=100"}
-
-: ${CMDDIR:=$PREFIX/cmds}
-: ${DATADIR:=$PREFIX/coleta}
-: ${TMPDIR:=/tmp/SDI}
-: ${PIDDIR:=$TMPDIR/pids}
-: ${HOOKS:=$PREFIX/commands-enabled}
-: ${CMDGENERAL:=$CMDDIR/general}
-: ${SDIUSER:=$USER}
-
-#Customizable variables, please refer to wwwsdi.conf to change these values
-: ${TYPEDIR:=$PREFIX/TYPES}
-: ${TYPENAME:=Class}
+# Customizable variables, please refer to sdi.conf to change these values
+: ${DATADIR:=$PREFIX/data}
+: ${CLASSESDIR:=$PREFIX/CLASSES}
+: ${CLASSNAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
-: ${DEFAULTCOLUMNS:="ID,Cidade,Escola,Status,Uptime"}
+: ${SDIWEB:=$PREFIX/sdiweb}
+: ${HOSTCOLUMNNAME:="Host"}
+: ${DEFAULTCOLUMNS:="Uptime"}
 
-: ${LAUNCHDELAY:=0.1}
-: ${DAEMON:=false}
 
-for OPT in "${SSHOPT[@]}"; do
-    SSHOPTS="$SSHOPTS -o $OPT"
-done
-
-function getvars()
+function create_links()
 {
-    # Format of vars: nameofvar:obligation:default:webtag
-    # Separator is ','
-    local VARS="PVALUE:true::value
-    PSTATUS:::class
-    PSORTCUSTOM:::sortable_customkey
-    "
+    FOLDERS[0]="html"
+    FOLDERS[1]="javascript"
+    FOLDERS[2]="css"
+    FOLDERS[3]="img"
+    FOLDERS[4]="hosts"
+    FOLDERS[5]="langs"
 
-    echo $VARS
+    for FOLDER in ${FOLDERS[@]}; do
+        ln -s $(realpath $PREFIX/$SDIWEB)/$FOLDER $1/ 2> /dev/null
+    done
 }
 
-function getattributes()
+function createclassstructure()
 {
-    VARS=$(getvars)
+    CLASS=$1
 
-    string=""
-    retcode=0
-    for VAR in $VARS; do
-        varname=$(cut -d: -f1 <<< $VAR)
-        varvalue=$(eval echo \$$varname)
-        varob=$(cut -d: -f2 <<< $VAR)
-        vardefault=$(cut -d: -f3 <<< $VAR)
-        vartag=$(cut -d: -f4 <<< $VAR)
+    mkdir -p $WWWDIR/$CLASS
+    create_links $WWWDIR/$CLASS
+}
 
-        if ! test -z "$varob"; then
-            if ! test -z "$varvalue"; then
-                string="$string $vartag=\"$varvalue\""
-            elif ! test -z "$vardefault"; then
-                string="$string $vartag=\"$vardefault\""
-            else
-                string="Var $varname must be defined."
-                retcode=1
-                break
-            fi
-        else
-            if ! test -z "$varvalue"; then
-                string="$string $vartag=\"$varvalue\""
-            elif ! test -z "$vardefault"; then
-                string="$string $vartag=\"$vardefault\""
-            fi
+function getcolumns()
+{
+    COLUMNS=""
+
+    for FIELD in $(\ls $PREFIX/commands-enabled/*/* ); do
+        source $(realpath $FIELD).po
+        getcolumninfo
+        
+        # add column to list
+        if test $WEBINTERFACE = true; then
+            FIELD=$(basename $(realpath $FIELD))
+            COLNAME=$(tr ' ' '_' <<< $COLNAME)
+            COLUMNS="$COLUMNS $FIELD:$COLNAME"
         fi
+        unset WEBINTERFACE COLNAME
     done
 
-    echo $string
-    return $retcode
+    printf "$COLUMNS"
 }
 
-function PRINT() 
-{
-    echo "$(date +%s) $1" >> $2
-}
+# Check if web mode is enabled
+if test $WEBMODE = true; then
+    source $PREFIX/$SDIWEB/generatesdibar.sh
+    source $PREFIX/$SDIWEB/generateclasspage.sh
+    source $PREFIX/$SDIWEB/generatexmls.sh
 
-#Prototype of PARSE() function
-function PARSE() 
-{
-    HOST=$1
+    mkdir -p $WWWDIR
+    create_links $WWWDIR
 
-    while read LINE; do
-        FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
-        DATA=$(cut -d"+" -f2- <<< $LINE)
+    SDIBAR=$(generatesdibar)
+    COLUMNS=$(getcolumns)
+else
+    printf "$0: warning: web mode is disabled.\n"
+fi
 
-        DATAPATHERR=$DATADIR/errors
-        DATAPATH=$DATADIR/$HOST/$FIELD
+# Start runing tunnels for hosts
+CLASSES=$(ls $CLASSESDIR)
+CLASSESNUM=$(ls $CLASSESDIR |wc -l)
+COUNT=0
+for CLASS in $CLASSES; do
+    ((COUNT++))
 
-        if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
-            mkdir -p $DATAPATHERR
-            PRINT "$LINE" "$DATAPATHERR/$HOST"
-        else
-            mkdir -p $DATAPATH
-            updatedata $DATA
-            PRINT "$UPDATA" "$DATAPATH/$FIELD"
-            www $DATA
-            ATTR=$(getattributes)
-            if test $? == 0; then
-                WWWLINE="<$FIELD $ATTR/>"
-                echo $WWWLINE > $DATAPATH/${FIELD}.xml
-            else
-                mkdir -p $DATAPATHERR
-                PRINT "Atribute error: $ATTR" "$DATAPATHERR/attrerror"
-            fi
+    printf "Starting $CLASS ($COUNT/$CLASSESNUM)...\n"
+    sleep 0.5
+ 
+    HOSTS=$(awk '{print $1}' $CLASSESDIR/$CLASS)
 
-            #unset all variables used by script's
-            for var in $(getvars); do
-                unset $(cut -d: -f1 <<< $var)
-            done
-            unset DATA
-        fi
-    done
-}
-
-function SDITUNNEL()
-{
-    HOST=$1
-    TMP=$(mktemp -p $TMPDIR)
-    CMDFILE=$CMDDIR/$HOST
-    while true; do
-        rm -f $CMDFILE
-        touch $CMDFILE
-        (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE & 
-        tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
-        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" | PARSE $HOST
-        kill $(cat $TMP) &> /dev/null
-        test -f $TMPDIR/SDIFINISH && break
-        sleep $(bc <<< "($RANDOM%600)+120")
-    done
-    rm -f $TMP
-    rm -f $PIDDIR/$HOST
-}
-
-function LAUNCH () 
-{
-    #If there are SDI tunnels opened, the execution should be stopped
-    pidsrunning=""
-    for HOST in $(ls $PIDDIR); do
-        PID=$(cat $PIDDIR/$HOST)
-        if ps --pid $PID &> /dev/null; then
-            pidsrunning="$pidsrunning $PID"
-        fi
-    done
-    if test ! -z $pidsrunning; then
-        echo "Some SDI tunnels still opened. Close them and try to run SDI again."
-        echo "PIDS:$pidsrunning"
-        exit 1
+    # Generate sdiweb files
+    if test $WEBMODE = true; then
+        printf "\tCreating web files... "
+        createclassstructure $CLASS
+        generateclasspage $CLASS
+        generatexmls $CLASS "$HOSTS"
+        printf "done\n"
     fi
 
-    rm -f $TMPDIR/SDIFINISH
+    # Launch the tunnels
+    DAEMON=true bash launchsditunnel.sh "$HOSTS"
+    
+    sleep 0.5
+done
 
-    # Create file that will be used to send commands to all hosts 
-    touch $CMDGENERAL
-
-    #Open a tunnel for each host
-    for HOST in $*; do
-        echo $HOST 
-        SDITUNNEL $HOST &
-        echo $! > $PIDDIR/$HOST
-        sleep $LAUNCHDELAY
-    done
-}
-
-if test $# -eq 0  ; then
-    echo "Usage:"
-    echo "  $0 host1 [host2 [host3 [host... ]]]"
-    exit 1
-fi
-
-#Create directories
-mkdir -p $TMPDIR
-mkdir -p $PIDDIR
-mkdir -p $CMDDIR
-mkdir -p $DATADIR
-
-#Start launching SDI tunnels
-LAUNCH $*
-
-if test $DAEMON == true; then
-    exit 0
-else
-    printf "Waiting SDI Tunnels to finish"
-    wait $(jobs -p)
-    printf ".\n"
-    exit 0
-fi
+printf "All launched.\n"
