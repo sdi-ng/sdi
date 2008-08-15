@@ -14,8 +14,10 @@ function generateclasspage()
     echo $PAGETYPE >> $PAGE
     printf "$SDIBAR\n" >> $PAGE
     generatetablestruct "$TITLE" >> $PAGE
-    loadtablescripts "$TITLE" "$CLASS" >> $PAGE
     
+    loadlanguages >> $PAGE
+    loadtablescripts "$TITLE" "$CLASS" >> $PAGE
+
     echo $FOOTER >> $PAGE
 }
 
@@ -26,6 +28,21 @@ function generatetablestruct()
     
     sed "s/{TID}/$TID/g; s/{COLUMNS}/$DEFAULTCOLUMNS/g" $FILE |
     sed "s/{TITLE}/$TITLE/g"
+}
+
+function loadlanguages()
+{
+    HTML="<br />--<br />\n<label id=\"language_selection\"></label>\n"
+    HTML="$HTML <select id=\"lang_sel\" onchange=\"load_language(this.value)\">\n"
+    for LANG in $SDIWEB/langs/*; do
+        TEXT=$(awk -F"text=\"" '{print $2}' $LANG | cut -d"\"" -f1)
+        LANG=$(basename $LANG | awk -F".xml" '{print $1}')
+        
+        HTML="$HTML<option value=\"$LANG\">$TEXT ($LANG)</option>\n"
+    done
+    HTML="$HTML</select>\n"
+
+    printf "$HTML"
 }
 
 function loadtablescripts()
