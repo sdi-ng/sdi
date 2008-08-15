@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language name="en-US" text="English">
+    <sdibar>
+        <sdibar_pages_select>Select a page</sdibar_pages_select>
+        <sdibar_auto_update>Update data every minute</sdibar_auto_update>
+        <sdibar_months>january,february,march,april,may,june,july,august,september,october,november,december</sdibar_months>
+        <sdibar_date_format>%M %d, %y</sdibar_date_format>
+    </sdibar>
+    <tables>
+        <tables_select_columns>Select columns</tables_select_columns>
+        <tables_loading>Loading</tables_loading>
+    </tables>
+    <langs>
+        <langs_language_selection>Select your language</langs_language_selection>
+    </langs>
+</language>
