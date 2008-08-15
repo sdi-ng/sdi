@@ -39,8 +39,22 @@ function createclassstructure()
 function getcolumns()
 {
     COLUMNS=""
+    FIELDS=""
+    COMMANDS=$(\ls $PREFIX/commands-enabled/*/*)
+    TEMP=$(mktemp -p $TMPDIR)
 
-    for FIELD in $(\ls $PREFIX/commands-enabled/*/* ); do
+    i=0
+    for FIELD in $COMMANDS; do
+        echo "$(basename $FIELD):$FIELD"
+        ((i++))
+    done > $TEMP
+
+    COMMANDS=$(cat $TEMP | cut -d":" -f1 | sort | uniq)
+    for FIELD in $COMMANDS; do
+        FIELDS="$FIELDS $(grep "$FIELD" $TEMP | cut -d":" -f2 | head -1)"
+    done
+
+    for FIELD in $FIELDS; do
         source $(realpath $FIELD).po
         getcolumninfo
         
@@ -54,6 +68,7 @@ function getcolumns()
     done
 
     printf "$COLUMNS"
+    rm $TEMP
 }
 
 # Check if web mode is enabled
