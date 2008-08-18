@@ -1,0 +1,14 @@
+<div class="table_bar" id="{TID}_bar">
+ <h3><a href="javascript:table_expand('{TID}');" id="{TID}_expand">
+ <img src="img/expand_up.jpg" alt="" title="" /></a> {TITLE}</h3>
+ <div class="bar_right">
+  <a href="#" onmouseover="show_menu('{TID}_cols');"><label class="select_columns"></label> <img src="img/columns.jpg" class="columns" alt="" title="" /></a>
+  <div class="hide" id="{TID}_cols" onmouseout="hide_menu(event, this);">{COLUMNS}</div>
+ </div>
+</div>
+<div id="{TID}_div">
+<div id="{TID}_load" class="loading">
+ <img src="img/loader.gif" class="loading_image" alt="" title="" />
+ <span class="loading_message"></span>
+</div>
+</div>
