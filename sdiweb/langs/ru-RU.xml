@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language name="ru-RU" text="Русский язык">
+    <sdibar>
+        <sdibar_pages_select>Выберите страницу</sdibar_pages_select>
+        <sdibar_auto_update>Данные по новой версии каждая минута</sdibar_auto_update>
+        <sdibar_months>январь,февраль,март,апрель,май,июнь,июль,август,сентябрь,октябрь,ноябрь,декабрь</sdibar_months>
+        <sdibar_date_format>%d %m %y г.</sdibar_date_format>
+    </sdibar>
+    <tables>
+        <tables_select_columns>Выберите колонки</tables_select_columns>
+        <tables_loading>Нагрузка</tables_loading>
+    </tables>
+    <langs>
+        <langs_language_selection>Выберите ваш язык</langs_language_selection>
+    </langs>
+</language>
