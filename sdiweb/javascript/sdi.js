@@ -2,14 +2,15 @@ var selected;
 var menu_scroll = new Array();
 var pagetype;
 var update = false;
+var months;
 
 function populate(){
     var tbls = document.getElementsByTagName('table');  
     var row;   
     var cols;
 
-    // fill sdi bar date field
-    set_date('date');
+    // discover and set language
+    load_language(false);
     
     // get pagetype
     pagetype = document.getElementById('pagetype').innerHTML;
@@ -72,15 +73,21 @@ function load_page(href){
         window.location.href = '../' + href;
 }
 
-function set_date(elementID){
-    var Months = new Array('janeiro', 'fevereiro', 'março', 'abril',
-                           'maio', 'junho', 'julho', 'agosto', 'setembro',
-                           'outubro', 'novembro', 'dezembro')
+// returns str with the first character capitalized
+function init_cap(str){
+    return str.substr(0,1).toUpperCase() + str.substr(1);
+}
+
+// fills element with the current date according to format
+function set_date(elementID, format){
     var now = new Date();
     element = document.getElementById(elementID);
 
-    element.innerHTML = now.getDate() + " de " + Months[now.getMonth()] + 
-                                        " de " + now.getFullYear();
+    format = format.replace('%d', now.getDate()).replace('%y', now.getFullYear());
+    format = format.replace('%m', months[now.getMonth()]);
+    format = format.replace('%M', init_cap(months[now.getMonth()]));
+
+    element.innerHTML = format;
 }
 
 function paint(table){
@@ -408,3 +415,81 @@ function reload_table(xmlURI, tableID){
     }
 
 }
+
+// -------------------- Language related functions
+
+function load_language(language){
+    // check the language cookie
+    var cookie_name = 'lang';
+
+    // decide from where get language
+    if (language){
+        lang = language;
+        set_cookie(cookie_name, language, null);
+    } else if (get_cookie(cookie_name)){
+        lang = get_cookie(cookie_name);
+    } else {
+        lang = navigator.language;
+        set_cookie(cookie_name, lang, null);
+    }
+
+    // load XML
+    xmlDoc = load_xml('langs/'+lang+'.xml');
+
+    // check if the language selected has been loaded
+    if (xmlDoc.getElementsByTagName('language').length==0){
+        load_language('en-US');
+        return false;
+    }
+
+    var text, i;
+
+    // page elements colection
+    var select_page = document.getElementById('pages_select');
+    var auto_update = document.getElementById('auto_update');
+    var language_selection = document.getElementById('language_selection');
+    var select_columns = getElementsByClass('select_columns', null, 'label');
+    var select_columns_img = getElementsByClass('columns', null, 'img');
+    var loading = getElementsByClass('loading_message', null, 'span');
+    var loading_img = getElementsByClass('loading_image', null, 'img');
+
+    // get data and update elements
+    select_page.innerHTML = get_tag(xmlDoc, 'sdibar_pages_select') + ':';
+    auto_update.alt = get_tag(xmlDoc, 'sdibar_auto_update');
+    auto_update.title = auto_update.alt;
+    months = get_tag(xmlDoc, 'sdibar_months').split(',');
+    language_selection.innerHTML = get_tag(xmlDoc, 'langs_language_selection') + ':';
+
+    // multiples tables elements update
+    text = get_tag(xmlDoc, 'tables_select_columns');
+    for (i=0; i<select_columns.length; i++)
+        select_columns[i].innerHTML = text; 
+
+    for (i=0; i<select_columns_img.length; i++){
+        select_columns[i].alt = text;
+        select_columns[i].title = text;
+    }
+
+    text = get_tag(xmlDoc, 'tables_loading');
+    for (i=0; i<loading.length; i++)
+        loading[i].innerHTML = text + '...';
+
+    for (i=0; i<loading_img.length; i++){
+        loading[i].alt = text;
+        loading[i].title = text;
+    }
+
+    // update date field
+    set_date('date', get_tag(xmlDoc, 'sdibar_date_format'));
+
+    // select the current language on selectbox
+    var box = document.getElementById('lang_sel');
+
+    for (i=0; i<box.options.length; i++)
+        if (box.options[i].value==lang)
+            box.options[i].selected = true;
+        else
+            box.options[i].selected = false;
+}
+
+// vim:tabstop=4:shiftwidth=4:encoding=utf-8:expandtab
