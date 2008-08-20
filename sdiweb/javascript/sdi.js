@@ -224,3 +224,98 @@ function get_cookie(name){
     }
     return "";
 }
+
+// -------------------- XML and tables related functions
+
+// loads a xmlURI and return the DOM object
+function load_xml(xmlURI){
+    try {
+        // IE
+        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+    } catch(e) {
+        try {
+            // Firefox
+            xmlDoc = document.implementation.createDocument("","",null);
+        } catch(e) {
+            alert(e.message);
+            return;
+        }
+    }
+
+    // get the file
+    xmlDoc.async = false;
+    xmlDoc.load(xmlURI);
+
+    return xmlDoc;
+}
+
+function create_tablebody(xmlNode){
+    // create the table body
+    var tablebody = document.createElement('tbody');
+    var hosts = xmlNode;
+
+    // this will hold your tr's and td's elements
+    var row = new Array();
+    var col = new Array();
+
+    // counters
+    var i, j, h;
+
+    for (h=0; h<hosts.length; h++){
+        // create the row
+        row[h] = document.createElement('tr');
+
+        var fields = hosts[h].childNodes;
+        for (i=0; i<fields.length; i++){
+            if (fields[i].nodeType==1){
+                // create the col
+                col[i] = document.createElement('td');
+
+                // populate the collumn
+	            for (j=0; j<fields[i].attributes.length; j++)
+                    if (fields[i].attributes[j].name=='value'){
+                        // IE hack should go here
+                        innerTEXT = fields[i].attributes[j].textContent;
+                        innerTEXT = document.createTextNode(innerTEXT);
+                        col[i].appendChild(innerTEXT);
+                    } else {
+                        // IE hack should go here
+                        col[i].setAttribute(fields[i].attributes[j].name,
+                                      fields[i].attributes[j].textContent);
+                    }
+
+                // append the col
+                row[h].appendChild(col[i]);
+	        }
+
+        }
+        // append the row
+        tablebody.appendChild(row[h]);
+    }
+
+    return tablebody;
+}
+
+// with a xmlURI, this function load it and create a table element,
+// appending it to the tableContainer.
+// check the documentation to the XML format
+function create_table_from_xml(xmlURI, tableID, tableContainerID){
+    // load XML
+    xmlDoc = load_xml(xmlURI);
+
+    // create table element
+    var table = document.createElement('table');
+    table.setAttribute('id',tableID);
+    table.setAttribute('class','sortable');
+    table.setAttribute('style','display: none;');
+
+    var hosts = xmlDoc.getElementsByTagName("host");
+    var tablebody = create_tablebody(hosts);
+
+    // to finish
+    table.appendChild(tablebody);
+
+    // update the container
+    tableContainer = document.getElementById(tableContainerID);
+    tableContainer.appendChild(table);
+}
