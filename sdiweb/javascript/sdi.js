@@ -4,6 +4,8 @@ var pagetype;
 var update = false;
 var months;
 
+// main function, must be called when page is fully loaded
+// its responsable to set all table and page features
 function populate(){
     var tbls = document.getElementsByTagName('table');  
     var row;   
@@ -15,29 +17,29 @@ function populate(){
     // get pagetype
     pagetype = document.getElementById('pagetype').innerHTML;
     
+    // for each table
     for (var tb=0; tb<tbls.length; tb++) {
         row = tbls[tb].getElementsByTagName('tr');
         cols = row[0].getElementsByTagName('td');
 
+        // get all cols name
         var all = new Array(cols.length)
         for (var col=0; col<cols.length; col++){
                 all[col] = cols[col].innerHTML;
         }
 
         var tbid = tbls[tb].id;
+        var loadID = tbid + '_load';
         colsID = tbid + '_cols';
 
-        var loadID = tbid + '_load';
-        document.getElementById(loadID).innerHTML = '<img ' +
-        'src="img/loader.gif" /> Carregando...';
-	
-        var cookieName = location.href+'#'+tbid;
-        if (get_cookie(cookieName)){
-            selected = get_cookie(cookieName).split(',');
+        // check if get default cols from cookie, or from colsID div
+        var cookie_name = location.href+'#'+tbid;
+        if (get_cookie(cookie_name)){
+            selected = get_cookie(cookie_name).split(',');
         } else {
             var colsSel = document.getElementById(colsID);
             selected = colsSel.innerHTML.split(',');
-            set_cookie(cookieName, selected.join(','), null);
+            set_cookie(cookie_name, selected.join(','), null);
         }
 
         // check the cookie for auto update
@@ -66,8 +68,9 @@ function populate(){
     }
 }
 
+// used on sdibar to redirect pages
 function load_page(href){
-    if (pagetype=="sumary")
+    if (pagetype=="summary")
         window.location.href = href;
     else
         window.location.href = '../' + href;
@@ -90,6 +93,7 @@ function set_date(elementID, format){
     element.innerHTML = format;
 }
 
+// paint a table to a better data view
 function paint(table){
     var tbl  = document.getElementById(table);
     var rows = tbl.getElementsByTagName('tr');
@@ -101,6 +105,7 @@ function paint(table){
             rows[row].className="";
 }
 
+// expand a element
 function expand(elementID){
     element = document.getElementById(elementID);
 
@@ -110,6 +115,7 @@ function expand(elementID){
         element.style.display='none';
 }
 
+// expand a table and change the table bar information
 function table_expand(tbID){
     element = document.getElementById(tbID);
     image = tbID + '_expand';
@@ -123,17 +129,20 @@ function table_expand(tbID){
     
     if (element.style.display=='none'){
         element.style.display='';
-        image.innerHTML='<img src="img/expandUP.jpg" />';
+        image.innerHTML='<img src="img/expand_up.jpg"' +
+                        'alt="" title="" />';
         menu_scroll[i][1] = true;
     } else {
         element.style.display='none';
-        image.innerHTML='<img src="img/expandDOWN.jpg" />';
+        image.innerHTML='<img src="img/expand_down.jpg"' +
+                        'alt="" title="" />';
         menu_scroll[i][1] = false;
     }
 
 }
 
-function column(table, col, show){
+// expand a table column and update the table cookie
+function column_expand(table, col, show){
     var stl;
     if (show){
         stl = ''
@@ -141,11 +150,12 @@ function column(table, col, show){
     } else {
         stl = 'none';
         var new_selected = selected.join(',');
-        selected = new_selected.replace(','+col,'').replace(col+',','').split();
+        new_selected = new_selected.replace(','+col,'').replace(col+',','');
+        selected = new_selected.split();
     }
     
-    var cookieName = location.href+'#'+table;
-    set_cookie(cookieName, selected.join(','), null);
+    var cookie_name = location.href+'#'+table;
+    set_cookie(cookie_name, selected.join(','), null);
 
     var tbl  = document.getElementById(table);
     var rows = tbl.getElementsByTagName('tr');
@@ -160,10 +170,11 @@ function column(table, col, show){
 
     for (var row=0; row<rows.length; row++) {
         var cels = rows[row].getElementsByTagName('td')
-        cels[colnum].style.display=stl;
+        cels[colnum].style.display = stl;
     }
 }
 
+// create the menu list of columns
 function create_list(table, cols, selected, elementID){
     var i;
     var html = '';
@@ -171,14 +182,16 @@ function create_list(table, cols, selected, elementID){
     element = document.getElementById(elementID);
     element.innerHTML = '<ul>';
 
+    // for each col, add a menu item
     for (i in cols){
         html = html + '<li><input type="checkbox" id="'+table+i+'" ' + 
-        'onClick="javascript:column(\''+table+'\',\''+cols[i]+'\', ' +
+        'onClick="column_expand(\''+table+'\',\''+cols[i]+'\', ' +
         'this.checked);" ';
         
         var j;
         var haveIt = false;
         
+        // search if the col is selected
         for (j=0; j<cols.length; j++){
             if (cols[i]==selected[j]){
                 haveIt = true;
@@ -189,7 +202,7 @@ function create_list(table, cols, selected, elementID){
         if (haveIt)
             html = html + 'checked="checked"';
         else
-            column(table, cols[i], false);
+            column_expand(table, cols[i], false);
 
         html = html + ' /> ' +
         '<label for="'+table+i+'">'+cols[i]+'</label></li>';
@@ -198,6 +211,7 @@ function create_list(table, cols, selected, elementID){
     element.innerHTML = html;
 }
 
+// hide the menu, trigered with onmouseout
 function hide_menu(e, element){
     if (!e) var e = window.event;
     var tg = (window.event) ? e.srcElement : e.target;
@@ -211,6 +225,7 @@ function hide_menu(e, element){
     element.className='hide';
 }
 
+// show the menu, trigered with onmouseover
 function show_menu(elementID){
     var i;
     var tbid = elementID.split('_cols')[0];
@@ -220,7 +235,6 @@ function show_menu(elementID){
             break;
         }
     }
-
 }
 
 // set the update variable to control auto table update
@@ -231,6 +245,9 @@ function set_update(set){
    update = set;
 }
 
+// -------------------- Cookies relates functions
+
+// a simple set cookie interface
 function set_cookie(name, value, expireDays){
     var exdate = new Date();
     exdate.setDate(exdate.getDate()+expireDays);
@@ -238,6 +255,7 @@ function set_cookie(name, value, expireDays){
     ((expireDays==null) ? '' : '; expires='+exdate.toGMTString());
 }
 
+// a simple get cookie interface
 function get_cookie(name){
     if (document.cookie.length>0){
         start = document.cookie.indexOf(name + "=");
