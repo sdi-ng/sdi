@@ -1,6 +1,7 @@
 var selected;
 var menu_scroll = new Array();
 var pagetype;
+var update = false;
 
 function populate(){
     var tbls = document.getElementsByTagName('table');  
@@ -36,6 +37,16 @@ function populate(){
             var colsSel = document.getElementById(colsID);
             selected = colsSel.innerHTML.split(',');
             set_cookie(cookieName, selected.join(','), null);
+        }
+
+        // check the cookie for auto update
+        var cookie_name = location.href+'#jsupdater';
+        if (get_cookie(cookie_name)){
+            update = get_cookie(cookie_name);
+            if (update=="true"){
+                document.getElementById('update').checked = "checked";
+                update = true;
+            }
         }
 
         // insert table info on menu_scroll
@@ -205,6 +216,14 @@ function show_menu(elementID){
 
 }
 
+// set the update variable to control auto table update
+function set_update(set){
+   var cookie_name = location.href+'#jsupdater';
+   set_cookie(cookie_name, set, null);
+
+   update = set;
+}
+
 function set_cookie(name, value, expireDays){
     var exdate = new Date();
     exdate.setDate(exdate.getDate()+expireDays);
@@ -318,4 +337,74 @@ function create_table_from_xml(xmlURI, tableID, tableContainerID){
     // update the container
     tableContainer = document.getElementById(tableContainerID);
     tableContainer.appendChild(table);
+
+    // set interval to reload the table
+    window.setInterval(reload_table, 60000, xmlURI, tableID);
+}
+
+// with a xmlURI, reload table information
+// this means don't create the table itself
+function reload_table(xmlURI, tableID){
+    if (!update) return false;
+
+    // reload XML
+    xmlDoc = load_xml(xmlURI);
+
+    // counters
+    var i, j, h;
+
+    // the target table
+    var table = document.getElementById(tableID);
+    var hosts = xmlDoc.getElementsByTagName("host");
+
+    // h=1 jumps the table header
+    for (h=1; h<hosts.length; h++){
+        var fields = hosts[h].childNodes;
+
+        // get the hostname on XML
+        for (i=0; i<fields.length; i++)
+            if (fields[i].nodeType==1 && fields[i].nodeName=='hostname'){
+                // get the value of hostname
+                for (j=0; j<fields[i].attributes.length; j++){
+                    if (fields[i].attributes[j].name=='value'){
+                        // IE hack should go here
+                        hostname = fields[i].attributes[j].textContent;
+                        break;
+                    }
+                }
+            }
+
+        // get the table line to be updated based on hostname
+        rows = table.getElementsByTagName('tr');
+        for (i=0; i<rows.length; i++){
+            cols = rows[i].getElementsByTagName('td');
+            if (cols[0].innerHTML==hostname){
+                row = rows[i];
+                break;
+            }
+        }
+        cols = rows[i].getElementsByTagName('td');
+
+        // start populating the table
+        col = 0;
+        for (i=0; i<fields.length; i++){
+            if (fields[i].nodeType==1){
+                // populate the line
+	            for (j=0; j<fields[i].attributes.length; j++){
+                    if (fields[i].attributes[j].name=='value'){
+                        // IE hack should go here
+                        innerTEXT = fields[i].attributes[j].textContent;
+                        cols[col].innerHTML = innerTEXT;
+                    } else {
+                        // IE hack should go here
+                        cols[col].setAttribute(fields[i].attributes[j].name,
+                                         fields[i].attributes[j].textContent);
+                    }
+                }
+                col++;
+	        }
+
+        }
+    }
+
 }
