@@ -251,6 +251,28 @@ function get_cookie(name){
     return "";
 }
 
+// -------------------- DOM relates functions
+
+// retrieves all elements from node with a class
+function getElementsByClass(searchClass,node,tag) {
+    var classElements = new Array();
+    if (node == null)
+        node = document;
+    if (tag == null)
+        tag = '*';
+    var els = node.getElementsByTagName(tag);
+    var elsLen = els.length;
+    var pattern = new RegExp("(^|\\s)"+searchClass+"(\\s|$)");
+    var j = 0;
+    for (i = 0; i < elsLen; i++) {
+        if (pattern.test(els[i].className) ) {
+            classElements[j] = els[i];
+            j++;
+        }
+    }
+    return classElements;
+}
+
 // -------------------- XML and tables related functions
 
 // loads a xmlURI and return the DOM object
@@ -273,6 +295,22 @@ function load_xml(xmlURI){
     xmlDoc.load(xmlURI);
 
     return xmlDoc;
+}
+
+// get the first element with tagname
+function get_tag(xmlDoc, tagname){
+    var node = xmlDoc.getElementsByTagName(tagname);
+    if (node==null)
+        return null;
+    else {
+        node = node[0];
+        // IE
+        if (node.text)
+            return node.text;
+        // Firefox
+        else
+            return node.textContent;
+    }
 }
 
 function create_tablebody(xmlNode){
@@ -347,6 +385,146 @@ function create_table_from_xml(xmlURI, tableID, tableContainerID){
 
     // set interval to reload the table
     window.setInterval(reload_table, 60000, xmlURI, tableID);
+}
+
+function create_table_topbar(tableID, tableTitle, defaultColumns){
+    var table_div = document.createElement('div');
+
+    table_div.setAttribute('class', 'table_bar');
+    table_div.setAttribute('id', tableID+'_bar');
+
+    var h3 = document.createElement('h3');
+    var a = document.createElement('a');
+    var img = document.createElement('img');
+
+    a.setAttribute('href', 'javascript:table_expand(\''+tableID+'\');');
+    a.setAttribute('id', tableID+'_expand');
+
+    img.setAttribute('src', 'img/expand_up.jpg');
+    img.setAttribute('alt', '');
+    img.setAttribute('title', '');
+
+    a.appendChild(img);
+    h3.appendChild(a);
+    h3.appendChild(document.createTextNode(' '+tableTitle));
+    table_div.appendChild(h3);
+
+    var right_div = document.createElement('div');
+    right_div.setAttribute('class', 'bar_right');
+
+    var a = document.createElement('a');
+    var img = document.createElement('img');
+    var label = document.createElement('label');
+
+    a.setAttribute('href', '#');
+    a.setAttribute('onmouseover', 'show_menu(\''+tableID+'_cols\');');
+
+    label.setAttribute('class', 'select_columns');
+
+    img.setAttribute('src', 'img/columns.jpg');
+    img.setAttribute('class', 'columns');
+    img.setAttribute('alt', '');
+    img.setAttribute('title', '');
+
+    a.appendChild(label);
+    a.appendChild(document.createTextNode(' '));
+    a.appendChild(img);
+
+    var div_cols = document.createElement('div');
+    div_cols.setAttribute('class', 'hide');
+    div_cols.setAttribute('id', tableID+'_cols');
+    div_cols.setAttribute('onmouseout', 'hide_menu(event, this);');
+
+    var columns = document.createTextNode(defaultColumns);
+    div_cols.appendChild(columns);
+
+    right_div.appendChild(a);
+    right_div.appendChild(div_cols);
+
+    table_div.appendChild(right_div);
+
+    return table_div;
+}
+
+function create_table_structure(tableID){
+    var table_div = document.createElement('div');
+    var load_div = document.createElement('div');
+
+    table_div.setAttribute('id', tableID+'_div');
+    load_div.setAttribute('id', tableID+'_load');
+    load_div.setAttribute('class', 'loading');
+
+    var img = document.createElement('img');
+    img.setAttribute('src', 'img/loader.gif');
+    img.setAttribute('class', 'loading_image');
+    img.setAttribute('alt', '');
+    img.setAttribute('title', '');
+
+    var span = document.createElement('span');
+    span.setAttribute('class', 'loading_message');
+
+    load_div.appendChild(img);
+    load_div.appendChild(span);
+    table_div.appendChild(load_div);
+
+    return table_div;
+}
+
+function create_summary_from_xml(xmlURI, containerID){
+    // load XML
+    xmlDoc = load_xml(xmlURI);
+
+    var i;
+    var container = document.getElementById(containerID);
+    var data = xmlDoc.getElementsByTagName("data")[0].childNodes;
+    var text = '<br />';
+
+    // first print the data on xml
+    for (i=0; i<data.length; i++){
+        if (data[i].nodeType==1){
+            text = text + data[i].textContent + '<br />';
+        }
+    }
+
+    // create table elemen
+    var span = document.createElement('span');
+    span.innerHTML = text;
+    container.appendChild(span);
+
+    var tables = xmlDoc.getElementsByTagName("table");
+
+    for (i=0; i<tables.length; i++){
+        for (j=0; j<tables[i].attributes.length; j++){
+            switch (tables[i].attributes[j].name){
+                case 'title':
+                    // IE hack should go here
+                    var title = tables[i].attributes[j].textContent;
+                    break;
+                case 'columns':
+                    // IE hack should go here
+                    var columns = tables[i].attributes[j].textContent;
+                    break;
+            }
+        }
+        var id = title.replace(/ /g,'');
+
+        var table_bar = create_table_topbar(id, title, columns);
+        var table_struct = create_table_structure(id);
+        container.appendChild(table_bar);
+        container.appendChild(table_struct);
+
+        // create table element
+        var table = document.createElement('table');
+        table.setAttribute('id',id);
+        table.setAttribute('class','sortable');
+        table.setAttribute('style','display: none;');
+
+        var tablebody = create_tablebody(tables[i].getElementsByTagName("host"));
+        table.appendChild(tablebody);
+
+        container.appendChild(table);
+    }
+
 }
 
 // with a xmlURI, reload table information
