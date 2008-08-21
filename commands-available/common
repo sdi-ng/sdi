@@ -1,7 +1,1 @@
 # Functions defined here can be used by others scripts
-
-function PRINT()
-{
-    HOUR="$(date +"%b %d %R")"
-    printf "$HOUR $*\n"
-}
