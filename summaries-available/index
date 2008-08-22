@@ -1,0 +1,7 @@
+function getsummaryinfo()
+{
+    SNAME=SUMMARY
+
+    STATES[0]=version
+    STATES[1]=uptime
+}
