@@ -75,6 +75,7 @@ function getcolumns()
 if test $WEBMODE = true; then
     source $PREFIX/$SDIWEB/generatesdibar.sh
     source $PREFIX/$SDIWEB/generateclasspage.sh
+    source $PREFIX/$SDIWEB/generatesummary.sh
     source $PREFIX/$SDIWEB/generatexmls.sh
 
     mkdir -p $WWWDIR
@@ -113,4 +114,13 @@ for CLASS in $CLASSES; do
     sleep 0.5
 done
 
-printf "All launched.\n"
+# Generate summaries
+if test $WEBMODE = true; then
+    printf "Generating summaries... "
+    for SUMMARY in $(\ls $PREFIX/summaries-enabled/*); do
+        generatesummary $(basename $(realpath $SUMMARY))
+    done
+    printf "done\n"
+fi
+
+printf "All done.\n"
