@@ -6,6 +6,7 @@ function generatexmls()
     generatecolumnsxml
     generateclassxml $CLASS "$HOSTS" > $WWWDIR/$CLASS/$CLASS.xml
     generatehostsxml $CLASS "$HOSTS"
+    generatesummariesxml
 }
 
 function generateclassxml()
@@ -52,6 +53,33 @@ function generatecolumnsxml()
     done
     XML="$XML    </host>\n"
     printf "$XML" > $SDIWEB/hosts/columns.xml
+}
+
+function generatesummariesxml()
+{
+    for SUMMARY in $(\ls $PREFIX/summaries-enabled/*); do
+        source $SUMMARY
+        getsummaryinfo
+
+        SUMMARY=$(basename $(realpath $SUMMARY))
+        XML="<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        XML="$XML<summary name=\"$SUMMARY\">\n"
+
+        XML="$XML   <data>\n"
+        for STATE in ${STATES[@]}; do
+            XML="$XML<!--#include virtual=\"states/$STATE-status.xml\"-->\n"
+        done
+        XML="$XML   </data>\n"
+
+        for STATE in ${STATES[@]}; do
+            XML="$XML<!--#include virtual=\"states/$STATE.xml\"-->\n"
+        done
+
+        XML="$XML</summary>\n"
+        printf "$XML" > $WWWDIR/$SUMMARY.xml
+
+        unset STATES
+    done
 }
 
 # vim:tabstop=4:shiftwidth=4:encoding=utf-8:expandtab
