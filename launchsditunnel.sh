@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PREFIX=.
+PREFIX=$(dirname $0)
 
 source $PREFIX/sdi.conf
 
