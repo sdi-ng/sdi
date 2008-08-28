@@ -4,8 +4,8 @@ sdiroot=.
 
 source $sdiroot/sdi.conf
 
-CMDDIR=$sdiroot/cmds
-HOOKS=$sdiroot/commands-enabled
+: ${CMDDIR:=$sdiroot/cmds}
+: ${HOOKS:=$sdiroot/commands-enabled}
 
 SOURCE="$1"
 
