@@ -2,8 +2,10 @@
 
 PREFIX=$(dirname $0)
 
-source $PREFIX/sdi.conf
-if ! source $PREFIX/misc.sh; then
+if ! source $PREFIX/sdi.conf; then
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+elif ! source $PREFIX/misc.sh; then
     echo "ERROR: failed to load $PREFIX/misc.sh file"
     exit 1
 fi
