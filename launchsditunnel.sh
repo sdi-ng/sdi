@@ -181,7 +181,7 @@ function PARSE()
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
 
-        DATAPATH=$DATADIR/$HOST/$FIELD
+        DATAPATH=$DATADIR/$HOST
 
         if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
             LOG "$FIELD.po: $LINE"
