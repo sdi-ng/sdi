@@ -167,11 +167,6 @@ function closeallhosts()
     printf "done\n"
 }
 
-function PRINT() 
-{
-    echo "$(date +%s) $1" >> $2
-}
-
 #Prototype of PARSE() function
 function PARSE() 
 {
