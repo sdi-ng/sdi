@@ -3,6 +3,10 @@
 PREFIX=$(dirname $0)
 
 source $PREFIX/sdi.conf
+if ! source $PREFIX/misc.sh; then
+    echo "ERROR: failed to load $PREFIX/misc.sh file"
+    exit 1
+fi
 
 # These are minimal configuration needed, user may overwrite any of them by
 # defining at sdi.conf
@@ -175,12 +179,10 @@ function PARSE()
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
 
-        DATAPATHERR=$DATADIR/errors
         DATAPATH=$DATADIR/$HOST/$FIELD
 
         if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
-            mkdir -p $DATAPATHERR
-            PRINT "$LINE" "$DATAPATHERR/$HOST"
+            LOG "$FIELD.po: $LINE"
         else
             mkdir -p $DATAPATH
             updatedata $DATA
@@ -193,8 +195,7 @@ function PARSE()
                     mkdir -p $SDIWEB/hosts/$HOST/
                     echo $WWWLINE > $SDIWEB/hosts/$HOST/${FIELD}.xml
                 else
-                    mkdir -p $DATAPATHERR
-                    PRINT "Attribute error: $ATTR" "$DATAPATHERR/attrerror"
+                    LOG "ATTR ERROR: $ATTR"
                 fi
             fi
 
