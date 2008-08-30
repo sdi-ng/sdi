@@ -10,3 +10,18 @@ function waitsendfile()
         sleep 0.5
     done
 }
+
+# function used to kill the childs of a process
+# you must not remove this function, it's essential
+# to close hosts connections correctly
+function killchilds()
+{
+    PID=$1
+    CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
+    if (( $PID != $$ )); then
+        kill $PID
+    fi
+    for CHILD in $CHILDS; do
+        killchilds $CHILD
+    done
+}
