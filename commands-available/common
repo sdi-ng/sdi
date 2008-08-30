@@ -1,1 +1,12 @@
 # Functions defined here can be used by others scripts
+
+# function to check if a sendfile request has been finished
+function waitsendfile()
+{
+    FILE=$1
+    DATE=$(date +%s)
+
+    while [[ -z $(grep "$FILE$" /tmp/.sdi.sendfile.finish | awk '$1 > '$DATE) ]]; do
+        sleep 0.5
+    done
+}
