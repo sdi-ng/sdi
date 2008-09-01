@@ -9,12 +9,12 @@ function generateclasspage()
     TITLE="$CLASSNAME: $(echo $CLASS |tr '_' ' ')"
 
     PAGE=$PREFIX/$WWWDIR/$CLASS/index.shtml
- 
+
     echo $HEADER > $PAGE
     echo $PAGETYPE >> $PAGE
     printf "$SDIBAR\n" >> $PAGE
     generatetablestruct "$TITLE" >> $PAGE
-    
+
     loadlanguages >> $PAGE
     loadtablescripts "$TITLE" "$CLASS" >> $PAGE
 
@@ -25,7 +25,7 @@ function generatetablestruct()
 {
     FILE=$PREFIX/$SDIWEB/html/table.html
     TID="$(tr -d ' ' <<<$1)"
-    
+
     sed "s/{TID}/$TID/g; s/{COLUMNS}/$DEFAULTCOLUMNS/g" $FILE |
     sed "s/{TITLE}/$TITLE/g"
 }
@@ -37,7 +37,7 @@ function loadlanguages()
     for LANG in $SDIWEB/langs/*; do
         TEXT=$(awk -F"text=\"" '{print $2}' $LANG | cut -d"\"" -f1)
         LANG=$(basename $LANG | awk -F".xml" '{print $1}')
-        
+
         HTML="$HTML<option value=\"$LANG\">$TEXT ($LANG)</option>\n"
     done
     HTML="$HTML</select>\n"
