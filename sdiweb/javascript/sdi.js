@@ -7,16 +7,16 @@ var months;
 // main function, must be called when page is fully loaded
 // its responsable to set all table and page features
 function populate(){
-    var tbls = document.getElementsByTagName('table');  
-    var row;   
+    var tbls = document.getElementsByTagName('table');
+    var row;
     var cols;
 
     // discover and set language
     load_language(false);
-    
+
     // get pagetype
     pagetype = document.getElementById('pagetype').innerHTML;
-    
+
     // for each table
     for (var tb=0; tb<tbls.length; tb++) {
         row = tbls[tb].getElementsByTagName('tr');
@@ -97,7 +97,7 @@ function set_date(elementID, format){
 function paint(table){
     var tbl  = document.getElementById(table);
     var rows = tbl.getElementsByTagName('tr');
- 
+
     for (var row=1; row<rows.length; row++)
         if (row%2==1)
             rows[row].className="painted";
@@ -126,7 +126,7 @@ function table_expand(tbID){
     for (i=0; i<menu_scroll.length; i++)
         if (menu_scroll[i][0]==tbID)
             break;
-    
+
     if (element.style.display=='none'){
         element.style.display='';
         image.innerHTML='<img src="img/expand_up.jpg"' +
@@ -153,7 +153,7 @@ function column_expand(table, col, show){
         new_selected = new_selected.replace(','+col,'').replace(col+',','');
         selected = new_selected.split();
     }
-    
+
     var cookie_name = location.href+'#'+table;
     set_cookie(cookie_name, selected.join(','), null);
 
@@ -178,19 +178,19 @@ function column_expand(table, col, show){
 function create_list(table, cols, selected, elementID){
     var i;
     var html = '';
-    
+
     element = document.getElementById(elementID);
     element.innerHTML = '<ul>';
 
     // for each col, add a menu item
     for (i in cols){
-        html = html + '<li><input type="checkbox" id="'+table+i+'" ' + 
+        html = html + '<li><input type="checkbox" id="'+table+i+'" ' +
         'onClick="column_expand(\''+table+'\',\''+cols[i]+'\', ' +
         'this.checked);" ';
-        
+
         var j;
         var haveIt = false;
-        
+
         // search if the col is selected
         for (j=0; j<cols.length; j++){
             if (cols[i]==selected[j]){
@@ -259,12 +259,12 @@ function set_cookie(name, value, expireDays){
 function get_cookie(name){
     if (document.cookie.length>0){
         start = document.cookie.indexOf(name + "=");
-        if (start!=-1){ 
-            start = start + name.length+1; 
+        if (start!=-1){
+            start = start + name.length+1;
             end = document.cookie.indexOf(";",start);
             if (end==-1) end = document.cookie.length;
             return unescape(document.cookie.substring(start, end));
-        } 
+        }
     }
     return "";
 }
@@ -659,7 +659,7 @@ function load_language(language){
     // multiples tables elements update
     text = get_tag(xmlDoc, 'tables_select_columns');
     for (i=0; i<select_columns.length; i++)
-        select_columns[i].innerHTML = text; 
+        select_columns[i].innerHTML = text;
 
     for (i=0; i<select_columns_img.length; i++){
         select_columns[i].alt = text;
