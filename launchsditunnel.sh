@@ -168,7 +168,7 @@ function closeallhosts()
 }
 
 #Prototype of PARSE() function
-function PARSE() 
+function PARSE()
 {
     HOST=$1
 
@@ -213,19 +213,19 @@ function SDITUNNEL()
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
-        (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE & 
+        (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE &
         tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
         ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" | PARSE $HOST
         kill $(cat $TMP) &> /dev/null
         printf "STATUS+OFFLINE\n" | PARSE $HOST
-        (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break        
+        (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
     rm -f $TMP
     rm -f $PIDDIR/$HOST
 }
 
-function LAUNCH () 
+function LAUNCH ()
 {
     #If there are SDI tunnels opened, the execution should be stopped
     hostsrunning=""
@@ -245,7 +245,7 @@ function LAUNCH ()
 
     rm -f $TMPDIR/*FINISH
 
-    # Create file that will be used to send commands to all hosts 
+    # Create file that will be used to send commands to all hosts
     touch $CMDGENERAL
 
     #Open a tunnel for each host
