@@ -57,7 +57,7 @@ function getcolumns()
     for FIELD in $FIELDS; do
         source $(realpath $FIELD).po
         getcolumninfo
-        
+
         # add column to list
         if test $WEBINTERFACE = true; then
             FIELD=$(basename $(realpath $FIELD))
@@ -96,7 +96,7 @@ for CLASS in $CLASSES; do
 
     printf "Starting $CLASS ($COUNT/$CLASSESNUM)...\n"
     sleep 0.5
- 
+
     HOSTS=$(awk '{print $1}' $CLASSESDIR/$CLASS)
 
     # Generate sdiweb files
@@ -110,7 +110,7 @@ for CLASS in $CLASSES; do
 
     # Launch the tunnels
     DAEMON=true bash launchsditunnel.sh "$HOSTS"
-    
+
     sleep 0.5
 done
 
