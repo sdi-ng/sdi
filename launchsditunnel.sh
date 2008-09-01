@@ -144,6 +144,7 @@ function closehost()
     local HOST=$1
     if test -f $PIDDIR/$HOST; then
         touch $TMPDIR/${HOST}_FINISH
+        echo 'killchilds $$' >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
         printf "Waiting $HOST tunnel finish... "
@@ -157,6 +158,7 @@ function closehost()
 function closeallhosts()
 {
     touch $TMPDIR/SDIFINISH
+    echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     printf "Removing cron configuration... "
