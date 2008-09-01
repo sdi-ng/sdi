@@ -1,4 +1,4 @@
-SDI - An Instant Diagnose System (draft) 
+SDI - An Instant Diagnose System (draft)
 ================================
 
 This is a PoC (Proof of Concept) version of a way to write a simple and
@@ -7,7 +7,7 @@ scalable system to Diagnose Instantly a huge (and small) networks.
 We provide a way to run HOURLY scripts on the remote host and store them on
 the LOCAL host, also there's a simple way to generate some WEB pages
 containing all important stuff to show (Processor type, RAM, RAID
-Status...). 
+Status...).
 
 Goals
 ~~~~~
