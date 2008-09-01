@@ -2,7 +2,7 @@ function generatexmls()
 {
     CLASS=$1
     HOSTS=$2
-    
+
     generatecolumnsxml
     generateclassxml $CLASS "$HOSTS" > $WWWDIR/$CLASS/$CLASS.xml
     generatehostsxml $CLASS "$HOSTS"
@@ -45,11 +45,11 @@ function generatehostsxml()
 function generatecolumnsxml()
 {
     XML="    <host name=\"columns\">\n"
-    XML="$XML       <hostname value=\"$HOSTCOLUMNNAME\" />\n" 
+    XML="$XML       <hostname value=\"$HOSTCOLUMNNAME\" />\n"
     for COL in $COLUMNS; do
         VALUE=$(cut -d":" -f2 <<< $COL | tr '_' ' ')
         COL=$(cut -d":" -f1 <<< $COL)
-        XML="$XML       <$COL value=\"$VALUE\" />\n" 
+        XML="$XML       <$COL value=\"$VALUE\" />\n"
     done
     XML="$XML    </host>\n"
     printf "$XML" > $SDIWEB/hosts/columns.xml
