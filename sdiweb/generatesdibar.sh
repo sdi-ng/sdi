@@ -8,7 +8,7 @@ function generatesdibar()
     for TYPE in $CLASSESDIR/*; do
         add_option single "$CLASSNAME/$(basename $TYPE)"
     done
-    
+
     sed "s#(PAGES)#${OPTIONS}#g" $BARHTML
 }
 
