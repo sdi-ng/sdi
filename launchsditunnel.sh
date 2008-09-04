@@ -116,20 +116,6 @@ function getattributes()
     return $retcode
 }
 
-function createdatastructure()
-{
-    local HOST=$1
-    datapath=$SDIWEB/hosts/$HOST/
-    mkdir -p $datapath
-    for file in $(ls $HOOKS/*/*); do
-        field=$(basename $(realpath $file))
-        if ! test -f $datapath/$field.xml; then
-            echo "<$field value=\"\" />" > $datapath/$field.xml
-        fi
-    done
-    echo "<status value=\"OFFLINE\" class=\"red\" />" > $datapath/status.xml
-}
-
 function waitend()
 {
     for pid in $*; do
@@ -253,7 +239,6 @@ function LAUNCH ()
     #Open a tunnel for each host
     for HOST in $*; do
         echo $HOST
-        test $WEBMODE = true && createdatastructure $HOST
         SDITUNNEL $HOST &
         echo $! > $PIDDIR/$HOST
         sleep $LAUNCHDELAY

@@ -36,6 +36,20 @@ function createclassstructure()
     create_links $WWWDIR/$CLASS
 }
 
+function createdatastructure()
+{
+    local HOST=$1
+    DATAPATH=$SDIWEB/hosts/$HOST/
+    mkdir -p $DATAPATH
+    for FILE in $(ls $HOOKS/*/*); do
+        FIELD=$(basename $(realpath $FILE))
+        if ! test -f $DATAPATH/$FIELD.xml; then
+            echo "<$FIELD value=\"\" />" > $DATAPATH/$FIELD.xml
+        fi
+    done
+    echo "<status value=\"OFFLINE\" class=\"red\" />" > $DATAPATH/status.xml
+}
+
 function getcolumns()
 {
     COLUMNS=""
@@ -105,6 +119,9 @@ for CLASS in $CLASSES; do
         createclassstructure $CLASS
         generateclasspage $CLASS
         generatexmls $CLASS "$HOSTS"
+        for HOST in $HOSTS; do
+            createdatastructure $HOST
+        done
         printf "done\n"
     fi
 
