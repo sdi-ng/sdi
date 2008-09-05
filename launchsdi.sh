@@ -85,6 +85,9 @@ function getcolumns()
     rm $TEMP
 }
 
+# Create temporary folder
+mkdir -p $TMPDIR
+
 # Check if web mode is enabled
 if test $WEBMODE = true; then
     source $PREFIX/$SDIWEB/generatesdibar.sh
