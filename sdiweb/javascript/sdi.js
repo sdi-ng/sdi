@@ -435,7 +435,7 @@ function create_table_topbar(tableID, tableTitle, defaultColumns){
     var label = document.createElement('label');
 
     a.setAttribute('href', '#');
-    a.setAttribute('onmouseover', 'show_menu(\''+tableID+'_cols\');');
+    a.setAttribute('onmouseover', 'show_menu(\''+tableID.replace(/'/,"\\'")+'_cols\');');
 
     label.setAttribute('class', 'select_columns');
 
