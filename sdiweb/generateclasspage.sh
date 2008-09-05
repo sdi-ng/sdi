@@ -24,7 +24,7 @@ function generateclasspage()
 function generatetablestruct()
 {
     FILE=$PREFIX/$SDIWEB/html/table.html
-    TID="$(tr -d ' ' <<<$1)"
+    TID="$(tr -d ' ' <<<$1 | sed "s/'/\\\'/g")"
 
     sed "s/{TID}/$TID/g; s/{COLUMNS}/$DEFAULTCOLUMNS/g" $FILE |
     sed "s/{TITLE}/$TITLE/g"
