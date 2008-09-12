@@ -5,8 +5,10 @@ function waitsendfile()
 {
     FILE=$1
     DATE=$(date +%s)
+    FINISHFILE="/tmp/.sdi.sendfile.finish"
 
-    while [[ -z $(grep "$FILE$" /tmp/.sdi.sendfile.finish | awk '$1 > '$DATE) ]]; do
+    touch $FINISHFILE
+    while [[ -z $(grep "$FILE$" $FINISHFILE | awk '$1 > '$DATE) ]]; do
         sleep 0.5
     done
 }
