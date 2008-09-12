@@ -150,6 +150,9 @@ function closeallhosts()
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
+    printf "Ending sendfile... "
+    kill $(cat $PIDDIR/sendfile/*) &> /dev/null
+    printf "done\n"
     printf "Waiting tunnels to finish... "
     waitend $(cat $PIDDIR/* | paste -d' ' -s)
     printf "done\n"
