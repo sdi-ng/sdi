@@ -104,6 +104,11 @@ else
     printf "$0: warning: web mode is disabled.\n"
 fi
 
+# Start sendfile deamon
+printf "Launching sendfile daemon... "
+bash $PREFIX/launchsendfile.sh
+printf "done\n"
+
 # Start runing tunnels for hosts
 CLASSES=$(ls $CLASSESDIR)
 CLASSESNUM=$(ls $CLASSESDIR |wc -l)
