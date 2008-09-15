@@ -13,6 +13,7 @@ fi
 # These are minimal configuration needed, user may overwrite any of them by
 # defining at sdi.conf
 : ${TIMEOUT:=240}
+: ${KILLTOUT:=30}
 : ${SSHOPT[0]:="PreferredAuthentications=publickey"}
 : ${SSHOPT[1]:="StrictHostKeyChecking=no"}
 : ${SSHOPT[2]:="ConnectTimeOut=$TIMEOUT"}
@@ -116,11 +117,33 @@ function getattributes()
     return $retcode
 }
 
+# function used to kill the childs of a process
+function killchilds()
+{
+    PID=$1
+    CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
+    kill $PID
+    for CHILD in $CHILDS; do
+        killchilds $CHILD
+    done
+}
+
 function waitend()
 {
     for pid in $*; do
+        if ps --ppid $pid 2> /dev/null | grep -q "sleep"; then
+            killchilds $pid
+        fi
+        iter=0
         while ps --pid $pid &> /dev/null; do
-                sleep 0.5
+            if test $iter -ge $KILLTOUT; then
+                printf "Forced kill signal on pid $pid"
+                kill $pid
+                break
+            else
+                (( iter = iter + 1 ))
+            fi
+            sleep 1
         done
     done
 }
