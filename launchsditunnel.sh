@@ -26,11 +26,15 @@ fi
 : ${TMPDIR:=/tmp/SDI}
 : ${PIDDIR:=$TMPDIR/pids}
 : ${HOOKS:=$PREFIX/commands-enabled}
+: ${SHOOKS:=$PREFIX/states-enabled}
 : ${CMDGENERAL:=$CMDDIR/general}
 : ${SDIUSER:=$USER}
 
 #Customizable variables, please refer to wwwsdi.conf to change these values
+: ${SDIWEB:=$PREFIX/sdiweb}
 : ${WWWDIR:=$PREFIX/www}
+: ${STATEDIR:=$SDIWEB/states}
+: ${SFIFO:=$STATEDIR/sfifo}
 : ${WEBMODE:=true}
 : ${SDIWEB:=$PREFIX/sdiweb}
 
@@ -170,6 +174,7 @@ function closeallhosts()
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
+    echo "exit exit exit" >> $SFIFO
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
@@ -179,6 +184,99 @@ function closeallhosts()
     printf "Waiting tunnels to finish... "
     waitend $(cat $PIDDIR/* | paste -d' ' -s)
     printf "done\n"
+}
+
+# Update the information about how many hosts are in the $1 state
+function updatecnt() {
+    webstatecount="$STATEDIR/$1-count.txt"
+    webstatestatus="$STATEDIR/$1-status.xml"
+    op=$2
+    summaryphrase=$3
+    nhosts=$(cat $webstatecount)
+    if test "$op" = "sub" && test $nhosts -gt 0; then
+        ((nhosts=nhosts-1))
+    else
+        ((nhosts=nhosts+1))
+    fi
+    printf "$nhosts\n" > $webstatecount
+    printf "<$1>$summaryphrase</$1>\n" $nhosts > $webstatestatus
+}
+
+# Save the states of the remote hosts.
+function savestate()
+{
+    (tail -f -n0 $SFIFO & echo $! > $PIDDIR/fifo.pid) |
+    while read HOST PSTATE PSTATETYPE; do
+
+        if test "$PSTATE" = "exit"; then
+            kill $(cat $PIDDIR/fifo.pid)
+            break
+        fi
+
+        local WEBSTATEXML="$STATEDIR/$PSTATETYPE.xml"
+
+        if ! test -f "$WEBSTATEXML"; then
+            LOG "ERROR: file $WEBSTATEXML not found."
+            continue
+        elif ! source $SHOOKS/$PSTATETYPE; then
+            LOG "ERROR: failure to load $SHOOKS/$PSTATETYPE"
+            continue
+        elif ! getstateinfo; then
+            LOG "ERROR: failure to load getstateinfo (in $SHOOKS/$PSTATETYPE)"
+            continue
+        else
+            if test -z "$PSTATE" || test "$PSTATE" == false; then
+                # Remove $HOST entry from $WEBSTATEXML
+                if grep -q "hosts\/$HOST.xml\"" $WEBSTATEXML; then
+                    sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
+                    # Decreases in 1 the amount of hosts in this state
+                    if ! test -z "$SSUMARY"; then
+                        updatecnt $PSTATETYPE sub "$SSUMARY"
+                    fi
+                fi
+            else
+                # Add new host entry for this state in $WEBSTATXML
+                tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
+                if ! grep -q "$tag" $WEBSTATEXML; then
+                    sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
+                    # Increases in 1 the amount of hosts in this state
+                    if ! test -z "$SSUMARY"; then
+                        updatecnt $PSTATETYPE add "$SSUMARY"
+                    fi
+                fi
+            fi
+        fi
+        unset SSUMARY
+    done
+}
+
+# Create the structure of files that will be used to manage
+# the states of the remote hosts
+function createstatestructure()
+{
+    for state in $SHOOKS/*; do
+        if ! source $state || ! getstateinfo &> /dev/null; then
+            LOG "ERROR: failure to load state $state"
+            return 1
+        elif test -z "$SSUMARY"; then
+            LOG "ERROR: state $state: \$SUMARY must be set in $state"
+        elif test -z "$SDEFCOLUMNS"; then
+            LOG "ERROR: state $state: \$SDEFCOLUMNS must be set in $state"
+        elif test -z "$STITLE"; then
+            LOG "ERROR: state $state: \$STITLE must be set in $state"
+        else
+            state=$(basename $state)
+            cat <<EOF > $STATEDIR/$state.xml
+<table title="$STITLE" columns="$SDEFCOLUMNS">
+    <!--#include virtual="../hosts/columns.xml"-->
+    <!--NEW-->
+</table>
+EOF
+            printf "0\n" > "$STATEDIR/$state-count.txt"
+            printf "<$state>$SSUMARY</$state>\n" 0 >\
+            "$STATEDIR/$state-status.xml"
+        fi
+    done
 }
 
 #Prototype of PARSE() function
@@ -205,6 +303,15 @@ function PARSE()
                     WWWLINE="<$FIELD $ATTR />"
                     mkdir -p $SDIWEB/hosts/$HOST/
                     echo $WWWLINE > $SDIWEB/hosts/$HOST/${FIELD}.xml
+                    if ! test -z "$PSTATETYPE"; then
+                        for state in $PSTATETYPE; do
+                            pstate=$(cut -d':' -f2 <<< $state)
+                            pstatetype=$(cut -d':' -f1 <<< $state)
+                            test -z "$pstate" && pstate="false"
+                            echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
+                        done
+                    fi
+
                 else
                     LOG "ATTR ERROR: $ATTR"
                 fi
@@ -214,7 +321,7 @@ function PARSE()
             for var in $(getvars); do
                 unset $(cut -d: -f1 <<< $var)
             done
-            unset DATA
+            unset DATA PSTATE PSTATETYPE
         fi
     done
 }
@@ -262,6 +369,9 @@ function LAUNCH ()
     # Create file that will be used to send commands to all hosts
     touch $CMDGENERAL
 
+    # Create strucure of xml files for states managing
+    test $WEBMODE = true && createstatestructure
+
     #Open a tunnel for each host
     for HOST in $*; do
         echo $HOST
@@ -307,6 +417,12 @@ mkdir -p $TMPDIR
 mkdir -p $PIDDIR
 mkdir -p $CMDDIR
 mkdir -p $DATADIR
+mkdir -p $STATEDIR
+
+#Create fifo that will be used to manage states
+#and open function to read fifo
+rm -f $SFIFO ; mkfifo $SFIFO
+savestate & echo $! >> $TMPDIR/savestate.pid
 
 #Start launching SDI tunnels
 LAUNCH $*
