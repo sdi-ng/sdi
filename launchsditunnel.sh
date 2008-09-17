@@ -188,7 +188,7 @@ function closeallhosts()
     kill $(cat $PIDDIR/sendfile/*) &> /dev/null
     printf "done\n"
     printf "Waiting tunnels to finish... "
-    waitend $(cat $PIDDIR/* | paste -d' ' -s)
+    waitend $(find $PIDDIR -maxdepth 1 -type f -exec cat {} \;)
     printf "done\n"
 }
 
