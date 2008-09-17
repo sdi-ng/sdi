@@ -166,6 +166,9 @@ function closehost()
         printf "Waiting $HOST tunnel finish... "
         waitend $(cat $PIDDIR/$HOST)
         printf "done\n"
+        printf "Blocking $HOST to receive files... "
+        sendfile -b $HOST
+        printf "done\n"
     else
         printf "Host $HOST not running.\n"
     fi
