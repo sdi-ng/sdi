@@ -12,7 +12,7 @@ function sendfile()
     TEMP=$(getopt -o b:l:f:d: --long --block:--limit:--file:--dest: \
          -n 'example.bash' -- "$@")
 
-    if [ $? != 0 ] ; then echo "Error running sendfile." >&2 ; exit 1 ; fi
+    if [ $? != 0 ] ; then echo "Error running sendfile." >&2 ; return 1 ; fi
 
     eval set -- "$TEMP"
 
@@ -27,7 +27,7 @@ function sendfile()
             -d|--dest)  DESTINATION=$2
                         shift 2 ;;
             --) shift ; break ;;
-            *) echo "Internal error on sendfile." ; exit 1 ;;
+            *) echo "Internal error on sendfile." ; return 1 ;;
         esac
     done
     HOST=$1
