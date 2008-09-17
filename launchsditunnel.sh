@@ -424,6 +424,8 @@ mkdir -p $PIDDIR
 mkdir -p $CMDDIR
 mkdir -p $DATADIR
 mkdir -p $STATEDIR
+mkdir -p $HOOKS
+mkdir -p $SHOOKS
 
 #Create fifo that will be used to manage states
 #and open function to read fifo
