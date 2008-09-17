@@ -137,11 +137,11 @@ function killchilds()
 
 function waitend()
 {
+    iter=0
     for pid in $*; do
         if ps --ppid $pid 2> /dev/null | grep -q "sleep"; then
             killchilds $pid
         fi
-        iter=0
         while ps --pid $pid &> /dev/null; do
             if test $iter -ge $KILLTOUT; then
                 printf "Forced kill signal on pid $pid\n"
