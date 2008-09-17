@@ -10,6 +10,9 @@ elif ! source $PREFIX/misc.sh; then
     exit 1
 fi
 
+# get send file API
+source $PREFIX/sendfile.sh
+
 # These are minimal configuration needed, user may overwrite any of them by
 # defining at sdi.conf
 : ${TIMEOUT:=240}
