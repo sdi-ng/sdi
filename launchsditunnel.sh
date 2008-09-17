@@ -129,7 +129,9 @@ function killchilds()
 {
     PID=$1
     CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
-    kill $PID
+    if test -d /proc/$PID; then
+        kill $PID
+    fi
     for CHILD in $CHILDS; do
         killchilds $CHILD
     done
