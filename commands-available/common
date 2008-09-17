@@ -20,7 +20,7 @@ function killchilds()
 {
     PID=$1
     CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
-    if (( $PID != $$ )); then
+    if (( $PID != $$ )) && test -d /proc/$PID; then
         kill $PID
     fi
     for CHILD in $CHILDS; do
