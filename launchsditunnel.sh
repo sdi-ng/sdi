@@ -144,7 +144,7 @@ function waitend()
         iter=0
         while ps --pid $pid &> /dev/null; do
             if test $iter -ge $KILLTOUT; then
-                printf "Forced kill signal on pid $pid"
+                printf "Forced kill signal on pid $pid\n"
                 kill $pid
                 break
             else
