@@ -421,13 +421,13 @@ case $1 in
 esac
 
 #Create directories
-mkdir -p $TMPDIR
-mkdir -p $PIDDIR
-mkdir -p $CMDDIR
-mkdir -p $DATADIR
-mkdir -p $STATEDIR
-mkdir -p $HOOKS
-mkdir -p $SHOOKS
+for dir in $TMPDIR $PIDDIR $CMDDIR $DATADIR $STATEDIR $HOOKS $SHOOKS; do
+    if ! mkdir -p $dir; then
+        printf "Unable to create directory $dir. "
+        printf "Check the permissions and try to run sdi again.\n"
+        exit 1
+    fi
+done
 
 #Create fifo that will be used to manage states
 #and open function to read fifo
