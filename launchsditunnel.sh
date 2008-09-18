@@ -182,7 +182,8 @@ function closeallhosts()
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
-    echo "exit exit exit" >> $SFIFO
+    test -f $PIDDIR/fifo.pid && pidfifo=$(cat $PIDDIR/fifo.pid) &&
+    test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
