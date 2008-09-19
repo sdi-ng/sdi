@@ -111,7 +111,7 @@ else
 fi
 
 # Start sendfile deamon
-printf "Launching sendfile daemon... "
+printf "Launching sendfile deamon... "
 bash $PREFIX/launchsendfile.sh
 printf "done\n"
 
