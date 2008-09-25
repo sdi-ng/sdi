@@ -91,8 +91,9 @@ function getcolumns()
     rm $TEMP
 }
 
-# Create temporary folder
+# Create temporary and hosts folder
 mkdir -p $TMPDIR
+mkdir -p $SDIWEB/hosts
 
 # Check if web mode is enabled
 if test $WEBMODE = true; then
