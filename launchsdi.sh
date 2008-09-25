@@ -149,7 +149,7 @@ done
 # Generate summaries
 if test $WEBMODE = true; then
     printf "Generating summaries... "
-    for SUMMARY in $(\ls $PREFIX/summaries-enabled/*); do
+    for SUMMARY in $(\ls $PREFIX/summaries-enabled/* 2> /dev/null); do
         generatesummary $(basename $(realpath $SUMMARY))
     done
     printf "done\n"
