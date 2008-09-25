@@ -1,0 +1,7 @@
+function getstateinfo()
+{
+    STITLE="High uptime"
+    SDESCRIPTION="Hosts that have high uptime"
+    SDEFCOLUMNS="Hostname,Uptime,Status"
+    SSUMARY="%d hosts with high uptime"
+}
