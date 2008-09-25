@@ -1,7 +1,7 @@
 function getstateinfo()
 {
-    STITLE="LowUptime"
+    STITLE="Low uptime"
     SDESCRIPTION="Hosts that have a low uptime"
-    SDEFCOLUMNS="Hostname,Status"
+    SDEFCOLUMNS="Hostname,Uptime,Status"
     SSUMARY="%d hosts with low uptime"
 }
