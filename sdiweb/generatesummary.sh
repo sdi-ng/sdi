@@ -10,7 +10,14 @@ function generatesummary()
 
     echo $HEADER > $PAGE
     echo $PAGETYPE >> $PAGE
-    printf "$SDIBAR\n" >> $PAGE
+
+    # select current summary on sdibar
+    TMP=$(mktemp)
+    STR="\"$FILE.shtml\""
+    printf "$SDIBAR\n" > $TMP
+    sed "s/$STR>/$STR selected=\"selected\">/g" $TMP >> $PAGE
+    rm -f "$TMP"
+
     printf "<div id=\"summary_container\"></div>\n" >> $PAGE
 
     # function of generateclasspage.sh
