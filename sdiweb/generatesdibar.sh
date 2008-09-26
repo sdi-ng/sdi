@@ -14,7 +14,7 @@ function generatesdibar()
 
 function add_summaries()
 {
-    for SUMMARY in $(\ls $PREFIX/summaries-enabled/*); do
+    for SUMMARY in $(\ls $PREFIX/summaries-enabled/* 2> /dev/null); do
         source $SUMMARY
         getsummaryinfo
         add_option summary $SNAME $(basename $(realpath $SUMMARY))
