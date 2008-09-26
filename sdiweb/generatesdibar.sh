@@ -25,7 +25,7 @@ function add_summaries()
 function add_option()
 {
     if [ $1 == "summary" ]; then
-        OPTIONS="${OPTIONS}    <option value=\"$3.html\">$2</option>\n"
+        OPTIONS="${OPTIONS}    <option value=\"$3.shtml\">$2</option>\n"
     else
         NAME=$(basename $2)
         SHOW=$(echo $2 |tr '_' ' ')
