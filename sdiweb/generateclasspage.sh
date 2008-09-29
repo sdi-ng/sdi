@@ -8,7 +8,7 @@ function generateclasspage()
 
     TITLE="$CLASSNAME: $(echo $CLASS |tr '_' ' ')"
 
-    PAGE=$PREFIX/$WWWDIR/$CLASS/index.shtml
+    PAGE=$WWWDIR/$CLASS/index.shtml
 
     echo $HEADER > $PAGE
     echo $PAGETYPE >> $PAGE
@@ -30,7 +30,7 @@ function generateclasspage()
 
 function generatetablestruct()
 {
-    FILE=$PREFIX/$SDIWEB/html/table.html
+    FILE=$SDIWEB/html/table.html
     TID="$(tr -d ' ' <<<$1 | sed "s/'/\\\'/g")"
 
     sed "s/{TID}/$TID/g; s/{COLUMNS}/$DEFAULTCOLUMNS/g" $FILE |

@@ -6,7 +6,7 @@ function generatesummary()
     FOOTER="<!--#include virtual=\"html/footer.html\"-->"
     PAGETYPE="<div class=\"hide\" id=\"pagetype\">summary</div>"
 
-    PAGE=$PREFIX/$WWWDIR/$FILE.shtml
+    PAGE=$WWWDIR/$FILE.shtml
 
     echo $HEADER > $PAGE
     echo $PAGETYPE >> $PAGE
