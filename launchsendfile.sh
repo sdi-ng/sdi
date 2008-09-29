@@ -31,7 +31,7 @@ function waittransferend()
 {
     PID=$1
     DESTINATION=$2
-    while ps --pid $PID &> /dev/null; do
+    while test -d /proc/$PID; do
         sleep 0.5
     done
     sed -i "/^$PID$/d" $PIDDIR/sendfile/transfers.pid

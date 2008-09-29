@@ -144,7 +144,7 @@ function waitend()
         if ps --ppid $pid 2> /dev/null | grep -q "sleep"; then
             killchilds $pid
         fi
-        while ps --pid $pid &> /dev/null; do
+        while test -d /proc/$pid; do
             if test $iter -ge $KILLTOUT; then
                 printf "Forced kill signal on pid $pid\n"
                 kill $pid
@@ -362,7 +362,7 @@ function LAUNCH ()
     for HOST in $*; do
         if test -f $PIDDIR/$HOST; then
             PID=$(cat $PIDDIR/$HOST)
-            if ps --pid $PID &> /dev/null; then
+            if test -d /proc/$PID; then
                 hostsrunning="$hostsrunning $HOST"
             fi
         fi
