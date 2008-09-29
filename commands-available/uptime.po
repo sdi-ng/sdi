@@ -12,10 +12,12 @@ function www()
 
     PSORTCUSTOM=$(printf "%d%.2d%.2d" $UPDAYS $UPHOURS $UPMINUTES)
 
-    if (( $UPDAYS >= 5 )); then
+    if (( $UPDAYS <= 5 )); then
+        PSTATETYPE="highuptime:false lowuptime:true"
+    elif (( $UPDAYS >= 100 )); then
         PSTATETYPE="highuptime:true lowuptime:false"
     else
-        PSTATETYPE="highuptime:false lowuptime:true"
+        PSTATETYPE="highuptime:false lowuptime:false"
     fi
 
     PVALUE="$*"
