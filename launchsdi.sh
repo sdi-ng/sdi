@@ -24,11 +24,11 @@ function create_links()
     FOLDERS[5]="langs"
 
     for FOLDER in ${FOLDERS[@]}; do
-        ln -s $(realpath $PREFIX/$SDIWEB)/$FOLDER $1/ 2> /dev/null
+        ln -s $(realpath $SDIWEB)/$FOLDER $1/ 2> /dev/null
     done
 
     if test "$2" = "states"; then
-        ln -s $(realpath $PREFIX/$SDIWEB)/states $1/ 2> /dev/null
+        ln -s $(realpath $SDIWEB)/states $1/ 2> /dev/null
     fi
 }
 
@@ -97,10 +97,10 @@ mkdir -p $SDIWEB/hosts
 
 # Check if web mode is enabled
 if test $WEBMODE = true; then
-    source $PREFIX/$SDIWEB/generatesdibar.sh
-    source $PREFIX/$SDIWEB/generateclasspage.sh
-    source $PREFIX/$SDIWEB/generatesummary.sh
-    source $PREFIX/$SDIWEB/generatexmls.sh
+    source $SDIWEB/generatesdibar.sh
+    source $SDIWEB/generateclasspage.sh
+    source $SDIWEB/generatesummary.sh
+    source $SDIWEB/generatexmls.sh
 
     mkdir -p $WWWDIR
     create_links $WWWDIR states
