@@ -1,5 +1,0 @@
-#SERVER=$(grep "NTPSERVERS" /etc/default/ntpdate |cut -d\" -f 2)
-#SERVER=10.175.252.100
-(/usr/sbin/ntpdate -b -s -u "10.175.252.100" &> /dev/null &&
- PRINT "NTP ran suscessfuly")||
- PRINT "WARNING${SEPARATOR}NTP failed"

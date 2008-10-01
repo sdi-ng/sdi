@@ -1,4 +1,0 @@
-MODELNAME=$(grep "model name" /proc/cpuinfo |tail -n1|cut -d: -f2-)
-COUNT=$(grep "model name" /proc/cpuinfo |wc -l)
-
-PRINT "PROCESSOR$SEPARATOR$MODELNAME$SEPARATOR$COUNT"
