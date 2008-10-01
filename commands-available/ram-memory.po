@@ -1,0 +1,15 @@
+function updatedata()
+{
+    UPDATA="$*"
+}
+
+function www()
+{
+    PVALUE="$*"
+}
+
+function getcolumninfo()
+{
+    WEBINTERFACE=true
+    COLNAME="RAM (Mb)"
+}
