@@ -94,6 +94,7 @@ function getcolumns()
 # Create temporary and hosts folder
 mkdir -p $TMPDIR
 mkdir -p $SDIWEB/hosts
+mkdir -p $CLASSESDIR
 
 # Check if web mode is enabled
 if test $WEBMODE = true; then
@@ -119,6 +120,11 @@ printf "done\n"
 # Start runing tunnels for hosts
 CLASSES=$(ls $CLASSESDIR)
 CLASSESNUM=$(ls $CLASSESDIR |wc -l)
+if test $CLASSESNUM -eq 0; then
+    printf "ERROR: no class set. At least one class of hosts must be defined
+    in $CLASSESDIR directory.\n"
+    exit 1
+fi
 COUNT=0
 for CLASS in $CLASSES; do
     ((COUNT++))
