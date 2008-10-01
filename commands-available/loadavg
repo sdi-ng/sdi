@@ -1,0 +1,10 @@
+# Get load average each 5 minutes
+function colectloadavg()
+{
+    for((i=0;i<10;i++));do
+        printf "LOADAVG+$(cat /proc/loadavg |cut -d" " -f1,2,3)\n"
+        sleep 5m
+    done
+}
+
+colectloadavg &
