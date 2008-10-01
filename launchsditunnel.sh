@@ -84,7 +84,6 @@ function configurecron()
     cron[4]="\n0 0 * * 0 $script weekly"
     cron[5]="\n$(crontab -l| grep -v launchscripts.sh | uniq)"
     cron[6]="\n"
-    sed -i -e "s#^sdiroot=.*#sdiroot=$(realpath $PREFIX)#g" $script
     printf "${cron[*]}" | crontab -
 }
 

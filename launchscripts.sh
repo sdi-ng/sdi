@@ -1,19 +1,19 @@
 #!/bin/bash
 
-sdiroot=.
+PREFIX=$(dirname $0)
 
-if ! source $sdiroot/misc.sh; then
-    echo "SDI(cron): failed to load $sdiroot/misc.sh"
+if ! source $PREFIX/misc.sh; then
+    echo "SDI(cron): failed to load $PREFIX/misc.sh"
     exit 1
 fi
 
-if ! source $sdiroot/sdi.conf; then
-    LOG "CRON: failed to load sdi configuration file: $sdiroot/sdi.conf"
+if ! source $PREFIX/sdi.conf; then
+    LOG "CRON: failed to load sdi configuration file: $PREFIX/sdi.conf"
     exit 1
 fi
 
-: ${CMDDIR:=$sdiroot/cmds}
-: ${HOOKS:=$sdiroot/commands-enabled}
+: ${CMDDIR:=$PREFIX/cmds}
+: ${HOOKS:=$PREFIX/commands-enabled}
 
 SOURCE="$1"
 
