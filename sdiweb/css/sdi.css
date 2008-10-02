@@ -130,3 +130,15 @@ td {
     width: 90%;
     text-align: center;
 }
+
+/* layout styles */
+#footer {
+    margin-top: 15px;
+    font-size: x-small;
+}
+
+#footer a {
+    color: #666;
+    text-decoration: none;
+    font-weight: bold;
+}
