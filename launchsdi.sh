@@ -112,11 +112,6 @@ else
     printf "$0: warning: web mode is disabled.\n"
 fi
 
-# Start sendfile deamon
-printf "Launching sendfile deamon... "
-bash $PREFIX/launchsendfile.sh
-printf "done\n"
-
 # Start runing tunnels for hosts
 CLASSES=$(ls $CLASSESDIR)
 CLASSESNUM=$(ls $CLASSESDIR |wc -l)
@@ -125,6 +120,12 @@ if test $CLASSESNUM -eq 0; then
     in $CLASSESDIR directory.\n"
     exit 1
 fi
+
+# Start sendfile deamon
+printf "Launching sendfile deamon... "
+bash $PREFIX/launchsendfile.sh
+printf "done\n"
+
 COUNT=0
 for CLASS in $CLASSES; do
     ((COUNT++))
