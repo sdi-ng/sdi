@@ -1,7 +1,0 @@
-function getsummaryinfo()
-{
-    SNAME="SUMMARY"
-
-    STATES[0]="lowuptime"
-    STATES[1]="highuptime"
-}
