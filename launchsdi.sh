@@ -51,9 +51,6 @@ function createdatastructure()
             echo "<$FIELD value=\"\" />" > $DATAPATH/$FIELD.xml
         fi
     done
-    if ! test -f "$DATAPATH/status.xml"; then
-        echo "<status value=\"OFFLINE\" class=\"red\" />" > $DATAPATH/status.xml
-    fi
 }
 
 function getcolumns()

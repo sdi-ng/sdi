@@ -342,6 +342,7 @@ function SDITUNNEL()
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
+        printf "STATUS+OFFLINE\n" | PARSE $HOST
         (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE &
         tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
         ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" | PARSE $HOST
