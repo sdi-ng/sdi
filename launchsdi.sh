@@ -6,6 +6,7 @@ source $PREFIX/sdi.conf
 
 # Customizable variables, please refer to sdi.conf to change these values
 : ${DATADIR:=$PREFIX/data}
+: ${PIDDIR:=$TMPDIR/pids}
 : ${CLASSESDIR:=$PREFIX/CLASSES}
 : ${CLASSNAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
@@ -88,8 +89,9 @@ function getcolumns()
     rm $TEMP
 }
 
-# Create temporary and hosts folder
+# Create necessary folders
 mkdir -p $TMPDIR
+mkdir -p $PIDDIR
 mkdir -p $SDIWEB/hosts
 mkdir -p $CLASSESDIR
 
@@ -119,8 +121,10 @@ if test $CLASSESNUM -eq 0; then
 fi
 
 # Start sendfile deamon
+DAEMON="$PIDDIR/sendfile/deamon.pid"
 printf "Launching sendfile deamon... "
-bash $PREFIX/launchsendfile.sh
+( (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON) ) ||
+(! test -f $DAEMON )) && bash $PREFIX/launchsendfile.sh
 printf "done\n"
 
 COUNT=0
