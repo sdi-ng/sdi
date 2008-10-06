@@ -28,6 +28,8 @@ source $PREFIX/sendfile.sh
 : ${DATADIR:=$PREFIX/data}
 : ${TMPDIR:=/tmp/SDI}
 : ${PIDDIR:=$TMPDIR/pids}
+: ${PIDDIRHOSTS:=$PIDDIR/hosts}
+: ${PIDDIRSYS:=$PIDDIR/system}
 : ${HOOKS:=$PREFIX/commands-enabled}
 : ${SHOOKS:=$PREFIX/states-enabled}
 : ${CMDGENERAL:=$CMDDIR/general}
@@ -159,13 +161,13 @@ function waitend()
 function closehost()
 {
     local HOST=$1
-    if test -f $PIDDIR/$HOST; then
+    if test -f $PIDDIRHOSTS/$HOST; then
         touch $TMPDIR/${HOST}_FINISH
         echo 'killchilds $$' >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
         printf "Waiting $HOST tunnel finish... "
-        waitend $(cat $PIDDIR/$HOST)
+        waitend $(cat $PIDDIRHOSTS/$HOST)
         printf "done\n"
         printf "Blocking $HOST to receive files... "
         sendfile -b $HOST
@@ -181,7 +183,7 @@ function closeallhosts()
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
-    test -f $PIDDIR/fifo.pid && pidfifo=$(cat $PIDDIR/fifo.pid) &&
+    test -f $PIDDIRSYS/fifo.pid && pidfifo=$(cat $PIDDIRSYS/fifo.pid) &&
     test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
     printf "Removing cron configuration... "
     removecronconfig
@@ -190,7 +192,7 @@ function closeallhosts()
     kill $(cat $PIDDIR/sendfile/*) &> /dev/null
     printf "done\n"
     printf "Waiting tunnels to finish... "
-    waitend $(find $PIDDIR -maxdepth 1 -type f -exec cat {} \;)
+    waitend $(find $PIDDIRHOSTS -maxdepth 1 -type f -exec cat {} \;)
     printf "done\n"
 }
 
@@ -213,11 +215,11 @@ function updatecnt() {
 # Save the states of the remote hosts.
 function savestate()
 {
-    (tail -f -n0 $SFIFO & echo $! > $PIDDIR/fifo.pid) |
+    (tail -f -n0 $SFIFO & echo $! > $PIDDIRSYS/fifo.pid) |
     while read HOST PSTATE PSTATETYPE; do
 
         if test "$PSTATE" = "exit"; then
-            kill $(cat $PIDDIR/fifo.pid)
+            kill $(cat $PIDDIRSYS/fifo.pid)
             break
         fi
 
@@ -337,7 +339,8 @@ function PARSE()
 function SDITUNNEL()
 {
     HOST=$1
-    TMP=$(mktemp -p $TMPDIR $HOST.XXXXX)
+    TMP=$PIDDIRHOSTS/${HOST}_TUNNELPROCS
+    touch $TMP
     CMDFILE=$CMDDIR/$HOST
     while true; do
         rm -f $CMDFILE
@@ -352,7 +355,7 @@ function SDITUNNEL()
         sleep $(bc <<< "($RANDOM%600)+120")
     done
     rm -f $TMP
-    rm -f $PIDDIR/$HOST
+    rm -f $PIDDIRHOSTS/$HOST
 }
 
 function LAUNCH ()
@@ -360,8 +363,8 @@ function LAUNCH ()
     #If there are SDI tunnels opened, the execution should be stopped
     hostsrunning=""
     for HOST in $*; do
-        if test -f $PIDDIR/$HOST; then
-            PID=$(cat $PIDDIR/$HOST)
+        if test -f $PIDDIRHOSTS/$HOST; then
+            PID=$(cat $PIDDIRHOSTS/${HOST})
             if test -d /proc/$PID; then
                 hostsrunning="$hostsrunning $HOST"
             fi
@@ -385,7 +388,7 @@ function LAUNCH ()
     for HOST in $*; do
         echo $HOST
         SDITUNNEL $HOST &
-        echo $! > $PIDDIR/$HOST
+        echo $! > $PIDDIRHOSTS/${HOST}
         sleep $LAUNCHDELAY
     done
 }
@@ -422,7 +425,8 @@ case $1 in
 esac
 
 #Create directories
-for dir in $TMPDIR $PIDDIR $CMDDIR $DATADIR $STATEDIR $HOOKS $SHOOKS; do
+for dir in $TMPDIR $PIDDIR $PIDDIRHOSTS $PIDDIRSYS $CMDDIR $DATADIR \
+           $STATEDIR $HOOKS $SHOOKS; do
     if ! mkdir -p $dir; then
         printf "Unable to create directory $dir. "
         printf "Check the permissions and try to run sdi again.\n"
