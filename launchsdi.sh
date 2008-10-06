@@ -25,11 +25,11 @@ function create_links()
     FOLDERS[5]="langs"
 
     for FOLDER in ${FOLDERS[@]}; do
-        ln -s $(realpath $SDIWEB)/$FOLDER $1/ 2> /dev/null
+        ln -fs $(realpath $SDIWEB)/$FOLDER $1/ 2> /dev/null
     done
 
     if test "$2" = "states"; then
-        ln -s $(realpath $SDIWEB)/states $1/ 2> /dev/null
+        ln -fs $(realpath $SDIWEB)/states $1/ 2> /dev/null
     fi
 }
 
