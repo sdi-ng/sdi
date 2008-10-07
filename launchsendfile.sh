@@ -8,14 +8,16 @@ source $PREFIX/sdi.conf
 : ${SENDLIMIT:=1}
 : ${TMPDIR:=/tmp/sdi}
 : ${PIDDIR:=$TMPDIR/pids}
+: ${FIFODIR:=$TMPDIR/fifos}
 
 # the sendfile fifo
-FILEFIFO="$TMPDIR/sendfilefifo"
+FILEFIFO="$FIFODIR/sendfile.fifo"
 FILEBLOCK="$TMPDIR/sendfile.blocked"
 FINISH="/tmp/.sdi.sendfile.finish"
 
 # create the pids folder
 mkdir -p $PIDDIR/sendfile
+mkdir -p $FIFODIR
 
 # create the fifo itself
 rm -f $FILEFIFO 2> /dev/null

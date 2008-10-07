@@ -39,7 +39,8 @@ source $PREFIX/sendfile.sh
 : ${SDIWEB:=$PREFIX/sdiweb}
 : ${WWWDIR:=$PREFIX/www}
 : ${STATEDIR:=$SDIWEB/states}
-: ${SFIFO:=$STATEDIR/sfifo}
+: ${FIFODIR:=$TMPDIR/fifos}
+: ${SFIFO:=$FIFODIR/states.fifo}
 : ${WEBMODE:=true}
 : ${SDIWEB:=$PREFIX/sdiweb}
 
@@ -426,7 +427,7 @@ esac
 
 #Create directories
 for dir in $TMPDIR $PIDDIR $PIDDIRHOSTS $PIDDIRSYS $CMDDIR $DATADIR \
-           $STATEDIR $HOOKS $SHOOKS; do
+           $STATEDIR $HOOKS $SHOOKS $FIFODIR; do
     if ! mkdir -p $dir; then
         printf "Unable to create directory $dir. "
         printf "Check the permissions and try to run sdi again.\n"
