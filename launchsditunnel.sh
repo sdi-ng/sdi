@@ -2,16 +2,17 @@
 
 PREFIX=$(dirname $0)
 
+# try to load configuration and sendfile function
 if ! source $PREFIX/sdi.conf; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
 elif ! source $PREFIX/misc.sh; then
     echo "ERROR: failed to load $PREFIX/misc.sh file"
     exit 1
+elif ! source $PREFIX/sendfile.sh; then
+    echo "WARNING: failed to load $PREFIX/sendfile.sh file"
+    echo "WARNING: you will not be able to send files to hosts through SDI"
 fi
-
-# get send file API
-source $PREFIX/sendfile.sh
 
 # These are minimal configuration needed, user may overwrite any of them by
 # defining at sdi.conf
