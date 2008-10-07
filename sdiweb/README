@@ -1,2 +1,122 @@
-README
-======
+README (sdiweb)
+===============
+
+1. Introduction
+2. SDI concepts
+3. Requirements
+4. Sdiweb conf variables
+5. Configuring and running SDI
+
+
+1. INTRODUCTION
+===============
+
+First, it's important to understand how SDI works to get through this
+README. To help with that, please check the SDI README file.
+
+And here comes the first question: why do you use a web interface with
+SDI? Simple question.
+
+We need to see the hosts last data in a simple way, not checking big log
+files or access a database. The simple way we found was to show the
+information based on tables, where all you need is there.
+
+With this format we can add new features and interface elements very
+easily. Sorting scripts, auto-update and color cells are some examples
+of what you'll see when finish configuring your SDI.
+
+So, let's start.
+
+
+2. SDI CONCEPTS
+===============
+
+At this time, you must known what is CLASS and HOST inside SDI. This is
+essential to put SDI run.
+
+A HOST is a machine. When I say "machine" it means some place where you
+can go with a IP address or a name, and have ssh support.
+
+A CLASS is a group of hosts.
+
+We use XML-SSI technology. SSI stands for Server Side Includes, which is
+very important when we say "Instant" Diagnose System. The SDI structure
+has been developed to explore a little of server processing with some
+includes, and then letting all jobs with user browser.
+
+
+3. REQUIREMENTS
+===============
+
+To properly see sdi web pages you should have a web server running, and
+this server must be configured to accept SSI (Server Side Includes) enabled.
+
+On sdiweb the files types used with SSI are .shtml and .xml, so you must
+configure the server to enable SSI on this mime types. A common problem with
+this is that the server must respond the .xml file with a application/xml
+Content-Type on page header.
+
+We will show how to do a basic configuration when running Apache 2.
+
+
+4. SDIWEB CONF VARIABLES
+========================
+
+These variables can be defined on sdi.conf file.
+
+- WEBMODE (Boolean)
+    If set to true, when launching sdi the first thing done for each class
+    is generate all web files.
+
+- SDIWEB
+    The folder where sdiweb files are placed.
+
+- WWWDIR
+    The folder where the web final files will be placed.
+
+- CLASSESDIR
+    The folder where the classes files will be.
+
+- CLASSNAME
+    The classes name that will appear on top page bar select-box.
+
+- HOSTCOLUMNNAME
+    The header of column that holds the host name.
+
+- DEFAULTCOLUMNS
+    The default columns to be showed when first load a table.
+
+
+5. CONFIGURING AND RUNNING SDI
+==============================
+
+These are the steps to configure and run SDI from the source. We presume
+here that your web server are properly configured and running.
+
+    1. Get to sdi.conf and alter CLASSESDIR and CLASSNAME like you want.
+    2. Create CLASSESDIR folder.
+    3. On this directory, create the files of each class.
+       In a class file:
+         - One host per line
+         - The first column with separator " " will be consider the
+         hostname.
+    4. On sdi environment everything is configured, unless if you want to
+       change any other folder.
+    5. Now, we must secure that the SDIUSER have ssh access to each host
+       without needing to type a password. This is important to security
+       and stability of SDI.
+         - If you don't have a ssh key, follow this commands:
+            $ ssh-keygen -t dsa
+            (follow the instructions and create a key without passphrase,
+            I'll call the file created of $KEY)
+            $ scp $KEY $SDIUSER@$HOST:~/
+            $ ssh $SDIUSER@$HOST
+            $ cat ~/$KEY >> ~/.ssh/authorized-keys
+            $ logout
+            $ ssh $SDIUSER@$HOST
+            (on this ssh you access the HOST without a password)
+         - The hosts setup is finish.
+    6. Now, all is configured properly. go to SDI root folder and type:
+            $ bash launchsdi.sh
+       And SDI will be running on your server.
+
