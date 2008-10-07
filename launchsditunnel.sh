@@ -190,7 +190,7 @@ function closeallhosts()
     removecronconfig
     printf "done\n"
     printf "Ending sendfile... "
-    kill $(cat $PIDDIR/sendfile/*) &> /dev/null
+    kill $(cat $PIDDIRSYS/*) &> /dev/null
     printf "done\n"
     printf "Waiting tunnels to finish... "
     waitend $(find $PIDDIRHOSTS -maxdepth 1 -type f -exec cat {} \;)

@@ -8,6 +8,7 @@ source $PREFIX/sdi.conf
 : ${SENDLIMIT:=1}
 : ${TMPDIR:=/tmp/sdi}
 : ${PIDDIR:=$TMPDIR/pids}
+: ${PIDDIRSYS:=$PIDDIR/system}
 : ${FIFODIR:=$TMPDIR/fifos}
 
 # the sendfile fifo
@@ -16,7 +17,7 @@ FILEBLOCK="$TMPDIR/sendfile.blocked"
 FINISH="/tmp/.sdi.sendfile.finish"
 
 # create the pids folder
-mkdir -p $PIDDIR/sendfile
+mkdir -p $PIDDIRSYS
 mkdir -p $FIFODIR
 
 # create the fifo itself
@@ -36,7 +37,7 @@ function waittransferend()
     while test -d /proc/$PID; do
         sleep 0.5
     done
-    sed -i "/^$PID$/d" $PIDDIR/sendfile/transfers.pid
+    sed -i "/^$PID$/d" $PIDDIRSYS/transfers.pid
     echo 'echo $(date +%s) '$DESTINATION' >> '$FINISH'' >> $CMDDIR/$HOST
 }
 
@@ -45,13 +46,13 @@ function waittransferend()
 # will launch the files transfers
 function sendfiledeamon()
 {
-    (tail -f $FILEFIFO & echo $! > $PIDDIR/sendfile/tailfifo.pid) |
+    (tail -f $FILEFIFO & echo $! > $PIDDIRSYS/tailfifo.pid) |
     while read HOST FILE DESTINATION LIMIT; do
         # wait to send file
-        RUNNING=$(cat $PIDDIR/sendfile/transfers.pid |wc -l)
+        RUNNING=$(cat $PIDDIRSYS/transfers.pid |wc -l)
         while (( $RUNNING >= $SENDLIMIT )); do
             sleep 10
-            RUNNING=$(cat $PIDDIR/sendfile/transfers.pid |wc -l)
+            RUNNING=$(cat $PIDDIRSYS/transfers.pid |wc -l)
         done
 
         # check if host is blocked
@@ -71,11 +72,11 @@ function sendfiledeamon()
 
         # send a waittransferend look to this proccess
         PID=$!
-        echo $PID >> $PIDDIR/sendfile/transfers.pid
+        echo $PID >> $PIDDIRSYS/transfers.pid
         waittransferend $PID $DESTINATION &
     done
 }
 
 # run the deamon
 sendfiledeamon &
-echo $! > $PIDDIR/sendfile/deamon.pid
+echo $! > $PIDDIRSYS/deamon.pid
