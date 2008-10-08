@@ -27,10 +27,6 @@ function create_links()
     for FOLDER in ${FOLDERS[@]}; do
         ln -fs $(realpath $SDIWEB)/$FOLDER $1/ 2> /dev/null
     done
-
-    if test "$2" = "states"; then
-        ln -fs $(realpath $SDIWEB)/states $1/ 2> /dev/null
-    fi
 }
 
 function createclassstructure()
@@ -103,7 +99,7 @@ if test $WEBMODE = true; then
     source $SDIWEB/generatexmls.sh
 
     mkdir -p $WWWDIR
-    create_links $WWWDIR states
+    create_links $WWWDIR
 
     SDIBAR=$(generatesdibar)
     COLUMNS=$(getcolumns)

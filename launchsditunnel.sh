@@ -39,7 +39,6 @@ fi
 #Customizable variables, please refer to wwwsdi.conf to change these values
 : ${SDIWEB:=$PREFIX/sdiweb}
 : ${WWWDIR:=$PREFIX/www}
-: ${STATEDIR:=$SDIWEB/states}
 : ${FIFODIR:=$TMPDIR/fifos}
 : ${SFIFO:=$FIFODIR/states.fifo}
 : ${WEBMODE:=true}
@@ -47,6 +46,9 @@ fi
 
 : ${LAUNCHDELAY:=0.1}
 : ${DAEMON:=false}
+
+# define STATEDIR
+STATEDIR=$WWWDIR/states
 
 for OPT in "${SSHOPT[@]}"; do
     SSHOPTS="$SSHOPTS -o $OPT"
