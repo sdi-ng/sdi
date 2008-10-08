@@ -162,6 +162,26 @@ function waitend()
     done
 }
 
+function notunnelisopen()
+{
+    for pid in $(find $PIDDIRHOSTS -type f -exec cat {} \;); do
+        test -d /proc/$pid && return 1
+    done
+    return 0
+}
+
+function closesdiprocs()
+{
+    test -f $PIDDIRSYS/fifo.pid && pidfifo=$(cat $PIDDIRSYS/fifo.pid) &&
+    test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
+    printf "Removing cron configuration... "
+    removecronconfig
+    printf "done\n"
+    printf "Ending sendfile... "
+    kill $(cat $PIDDIRSYS/*) &> /dev/null
+    printf "done\n"
+}
+
 function closehost()
 {
     local HOST=$1
@@ -176,6 +196,11 @@ function closehost()
         printf "Blocking $HOST to receive files... "
         sendfile -b $HOST
         printf "done\n"
+        if notunnelisopen; then
+            printf "There are no more SDI tunnels open. "
+            printf "SDI will be closed now.\n"
+            closesdiprocs
+        fi
     else
         printf "Host $HOST not running.\n"
     fi
@@ -187,14 +212,7 @@ function closeallhosts()
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
-    test -f $PIDDIRSYS/fifo.pid && pidfifo=$(cat $PIDDIRSYS/fifo.pid) &&
-    test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
-    printf "Removing cron configuration... "
-    removecronconfig
-    printf "done\n"
-    printf "Ending sendfile... "
-    kill $(cat $PIDDIRSYS/*) &> /dev/null
-    printf "done\n"
+    closesdiprocs
     printf "Waiting tunnels to finish... "
     waitend $(find $PIDDIRHOSTS -maxdepth 1 -type f -exec cat {} \;)
     printf "done\n"
