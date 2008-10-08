@@ -13,4 +13,4 @@ sync-sfuser:
 	fi
 
 sync-real:
-	@rsync -rlptDHx --progress --del . $(SFUSER),sdi@web.sf.net:htdocs
+	@rsync -rlptDHx --progress --del --exclude=.git . $(SFUSER),sdi@web.sf.net:htdocs
