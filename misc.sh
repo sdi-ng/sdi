@@ -18,3 +18,19 @@ function PRINT()
 {
     echo "$(date +%s) $1" >> $2
 }
+
+# Create a directory and ensure that it is accessible, or exit SDI
+function SDIMKDIR()
+{
+    dir=$1
+    if ! (mkdir -p $dir &&
+          test -O $dir &&
+          test -r $dir &&
+          test -w $dir &&
+          test -x $dir); then
+        printf "Unable to create directory \"$dir\".\n"
+        printf "Check if you are the owner of \"$dir\" and have r/w/x "
+        printf "permissions to access it and then try to run SDI again.\n"
+        exit 1
+    fi
+}
