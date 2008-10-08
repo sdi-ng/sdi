@@ -38,7 +38,7 @@ function generatehostsxml()
             XML="$XML        <!--#include virtual=\"$HOST/$COL.xml\"-->\n"
         done
         XML="$XML    </host>\n"
-        printf "$XML" > $SDIWEB/hosts/$HOST.xml
+        printf "$XML" > $WWWDIR/hosts/$HOST.xml
     done
 }
 
@@ -52,7 +52,7 @@ function generatecolumnsxml()
         XML="$XML       <$COL value=\"$VALUE\" />\n"
     done
     XML="$XML    </host>\n"
-    printf "$XML" > $SDIWEB/hosts/columns.xml
+    printf "$XML" > $WWWDIR/hosts/columns.xml
 }
 
 function generatesummariesxml()

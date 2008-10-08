@@ -21,12 +21,15 @@ function create_links()
     FOLDERS[1]="javascript"
     FOLDERS[2]="css"
     FOLDERS[3]="img"
-    FOLDERS[4]="hosts"
-    FOLDERS[5]="langs"
+    FOLDERS[4]="langs"
 
     for FOLDER in ${FOLDERS[@]}; do
         ln -fs $(realpath $SDIWEB)/$FOLDER $1/ 2> /dev/null
     done
+
+    if test "$2" = "class"; then
+        ln -fs ../hosts $1/ 2> /dev/null
+    fi
 }
 
 function createclassstructure()
@@ -34,13 +37,13 @@ function createclassstructure()
     CLASS=$1
 
     mkdir -p $WWWDIR/$CLASS
-    create_links $WWWDIR/$CLASS
+    create_links $WWWDIR/$CLASS class
 }
 
 function createdatastructure()
 {
     local HOST=$1
-    DATAPATH=$SDIWEB/hosts/$HOST/
+    DATAPATH=$WWWDIR/hosts/$HOST/
     mkdir -p $DATAPATH
     for FILE in $(ls $HOOKS/*/*); do
         FIELD=$(basename $(realpath $FILE))
@@ -88,7 +91,7 @@ function getcolumns()
 # Create necessary folders
 mkdir -p $TMPDIR
 mkdir -p $PIDDIR
-mkdir -p $SDIWEB/hosts
+mkdir -p $WWWDIR/hosts
 mkdir -p $CLASSESDIR
 
 # Check if web mode is enabled

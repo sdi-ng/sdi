@@ -315,8 +315,8 @@ function PARSE()
                 ATTR=$(getattributes)
                 if test $? == 0; then
                     WWWLINE="<$FIELD $ATTR />"
-                    mkdir -p $SDIWEB/hosts/$HOST/
-                    echo $WWWLINE > $SDIWEB/hosts/$HOST/${FIELD}.xml
+                    mkdir -p $WWWDIR/hosts/$HOST/
+                    echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
                     if ! test -z "$PSTATETYPE"; then
                         for state in $PSTATETYPE; do
                             pstate=$(cut -d':' -f2 <<< $state)
