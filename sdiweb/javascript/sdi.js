@@ -252,7 +252,8 @@ function set_cookie(name, value, expireDays){
     var exdate = new Date();
     exdate.setDate(exdate.getDate()+expireDays);
     document.cookie = name + '=' + escape(value) +
-    ((expireDays==null) ? '' : '; expires='+exdate.toGMTString());
+    ((expireDays==null) ? '' : '; expires='+exdate.toGMTString()) +
+    '; path=/';
 }
 
 // a simple get cookie interface
@@ -616,7 +617,7 @@ function reload_table(xmlURI, tableID){
 
 function load_language(language){
     // check the language cookie
-    var cookie_name = 'lang';
+    var cookie_name = document.domain+'#lang';
 
     // decide from where get language
     if (language){
