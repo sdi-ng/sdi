@@ -7,6 +7,7 @@ source $PREFIX/sdi.conf
 # Customizable variables, please refer to sdi.conf to change these values
 : ${DATADIR:=$PREFIX/data}
 : ${PIDDIR:=$TMPDIR/pids}
+: ${PIDDIRSYS:=$PIDDIR/system}
 : ${CLASSESDIR:=$PREFIX/CLASSES}
 : ${CLASSNAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
@@ -120,7 +121,7 @@ if test $CLASSESNUM -eq 0; then
 fi
 
 # Start sendfile deamon
-DAEMON="$PIDDIR/sendfile/deamon.pid"
+DAEMON="$PIDDIRSYS/sendfile/deamon.pid"
 printf "Launching sendfile deamon... "
 ( (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON) ) ||
 (! test -f $DAEMON )) && bash $PREFIX/launchsendfile.sh

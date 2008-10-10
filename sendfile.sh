@@ -2,7 +2,7 @@
 function sendfile()
 {
     # the fifo
-    FILEFIFO="$TMPDIR/sendfilefifo"
+    FILEFIFO="$FIFODIR/sendfile.fifo"
     FILEBLOCK="$TMPDIR/sendfile.blocked"
 
     # first secure the options are empty
