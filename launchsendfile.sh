@@ -2,7 +2,11 @@
 
 PREFIX=$(dirname $0)
 
-source $PREFIX/sdi.conf
+# try to load configuration
+if ! source $PREFIX/sdi.conf; then
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+fi
 
 # Customizable variables, please refer to sdi.conf to change these values
 : ${SENDLIMIT:=1}
