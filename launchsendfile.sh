@@ -11,6 +11,11 @@ source $PREFIX/sdi.conf
 : ${PIDDIRSYS:=$PIDDIR/system}
 : ${FIFODIR:=$TMPDIR/fifos}
 
+# merge ssh options
+for OPT in "${SSHOPT[@]}"; do
+    SSHOPTS="$SSHOPTS -o $OPT"
+done
+
 # the sendfile fifo
 FILEFIFO="$FIFODIR/sendfile.fifo"
 FILEBLOCK="$TMPDIR/sendfile.blocked"
@@ -68,7 +73,7 @@ function sendfiledeamon()
         fi
 
         # run scp
-        scp $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION &
+        scp $SSHOPTS $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION &
 
         # send a waittransferend look to this proccess
         PID=$!
