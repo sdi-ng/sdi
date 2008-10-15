@@ -37,6 +37,10 @@ mkfifo $FILEFIFO
 rm -f $FILEBLOCK 2> /dev/null
 touch $FILEBLOCK
 
+# create empty transfers file
+rm -f $PIDDIRSYS/transfers.pid 2> /dev/null
+touch $PIDDIRSYS/transfers.pid
+
 # function to wait a scp ends
 # adictionaly removes PID from pids file
 function waittransferend()
