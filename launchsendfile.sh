@@ -77,7 +77,8 @@ function sendfiledeamon()
         fi
 
         # run scp
-        scp $SSHOPTS $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION &
+        scp -q $SSHOPTS $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION \
+        &> /dev/null &
 
         # send a waittransferend look to this proccess
         PID=$!
