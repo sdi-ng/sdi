@@ -164,7 +164,7 @@ function waitend()
 
 function notunnelisopen()
 {
-    for pid in $(find $PIDDIRHOSTS -type f -exec cat {} \;); do
+    for pid in $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null); do
         test -d /proc/$pid && return 1
     done
     return 0
@@ -214,7 +214,7 @@ function closeallhosts()
     echo "exit 0" >> $CMDGENERAL
     closesdiprocs
     printf "Waiting tunnels to finish... "
-    waitend $(find $PIDDIRHOSTS -maxdepth 1 -type f -exec cat {} \;)
+    waitend $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null)
     printf "done\n"
 }
 
