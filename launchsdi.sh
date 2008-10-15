@@ -163,7 +163,7 @@ if test $CLASSESNUM -eq 0; then
 fi
 
 # Start sendfile deamon
-DAEMON="$PIDDIRSYS/sendfile/deamon.pid"
+DAEMON="$PIDDIRSYS/deamon.pid"
 printf "Launching sendfile deamon... "
 ( (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON) ) ||
 (! test -f $DAEMON )) && bash $PREFIX/launchsendfile.sh
