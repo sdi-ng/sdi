@@ -282,35 +282,6 @@ function savestate()
     done
 }
 
-# Create the structure of files that will be used to manage
-# the states of the remote hosts
-function createstatestructure()
-{
-    for state in $SHOOKS/*; do
-        if ! source $state || ! getstateinfo &> /dev/null; then
-            LOG "ERROR: failure to load state $state"
-            return 1
-        elif test -z "$SSUMARY"; then
-            LOG "ERROR: state $state: \$SUMARY must be set in $state"
-        elif test -z "$SDEFCOLUMNS"; then
-            LOG "ERROR: state $state: \$SDEFCOLUMNS must be set in $state"
-        elif test -z "$STITLE"; then
-            LOG "ERROR: state $state: \$STITLE must be set in $state"
-        else
-            state=$(basename $state)
-            cat <<EOF > $STATEDIR/$state.xml
-<table title="$STITLE" columns="$SDEFCOLUMNS">
-    <!--#include virtual="../hosts/columns.xml"-->
-    <!--NEW-->
-</table>
-EOF
-            printf "0\n" > "$STATEDIR/$state-count.txt"
-            printf "<$state>$SSUMARY</$state>\n" 0 >\
-            "$STATEDIR/$state-status.xml"
-        fi
-    done
-}
-
 #Prototype of PARSE() function
 function PARSE()
 {
@@ -402,9 +373,6 @@ function LAUNCH ()
 
     # Create file that will be used to send commands to all hosts
     touch $CMDGENERAL
-
-    # Create strucure of xml files for states managing
-    test $WEBMODE = true && createstatestructure
 
     #Open a tunnel for each host
     for HOST in $*; do

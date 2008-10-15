@@ -11,6 +11,7 @@ fi
 : ${DATADIR:=$PREFIX/data}
 : ${PIDDIR:=$TMPDIR/pids}
 : ${PIDDIRSYS:=$PIDDIR/system}
+: ${SHOOKS:=$PREFIX/states-enabled}
 : ${CLASSESDIR:=$PREFIX/CLASSES}
 : ${CLASSNAME:=Class}
 : ${WWWDIR:=$PREFIX/www}
@@ -18,6 +19,8 @@ fi
 : ${HOSTCOLUMNNAME:="Host"}
 : ${DEFAULTCOLUMNS:="Uptime"}
 
+# define STATEDIR
+STATEDIR=$WWWDIR/states
 
 function create_links()
 {
@@ -53,6 +56,36 @@ function createdatastructure()
         FIELD=$(basename $(realpath $FILE))
         if ! test -f $DATAPATH/$FIELD.xml; then
             echo "<$FIELD value=\"\" />" > $DATAPATH/$FIELD.xml
+        fi
+    done
+}
+
+# Create the structure of files that will be used to manage
+# the states of the remote hosts
+function createstatestructure()
+{
+    for state in $SHOOKS/*; do
+        if ! source $state || ! getstateinfo &> /dev/null; then
+            LOG "ERROR: failure to load state $state"
+            return 1
+        elif test -z "$SSUMARY"; then
+            LOG "ERROR: state $state: \$SUMARY must be set in $state"
+        elif test -z "$SDEFCOLUMNS"; then
+            LOG "ERROR: state $state: \$SDEFCOLUMNS must be set in $state"
+        elif test -z "$STITLE"; then
+            LOG "ERROR: state $state: \$STITLE must be set in $state"
+        else
+            state=$(basename $state)
+            test -f "$STATEDIR/$state.xml" && continue
+            cat <<EOF > $STATEDIR/$state.xml
+<table title="$STITLE" columns="$SDEFCOLUMNS">
+    <!--#include virtual="../hosts/columns.xml"-->
+    <!--NEW-->
+</table>
+EOF
+            printf "0\n" > "$STATEDIR/$state-count.txt"
+            printf "<$state>$SSUMARY</$state>\n" 0 >\
+            "$STATEDIR/$state-status.xml"
         fi
     done
 }
@@ -97,6 +130,7 @@ mkdir -p $TMPDIR
 mkdir -p $PIDDIR
 mkdir -p $WWWDIR/hosts
 mkdir -p $CLASSESDIR
+mkdir -p $STATEDIR
 
 # Check if web mode is enabled
 if test $WEBMODE = true; then
@@ -110,6 +144,11 @@ if test $WEBMODE = true; then
 
     SDIBAR=$(generatesdibar)
     COLUMNS=$(getcolumns)
+
+    # Create strucure of xml files for states managing
+    printf "Creating states files... "
+    createstatestructure
+    printf "done\n"
 else
     printf "$0: warning: web mode is disabled.\n"
 fi
