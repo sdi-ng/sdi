@@ -31,6 +31,8 @@ function SDIMKDIR()
         printf "Unable to create directory \"$dir\".\n"
         printf "Check if you are the owner of \"$dir\" and have r/w/x "
         printf "permissions to access it and then try to run SDI again.\n"
-        exit 1
+        return 1
+    else
+        return 0
     fi
 }
