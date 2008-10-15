@@ -5,6 +5,9 @@ PREFIX=$(dirname $0)
 if ! source $PREFIX/sdi.conf; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
+elif ! source $PREFIX/misc.sh; then
+    echo "ERROR: failed to load $PREFIX/misc.sh file"
+    exit 1
 fi
 
 # Customizable variables, please refer to sdi.conf to change these values
@@ -40,7 +43,7 @@ function createclassstructure()
 {
     CLASS=$1
 
-    mkdir -p $WWWDIR/$CLASS
+    SDIMKDIR $WWWDIR/$CLASS || exit 1
     create_links $WWWDIR/$CLASS class
 }
 
@@ -48,7 +51,7 @@ function createdatastructure()
 {
     local HOST=$1
     DATAPATH=$WWWDIR/hosts/$HOST/
-    mkdir -p $DATAPATH
+    SDIMKDIR $DATAPATH || exit 1
     for FILE in $(ls $HOOKS/*/*); do
         FIELD=$(basename $(realpath $FILE))
         if ! test -f $DATAPATH/$FIELD.xml; then
@@ -93,10 +96,10 @@ function getcolumns()
 }
 
 # Create necessary folders
-mkdir -p $TMPDIR
-mkdir -p $PIDDIR
-mkdir -p $WWWDIR/hosts
-mkdir -p $CLASSESDIR
+SDIMKDIR $TMPDIR || exit 1
+SDIMKDIR $PIDDIR || exit 1
+SDIMKDIR $WWWDIR/hosts || exit 1
+SDIMKDIR $CLASSESDIR || exit 1
 
 # Check if web mode is enabled
 if test $WEBMODE = true; then
@@ -105,7 +108,7 @@ if test $WEBMODE = true; then
     source $SDIWEB/generatesummary.sh
     source $SDIWEB/generatexmls.sh
 
-    mkdir -p $WWWDIR
+    SDIMKDIR $WWWDIR || exit 1
     create_links $WWWDIR
 
     SDIBAR=$(generatesdibar)
