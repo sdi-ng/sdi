@@ -323,7 +323,7 @@ function PARSE()
         DATAPATH=$DATADIR/$HOST
 
         if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
-            LOG "$FIELD.po: $LINE"
+            PRINT "$LINE" "$DATAPATH/$HOST.log"
         else
             mkdir -p $DATAPATH
             updatedata $DATA
