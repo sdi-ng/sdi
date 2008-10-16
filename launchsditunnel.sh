@@ -218,70 +218,6 @@ function closeallhosts()
     printf "done\n"
 }
 
-# Update the information about how many hosts are in the $1 state
-function updatecnt() {
-    webstatecount="$STATEDIR/$1-count.txt"
-    webstatestatus="$STATEDIR/$1-status.xml"
-    op=$2
-    summaryphrase=$3
-    nhosts=$(cat $webstatecount)
-    if test "$op" = "sub" && test $nhosts -gt 0; then
-        ((nhosts=nhosts-1))
-    else
-        ((nhosts=nhosts+1))
-    fi
-    printf "$nhosts\n" > $webstatecount
-    printf "<$1>$summaryphrase</$1>\n" $nhosts > $webstatestatus
-}
-
-# Save the states of the remote hosts.
-function savestate()
-{
-    (tail -f -n0 $SFIFO & echo $! > $PIDDIRSYS/fifo.pid) |
-    while read HOST PSTATE PSTATETYPE; do
-
-        if test "$PSTATE" = "exit"; then
-            kill $(cat $PIDDIRSYS/fifo.pid)
-            break
-        fi
-
-        local WEBSTATEXML="$STATEDIR/$PSTATETYPE.xml"
-
-        if ! test -f "$WEBSTATEXML"; then
-            LOG "ERROR: file $WEBSTATEXML not found."
-            continue
-        elif ! source $SHOOKS/$PSTATETYPE; then
-            LOG "ERROR: failure to load $SHOOKS/$PSTATETYPE"
-            continue
-        elif ! getstateinfo; then
-            LOG "ERROR: failure to load getstateinfo (in $SHOOKS/$PSTATETYPE)"
-            continue
-        else
-            if test -z "$PSTATE" || test "$PSTATE" == false; then
-                # Remove $HOST entry from $WEBSTATEXML
-                if grep -q "hosts\/$HOST.xml\"" $WEBSTATEXML; then
-                    sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
-                    # Decreases in 1 the amount of hosts in this state
-                    if ! test -z "$SSUMARY"; then
-                        updatecnt $PSTATETYPE sub "$SSUMARY"
-                    fi
-                fi
-            else
-                # Add new host entry for this state in $WEBSTATXML
-                tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
-                if ! grep -q "$tag" $WEBSTATEXML; then
-                    sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
-                    # Increases in 1 the amount of hosts in this state
-                    if ! test -z "$SSUMARY"; then
-                        updatecnt $PSTATETYPE add "$SSUMARY"
-                    fi
-                fi
-            fi
-        fi
-        unset SSUMARY
-    done
-}
-
 #Prototype of PARSE() function
 function PARSE()
 {
@@ -423,11 +359,6 @@ for dir in $TMPDIR $PIDDIR $PIDDIRHOSTS $PIDDIRSYS $CMDDIR $DATADIR \
         exit 1
     fi
 done
-
-#Create fifo that will be used to manage states
-#and open function to read fifo
-rm -f $SFIFO ; mkfifo $SFIFO
-savestate & echo $! >> $TMPDIR/savestate.pid
 
 #Start launching SDI tunnels
 LAUNCH $*
