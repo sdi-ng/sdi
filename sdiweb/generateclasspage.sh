@@ -15,7 +15,7 @@ function generateclasspage()
 
     # select the current page option on sdibar
     TMP=$(mktemp)
-    STR="$CLASSNAME/$CLASS"
+    STR="$CLASSNAME/$(tr '_' ' ' <<< $CLASS)"
     printf "$SDIBAR\n" > $TMP
     sed "s#>$STR# selected=\"selected\">$STR#g" $TMP >> $PAGE
     rm -f "$TMP"
