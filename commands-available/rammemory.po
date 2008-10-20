@@ -1,9 +1,9 @@
-function updatedata()
+function rammemory_updatedata()
 {
     UPDATA="$*"
 }
 
-function www()
+function rammemory_www()
 {
     PVALUE="$*"
 }

@@ -1,9 +1,9 @@
-function updatedata()
+function status_updatedata()
 {
    UPDATA="$*"
 }
 
-function www()
+function status_www()
 {
     if test "$*" = "ONLINE"; then
         PSTATUS=green
