@@ -61,6 +61,7 @@ function usage()
     echo "Options:"
     echo "  --kill=HOST    Close the SDI tunnel for HOST"
     echo "  --killall      Close all SDI tunnels and stop SDI application"
+    echo "  --reload-po    Force a reload of parser objects file"
 }
 
 function getvars()
@@ -228,42 +229,77 @@ function PARSE()
     SELF=/proc/self/task/*
     basename $SELF > $PIDDIRHOSTS/$HOST.parserpid
 
+    # cache and reload control
+    CACHE=""
+    RELOAD=false
+
+    # on signal reload parser obejects
+    trap "RELOAD=true" USR1
+
     while read LINE; do
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
 
-        if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
-            PRINT "$LINE" "$DATAPATH/$HOST.log"
-        else
-            updatedata $DATA
-            PRINT "$UPDATA" "$DATAPATH/$FIELD"
-            if test $WEBMODE = true; then
-                www $DATA
-                ATTR=$(getattributes)
-                if test $? == 0; then
-                    WWWLINE="<$FIELD $ATTR />"
-                    mkdir -p $WWWDIR/hosts/$HOST/
-                    echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
-                    if ! test -z "$PSTATETYPE"; then
-                        for state in $PSTATETYPE; do
-                            pstate=$(cut -d':' -f2 <<< $state)
-                            pstatetype=$(cut -d':' -f1 <<< $state)
-                            test -z "$pstate" && pstate="false"
-                            echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
-                        done
-                    fi
+        # unset functions if will force a reload
+        test $RELOAD = true &&
+            for FNC in $CACHE; do unset $FNC; done &&
+            RELOAD=false && CACHE=""
 
-                else
-                    LOG "ATTR ERROR: $ATTR"
-                fi
-            fi
+        LOAD=0
 
-            #unset all variables used by script's
-            for var in $(getvars); do
-                unset $(cut -d: -f1 <<< $var)
+        if ${FIELD}_updatedata $DATA 2> /dev/null; then
+            # already loaded
+            LOAD=1
+        elif source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
+            # check if command is enabled
+            ENABLED=false
+            for CMD in $(ls $HOOKS/*/*); do
+                test $(basename $(realpath $CMD)) = $FIELD &&
+                ENABLED=true && break
             done
-            unset DATA PSTATE PSTATETYPE
+
+            test $ENABLED = false &&
+            PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
+            continue
+
+            # now sourced
+            LOAD=2
+            CACHE="$CACHE ${FIELD}_updatedata"
+        else
+            PRINT "$LINE" "$DATAPATH/$HOST.log"
+            continue
         fi
+
+        # if just sourced, must run updatedata again
+        test $LOAD = 2 && ${FIELD}_updatedata $DATA
+
+        # run script functions
+        PRINT "$UPDATA" "$DATAPATH/$FIELD"
+        if test $WEBMODE = true; then
+            ${FIELD}_www $DATA
+            ATTR=$(getattributes)
+            if test $? == 0; then
+                WWWLINE="<$FIELD $ATTR />"
+                mkdir -p $WWWDIR/hosts/$HOST/
+                echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
+                if ! test -z "$PSTATETYPE"; then
+                    for state in $PSTATETYPE; do
+                        pstate=$(cut -d':' -f2 <<< $state)
+                        pstatetype=$(cut -d':' -f1 <<< $state)
+                        test -z "$pstate" && pstate="false"
+                        echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
+                    done
+                fi
+            else
+                LOG "ATTR ERROR: $ATTR"
+            fi
+        fi
+
+        # unset all variables used by script's
+        for VAR in $(getvars); do
+            unset $(cut -d: -f1 <<< $VAR)
+        done
+        unset DATA PSTATE PSTATETYPE
     done
     rm -f $PIDDIRHOSTS/$HOST.parserpid
 }
@@ -342,6 +378,15 @@ case $1 in
         closeallhosts
         exit 0
         ;;
+    --reload-po)
+        printf "Sending signal to parsers... "
+        for PARSERPID in $(cat $PIDDIRHOSTS/*.parserpid); do
+            kill -USR1 $PARSERPID 2> /dev/null
+        done
+        printf "done\nParser objects will be reloaded.\n"
+        exit 0
+        ;;
+
     -h|--help)
         usage
         exit 0
