@@ -222,6 +222,8 @@ function closeallhosts()
 function PARSE()
 {
     HOST=$1
+    DATAPATH=$DATADIR/$HOST
+    mkdir -p $DATAPATH
 
     SELF=/proc/self/task/*
     basename $SELF > $PIDDIRHOSTS/$HOST.parserpid
@@ -230,12 +232,9 @@ function PARSE()
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
 
-        DATAPATH=$DATADIR/$HOST
-
         if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
             PRINT "$LINE" "$DATAPATH/$HOST.log"
         else
-            mkdir -p $DATAPATH
             updatedata $DATA
             PRINT "$UPDATA" "$DATAPATH/$FIELD"
             if test $WEBMODE = true; then
