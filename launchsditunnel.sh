@@ -223,6 +223,9 @@ function PARSE()
 {
     HOST=$1
 
+    SELF=/proc/self/task/*
+    basename $SELF > $PIDDIRHOSTS/$HOST.parserpid
+
     while read LINE; do
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
@@ -263,6 +266,7 @@ function PARSE()
             unset DATA PSTATE PSTATETYPE
         fi
     done
+    rm -f $PIDDIRHOSTS/$HOST.parserpid
 }
 
 function SDITUNNEL()
