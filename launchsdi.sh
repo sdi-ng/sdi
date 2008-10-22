@@ -227,8 +227,7 @@ if test $WEBMODE = true; then
     rm -f $SFIFO ; mkfifo $SFIFO
     SSTATE="$PIDDIRSYS/savestate.pid"
     ( (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE) ) ||
-    (! test -f $SSTATE ))
-    test "$?" = 0 && savestate & echo $! > $SSTATE
+    (! test -f $SSTATE )) && (savestate & echo $! > $SSTATE)
 else
     printf "$0: warning: web mode is disabled.\n"
 fi
