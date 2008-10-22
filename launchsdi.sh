@@ -70,6 +70,7 @@ function createdatastructure()
 function createstatestructure()
 {
     for state in $SHOOKS/*; do
+        STABLE="true"
         if ! source $state || ! getstateinfo &> /dev/null; then
             LOG "ERROR: failure to load state $state"
             return 1
@@ -83,7 +84,7 @@ function createstatestructure()
             state=$(basename $state)
             test -f "$STATEDIR/$state.xml" && continue
             cat <<EOF > $STATEDIR/$state.xml
-<table title="$STITLE" columns="$SDEFCOLUMNS">
+<table title="$STITLE" columns="$SDEFCOLUMNS" showtable="$STABLE">
     <!--#include virtual="../hosts/columns.xml"-->
     <!--NEW-->
 </table>
