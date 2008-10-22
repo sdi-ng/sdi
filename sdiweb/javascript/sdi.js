@@ -513,6 +513,7 @@ function create_summary_from_xml(xmlURI, containerID){
     var tables = xmlDoc.getElementsByTagName("table");
 
     for (i=0; i<tables.length; i++){
+        var show = "true";
         for (j=0; j<tables[i].attributes.length; j++){
             switch (tables[i].attributes[j].name){
                 case 'title':
@@ -523,8 +524,16 @@ function create_summary_from_xml(xmlURI, containerID){
                     // IE hack should go here
                     var columns = tables[i].attributes[j].textContent;
                     break;
+                case 'showtable':
+                    // IE hack should go here
+                    var show = tables[i].attributes[j].textContent;
+                    break;
             }
         }
+
+        if (show=="false")
+            continue;
+
         var id = title.replace(/ /g,'');
 
         var table_bar = create_table_topbar(id, title, columns);
