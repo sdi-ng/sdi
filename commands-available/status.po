@@ -7,8 +7,10 @@ function status_www()
 {
     if test "$*" = "ONLINE"; then
         PSTATUS=green
+        PSTATETYPE="online:true offline:false"
     else
         PSTATUS=red
+        PSTATETYPE="online:false offline:true"
     fi
 
     PVALUE="$*"

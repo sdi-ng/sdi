@@ -1,0 +1,8 @@
+function getstateinfo()
+{
+    STITLE="Online"
+    SDESCRIPTION="Hosts online"
+    SDEFCOLUMNS="Hostname,Uptime,Status"
+    SSUMARY="%d hosts online"
+    STABLE="false"
+}
