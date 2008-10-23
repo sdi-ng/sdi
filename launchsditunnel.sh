@@ -190,6 +190,7 @@ function closehost()
         touch $TMPDIR/${HOST}_FINISH
         echo 'killchilds $$' >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
+        sleep 15
         echo "exit 0" >> $CMDDIR/$HOST
         printf "Waiting $HOST tunnel finish... "
         waitend $(cat $PIDDIRHOSTS/$HOST)
@@ -213,6 +214,7 @@ function closeallhosts()
     touch $TMPDIR/SDIFINISH
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
+    sleep 15
     echo "exit 0" >> $CMDGENERAL
     waitend $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null)
     printf "done\n"
