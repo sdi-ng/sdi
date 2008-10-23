@@ -209,14 +209,14 @@ function closehost()
 
 function closeallhosts()
 {
+    printf "Waiting tunnels to finish... "
     touch $TMPDIR/SDIFINISH
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
-    closesdiprocs
-    printf "Waiting tunnels to finish... "
     waitend $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null)
     printf "done\n"
+    closesdiprocs
 }
 
 #Prototype of PARSE() function
