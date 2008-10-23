@@ -309,8 +309,6 @@ function PARSE()
 function SDITUNNEL()
 {
     HOST=$1
-    TMP=$PIDDIRHOSTS/${HOST}_TUNNELPROCS
-    touch $TMP
     CMDFILE=$CMDDIR/$HOST
 
     SELF=/proc/self/task/*
@@ -321,15 +319,13 @@ function SDITUNNEL()
         rm -f $CMDFILE
         touch $CMDFILE
         printf "STATUS+OFFLINE\n" | PARSE $HOST
-        (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE &
-        tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
+        (cat $HOOKS/onconnect.d/* 2>/dev/null;
+         tail -fq -n0 --pid=$SELF $CMDFILE $CMDGENERAL) |
         ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1| PARSE $HOST
-        kill $(cat $TMP) &> /dev/null
         printf "STATUS+OFFLINE\n" | PARSE $HOST
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
-    rm -f $TMP
     rm -f $PIDDIRHOSTS/$HOST.sditunnel
 }
 
