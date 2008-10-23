@@ -318,11 +318,11 @@ function SDITUNNEL()
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
-        printf "STATUS+OFFLINE\n" | PARSE $HOST
+        (printf "STATUS+OFFLINE\n";
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
          tail -fq -n0 --pid=$SELF $CMDFILE $CMDGENERAL) |
-        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1| PARSE $HOST
-        printf "STATUS+OFFLINE\n" | PARSE $HOST
+        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1;
+        printf "STATUS+OFFLINE\n") | PARSE $HOST
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
