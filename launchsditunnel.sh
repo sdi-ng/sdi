@@ -61,6 +61,7 @@ function usage()
     echo "Options:"
     echo "  --kill=HOST    Close the SDI tunnel for HOST"
     echo "  --killall      Close all SDI tunnels and stop SDI application"
+    echo "  --reload-po    Force a reload of parser objects file"
 }
 
 function getvars()
@@ -189,6 +190,7 @@ function closehost()
         touch $TMPDIR/${HOST}_FINISH
         echo 'killchilds $$' >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
+        sleep 15
         echo "exit 0" >> $CMDDIR/$HOST
         printf "Waiting $HOST tunnel finish... "
         waitend $(cat $PIDDIRHOSTS/$HOST)
@@ -208,176 +210,123 @@ function closehost()
 
 function closeallhosts()
 {
+    printf "Waiting tunnels to finish... "
     touch $TMPDIR/SDIFINISH
     echo 'killchilds $$' >> $CMDGENERAL
     echo "exit 0" >> $CMDGENERAL
+    sleep 15
     echo "exit 0" >> $CMDGENERAL
-    closesdiprocs
-    printf "Waiting tunnels to finish... "
     waitend $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null)
     printf "done\n"
-}
-
-# Update the information about how many hosts are in the $1 state
-function updatecnt() {
-    webstatecount="$STATEDIR/$1-count.txt"
-    webstatestatus="$STATEDIR/$1-status.xml"
-    op=$2
-    summaryphrase=$3
-    nhosts=$(cat $webstatecount)
-    if test "$op" = "sub" && test $nhosts -gt 0; then
-        ((nhosts=nhosts-1))
-    else
-        ((nhosts=nhosts+1))
-    fi
-    printf "$nhosts\n" > $webstatecount
-    printf "<$1>$summaryphrase</$1>\n" $nhosts > $webstatestatus
-}
-
-# Save the states of the remote hosts.
-function savestate()
-{
-    (tail -f -n0 $SFIFO & echo $! > $PIDDIRSYS/fifo.pid) |
-    while read HOST PSTATE PSTATETYPE; do
-
-        if test "$PSTATE" = "exit"; then
-            kill $(cat $PIDDIRSYS/fifo.pid)
-            break
-        fi
-
-        local WEBSTATEXML="$STATEDIR/$PSTATETYPE.xml"
-
-        if ! test -f "$WEBSTATEXML"; then
-            LOG "ERROR: file $WEBSTATEXML not found."
-            continue
-        elif ! source $SHOOKS/$PSTATETYPE; then
-            LOG "ERROR: failure to load $SHOOKS/$PSTATETYPE"
-            continue
-        elif ! getstateinfo; then
-            LOG "ERROR: failure to load getstateinfo (in $SHOOKS/$PSTATETYPE)"
-            continue
-        else
-            if test -z "$PSTATE" || test "$PSTATE" == false; then
-                # Remove $HOST entry from $WEBSTATEXML
-                if grep -q "hosts\/$HOST.xml\"" $WEBSTATEXML; then
-                    sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
-                    # Decreases in 1 the amount of hosts in this state
-                    if ! test -z "$SSUMARY"; then
-                        updatecnt $PSTATETYPE sub "$SSUMARY"
-                    fi
-                fi
-            else
-                # Add new host entry for this state in $WEBSTATXML
-                tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
-                if ! grep -q "$tag" $WEBSTATEXML; then
-                    sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
-                    # Increases in 1 the amount of hosts in this state
-                    if ! test -z "$SSUMARY"; then
-                        updatecnt $PSTATETYPE add "$SSUMARY"
-                    fi
-                fi
-            fi
-        fi
-        unset SSUMARY
-    done
-}
-
-# Create the structure of files that will be used to manage
-# the states of the remote hosts
-function createstatestructure()
-{
-    for state in $SHOOKS/*; do
-        if ! source $state || ! getstateinfo &> /dev/null; then
-            LOG "ERROR: failure to load state $state"
-            return 1
-        elif test -z "$SSUMARY"; then
-            LOG "ERROR: state $state: \$SUMARY must be set in $state"
-        elif test -z "$SDEFCOLUMNS"; then
-            LOG "ERROR: state $state: \$SDEFCOLUMNS must be set in $state"
-        elif test -z "$STITLE"; then
-            LOG "ERROR: state $state: \$STITLE must be set in $state"
-        else
-            state=$(basename $state)
-            cat <<EOF > $STATEDIR/$state.xml
-<table title="$STITLE" columns="$SDEFCOLUMNS">
-    <!--#include virtual="../hosts/columns.xml"-->
-    <!--NEW-->
-</table>
-EOF
-            printf "0\n" > "$STATEDIR/$state-count.txt"
-            printf "<$state>$SSUMARY</$state>\n" 0 >\
-            "$STATEDIR/$state-status.xml"
-        fi
-    done
+    closesdiprocs
 }
 
 #Prototype of PARSE() function
 function PARSE()
 {
     HOST=$1
+    DATAPATH=$DATADIR/$HOST
+    mkdir -p $DATAPATH
+
+    SELF=/proc/self/task/*
+    basename $SELF > $PIDDIRHOSTS/$HOST.parserpid
+
+    # cache and reload control
+    CACHE=""
+    RELOAD=false
+
+    # on signal reload parser obejects
+    trap "RELOAD=true" USR1
 
     while read LINE; do
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
 
-        DATAPATH=$DATADIR/$HOST
+        # unset functions if will force a reload
+        test $RELOAD = true &&
+            for FNC in $CACHE; do unset $FNC; done &&
+            RELOAD=false && CACHE=""
 
-        if ! source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
-            LOG "$FIELD.po: $LINE"
-        else
-            mkdir -p $DATAPATH
-            updatedata $DATA
-            PRINT "$UPDATA" "$DATAPATH/$FIELD"
-            if test $WEBMODE = true; then
-                www $DATA
-                ATTR=$(getattributes)
-                if test $? == 0; then
-                    WWWLINE="<$FIELD $ATTR />"
-                    mkdir -p $WWWDIR/hosts/$HOST/
-                    echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
-                    if ! test -z "$PSTATETYPE"; then
-                        for state in $PSTATETYPE; do
-                            pstate=$(cut -d':' -f2 <<< $state)
-                            pstatetype=$(cut -d':' -f1 <<< $state)
-                            test -z "$pstate" && pstate="false"
-                            echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
-                        done
-                    fi
+        LOAD=0
 
-                else
-                    LOG "ATTR ERROR: $ATTR"
-                fi
-            fi
-
-            #unset all variables used by script's
-            for var in $(getvars); do
-                unset $(cut -d: -f1 <<< $var)
+        if ${FIELD}_updatedata $DATA 2> /dev/null; then
+            # already loaded
+            LOAD=1
+        elif source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
+            # check if command is enabled
+            ENABLED=false
+            for CMD in $(ls $HOOKS/*/*); do
+                test $(basename $(realpath $CMD)) = $FIELD &&
+                ENABLED=true && break
             done
-            unset DATA PSTATE PSTATETYPE
+
+            test $ENABLED = false &&
+            PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
+            continue
+
+            # now sourced
+            LOAD=2
+            CACHE="$CACHE ${FIELD}_updatedata"
+        else
+            PRINT "$LINE" "$DATAPATH/$HOST.log"
+            continue
         fi
+
+        # if just sourced, must run updatedata again
+        test $LOAD = 2 && ${FIELD}_updatedata $DATA
+
+        # run script functions
+        PRINT "$UPDATA" "$DATAPATH/$FIELD"
+        if test $WEBMODE = true; then
+            ${FIELD}_www $DATA
+            ATTR=$(getattributes)
+            if test $? == 0; then
+                WWWLINE="<$FIELD $ATTR />"
+                mkdir -p $WWWDIR/hosts/$HOST/
+                echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
+                if ! test -z "$PSTATETYPE"; then
+                    for state in $PSTATETYPE; do
+                        pstate=$(cut -d':' -f2 <<< $state)
+                        pstatetype=$(cut -d':' -f1 <<< $state)
+                        test -z "$pstate" && pstate="false"
+                        echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
+                    done
+                fi
+            else
+                LOG "ATTR ERROR: $ATTR"
+            fi
+        fi
+
+        # unset all variables used by script's
+        for VAR in $(getvars); do
+            unset $(cut -d: -f1 <<< $VAR)
+        done
+        unset DATA PSTATE PSTATETYPE
     done
+    rm -f $PIDDIRHOSTS/$HOST.parserpid
 }
 
 function SDITUNNEL()
 {
     HOST=$1
-    TMP=$PIDDIRHOSTS/${HOST}_TUNNELPROCS
-    touch $TMP
     CMDFILE=$CMDDIR/$HOST
+
+    SELF=/proc/self/task/*
+    basename $SELF > $PIDDIRHOSTS/$HOST.sditunnel
+    SELF=$(cat $PIDDIRHOSTS/$HOST.sditunnel)
+
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
-        printf "STATUS+OFFLINE\n" | PARSE $HOST
-        (cat $HOOKS/onconnect.d/* 2>/dev/null; tail -f -n0 $CMDFILE &
-        tail -f -n0 $CMDGENERAL & jobs -p > $TMP) |
-        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1| PARSE $HOST
-        kill $(cat $TMP) &> /dev/null
-        printf "STATUS+OFFLINE\n" | PARSE $HOST
+        (printf "STATUS+OFFLINE\n";
+        (cat $HOOKS/onconnect.d/* 2>/dev/null;
+         tail -fq -n0 --pid=$SELF $CMDFILE $CMDGENERAL) |
+        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1;
+        printf "STATUS+OFFLINE\n") | PARSE $HOST
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
-    rm -f $TMP
-    rm -f $PIDDIRHOSTS/$HOST
+    rm -f $PIDDIRHOSTS/$HOST.sditunnel
 }
 
 function LAUNCH ()
@@ -403,14 +352,10 @@ function LAUNCH ()
     # Create file that will be used to send commands to all hosts
     touch $CMDGENERAL
 
-    # Create strucure of xml files for states managing
-    test $WEBMODE = true && createstatestructure
-
     #Open a tunnel for each host
     for HOST in $*; do
         echo $HOST
         SDITUNNEL $HOST &
-        echo $! > $PIDDIRHOSTS/${HOST}
         sleep $LAUNCHDELAY
     done
 }
@@ -435,6 +380,15 @@ case $1 in
         closeallhosts
         exit 0
         ;;
+    --reload-po)
+        printf "Sending signal to parsers... "
+        for PARSERPID in $(cat $PIDDIRHOSTS/*.parserpid); do
+            kill -USR1 $PARSERPID 2> /dev/null
+        done
+        printf "done\nParser objects will be reloaded.\n"
+        exit 0
+        ;;
+
     -h|--help)
         usage
         exit 0
@@ -451,11 +405,6 @@ for dir in $TMPDIR $PIDDIR $PIDDIRHOSTS $PIDDIRSYS $CMDDIR $DATADIR \
            $STATEDIR $HOOKS $SHOOKS $FIFODIR; do
     SDIMKDIR $dir || exit 1
 done
-
-#Create fifo that will be used to manage states
-#and open function to read fifo
-rm -f $SFIFO ; mkfifo $SFIFO
-savestate & echo $! >> $TMPDIR/savestate.pid
 
 #Start launching SDI tunnels
 LAUNCH $*

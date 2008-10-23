@@ -1,9 +1,9 @@
-function updatedata()
+function loadavg_updatedata()
 {
     UPDATA="$*"
 }
 
-function www()
+function loadavg_www()
 {
     PSORTCUSTOM=$(awk '{print $1}' <<< "$*" | sed "s/\.//g")
     PVALUE="$*"

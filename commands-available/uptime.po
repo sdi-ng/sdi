@@ -1,9 +1,9 @@
-function updatedata()
+function uptime_updatedata()
 {
    UPDATA="$*"
 }
 
-function www()
+function uptime_www()
 {
     UP="$*"
     UPDAYS=$(awk -F" days" '{print $1}' <<< $UP)

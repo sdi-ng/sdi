@@ -22,6 +22,7 @@ done
 
 # the sendfile fifo
 FILEFIFO="$FIFODIR/sendfile.fifo"
+FINISHFIFO="$FIFODIR/sendfile_finish.fifo"
 FILEBLOCK="$TMPDIR/sendfile.blocked"
 FINISH="/tmp/.sdi.sendfile.finish"
 
@@ -33,9 +34,28 @@ mkdir -p $FIFODIR
 rm -f $FILEFIFO 2> /dev/null
 mkfifo $FILEFIFO
 
+# create the finish fifo
+rm -f $FINISHFIFO 2> /dev/null
+mkfifo $FINISHFIFO
+
 # create the blocked file
 rm -f $FILEBLOCK 2> /dev/null
 touch $FILEBLOCK
+
+# create empty transfers file
+rm -f $PIDDIRSYS/transfers.pid 2> /dev/null
+touch $PIDDIRSYS/transfers.pid
+
+
+# function to remove pids from transfers file
+function transferend()
+{
+    (tail -f $FINISHFIFO & echo $! > $PIDDIRSYS/finishfifo.pid) |
+    while read PID; do
+        sed -i "/^$PID$/d" $PIDDIRSYS/transfers.pid
+    done
+}
+
 
 # function to wait a scp ends
 # adictionaly removes PID from pids file
@@ -46,7 +66,7 @@ function waittransferend()
     while test -d /proc/$PID; do
         sleep 0.5
     done
-    sed -i "/^$PID$/d" $PIDDIRSYS/transfers.pid
+    echo "$PID" >> $FINISHFIFO
     echo 'echo $(date +%s) '$DESTINATION' >> '$FINISH'' >> $CMDDIR/$HOST
 }
 
@@ -77,7 +97,8 @@ function sendfiledeamon()
         fi
 
         # run scp
-        scp $SSHOPTS $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION &
+        scp -q $SSHOPTS $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION \
+        &> /dev/null &
 
         # send a waittransferend look to this proccess
         PID=$!
@@ -86,6 +107,7 @@ function sendfiledeamon()
     done
 }
 
-# run the deamon
+# run the deamon and finish watcher
+transferend &
 sendfiledeamon &
 echo $! > $PIDDIRSYS/deamon.pid
