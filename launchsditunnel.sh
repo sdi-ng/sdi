@@ -310,6 +310,11 @@ function SDITUNNEL()
     TMP=$PIDDIRHOSTS/${HOST}_TUNNELPROCS
     touch $TMP
     CMDFILE=$CMDDIR/$HOST
+
+    SELF=/proc/self/task/*
+    basename $SELF > $PIDDIRHOSTS/$HOST.sditunnel
+    SELF=$(cat $PIDDIRHOSTS/$HOST.sditunnel)
+
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
@@ -323,7 +328,7 @@ function SDITUNNEL()
         sleep $(bc <<< "($RANDOM%600)+120")
     done
     rm -f $TMP
-    rm -f $PIDDIRHOSTS/$HOST
+    rm -f $PIDDIRHOSTS/$HOST.sditunnel
 }
 
 function LAUNCH ()
@@ -353,7 +358,6 @@ function LAUNCH ()
     for HOST in $*; do
         echo $HOST
         SDITUNNEL $HOST &
-        echo $! > $PIDDIRHOSTS/${HOST}
         sleep $LAUNCHDELAY
     done
 }
