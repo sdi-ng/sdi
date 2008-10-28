@@ -293,7 +293,7 @@ function PARSE()
                     done
                 fi
             else
-                LOG "ATTR ERROR: $ATTR"
+                PRINT "ATTR ERROR ON $FIELD: $ATTR" "$DATAPATH/$HOST.log"
             fi
         fi
 
