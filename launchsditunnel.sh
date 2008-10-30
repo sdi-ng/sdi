@@ -334,8 +334,8 @@ function LAUNCH ()
     #If there are SDI tunnels opened, the execution should be stopped
     hostsrunning=""
     for HOST in $*; do
-        if test -f $PIDDIRHOSTS/$HOST; then
-            PID=$(cat $PIDDIRHOSTS/${HOST})
+        if test -f $PIDDIRHOSTS/$HOST.sditunnel; then
+            PID=$(cat $PIDDIRHOSTS/$HOST.sditunnel)
             if test -d /proc/$PID; then
                 hostsrunning="$hostsrunning $HOST"
             fi
