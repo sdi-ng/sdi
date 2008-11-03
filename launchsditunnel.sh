@@ -264,6 +264,7 @@ function PARSE()
             done
 
             test $ENABLED = false &&
+            unset ${FIELD}_updatedata ${FIELD}_www &&
             PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
             continue
 
