@@ -178,6 +178,9 @@ function closesdiprocs()
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
+    printf "Waiting savestate to finish... "
+    waitend $(cat $PIDDIRSYS/fifo.pid)
+    printf "done\n"
     printf "Stopping SDI services... "
     kill $(cat $PIDDIRSYS/*) &> /dev/null
     printf "done\n"

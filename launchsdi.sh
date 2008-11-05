@@ -10,6 +10,10 @@ elif ! source $PREFIX/misc.sh; then
     exit 1
 fi
 
+# check if realpath command is available
+test -x "$(which realpath)" ||
+    { printf "FATAL: \"realpath\" must be installed\n" && exit 1; }
+
 # Customizable variables, please refer to sdi.conf to change these values
 : ${DATADIR:=$PREFIX/data}
 : ${PIDDIR:=$TMPDIR/pids}

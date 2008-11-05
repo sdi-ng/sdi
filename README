@@ -1,13 +1,14 @@
-SDI - An Instant Diagnose System (draft)
+SDI - An Instant Diagnose System v1.0.0
 ================================
 
-This is a PoC (Proof of Concept) version of a way to write a simple and
-scalable system to Diagnose Instantly a huge (and small) networks.
+SDI is a simple and scalable system to Diagnose Instantly huge (and small)
+networks. It provides a way to run diagnose scripts at hosts or any other
+kind of script [such as a DEE], also creates a webpage containing all
+informations summarized.
 
-We provide a way to run HOURLY scripts on the remote host and store them on
-the LOCAL host, also there's a simple way to generate some WEB pages
-containing all important stuff to show (Processor type, RAM, RAID
-Status...).
+SDI is an Open Source project covered by the GNU General Public License v2.
+It was originally written by Bruno Ribas and is currently maintained by
+Bruno Ribas, Diego Pasqualin and Vinicius Ruoso.
 
 Goals
 ~~~~~
@@ -19,20 +20,18 @@ Our goals are mainly:
 - Simple API to collect data, so the creator of the script should not know
   how to generate HTMLs and any other stuff, just GIVE information.
 
+Documentation && Howto
+~~~~~~~~~~~~~~~~~~~~~~
+
+To see documentation, how to install and run SDI, you can access our
+website (http://sdi.sf.net) and/or our wiki at http://wiki.c3sl.ufpr.br/sdi
+ - Help us improve our wiki =)
+
 Contact
 ~~~~~~~
 
-If you have any doubt about SDI way of work you can simply ask us and read
-all the code 8^)
-
-You can send an email to contato@c3sl.ufpr.br or to some developer. Our DEV
-and USER mailing list are yet to be created.
-
-Notes
-~~~~~
-
-- Some scripts provided here are exclusively to our testing network PrD
-  (Parana Digital www.c3sl.ufpr.br/prd)
-- This version Is only a Proof of Concept, a new and more functional version
-  is comming.
-
+The user discussion and development of SDI and most tools related to SDI
+takes place on the SDI mailing list - everyone is welcome to post bug
+reports, feature requests, comments and patches to sdi@c3sl.ufpr.br. To
+subscribe to the list, send an empty email to sdi-subscribe@c3sl.ufpr.br.
+The mailing list archives are available at http://listas.c3sl.ufpr.br/sdi
