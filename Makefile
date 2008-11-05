@@ -6,6 +6,10 @@ default:
 sync: sync-sfuser sync-real
 	@echo
 
+sync-back: sync-sfuser
+	@rsync -rlptDHx --progress --exclude=.git* \
+		$(SFUSER),sdi@web.sf.net:htdocs/ .
+
 sync-sfuser:
 	@if test $(SFUSER) = "none"; then\
 		echo "Missing SFUSER"; \
