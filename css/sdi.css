@@ -53,6 +53,15 @@ pre {
     padding-right: 5px;
 }
 
+#release {
+    margin: auto;
+    float: left;
+    background: #b6d2b6;
+    font-size: small;
+    padding-right: 2px;
+    padding-left: 2px;
+}
+
 #footer {
     margin-top: 35px;
 	padding-bottom: 15px;
