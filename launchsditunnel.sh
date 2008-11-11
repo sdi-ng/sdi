@@ -255,7 +255,7 @@ case $1 in
         ;;
     --reload-po)
         printf "Sending signal to parsers... "
-        for PARSERPID in $(cat $PIDDIRHOSTS/*.parserpid); do
+        for PARSERPID in $(cat $PIDDIRSYS/*.parserpid); do
             kill -USR1 $PARSERPID 2> /dev/null
         done
         printf "done\nParser objects will be reloaded.\n"

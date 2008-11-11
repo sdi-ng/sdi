@@ -55,7 +55,7 @@ function PARSE()
     mkdir -p $DATAPATH
 
     SELF=/proc/self/task/*
-    basename $SELF > $PIDDIRHOSTS/$HOST.parserpid
+    basename $SELF > $PIDDIRSYS/$HOST.parserpid
 
     # cache and reload control
     CACHE=""
@@ -131,6 +131,6 @@ function PARSE()
         done
         unset DATA PSTATE PSTATETYPE
     done
-    rm -f $PIDDIRHOSTS/$HOST.parserpid
+    rm -f $PIDDIRSYS/$HOST.parserpid
 }
 
