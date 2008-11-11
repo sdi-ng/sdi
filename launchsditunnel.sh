@@ -346,7 +346,8 @@ function LAUNCH ()
         fi
     done
     if ! test -z "$hostsrunning"; then
-        echo "Some SDI tunnels still opened. Close them and try to run SDI again."
+        printf "Some SDI tunnels still opened. Close them and try to "
+        printf "run SDI again.\n"
         printf "\tHosts:$hostsrunning\n"
         exit 1
     fi
