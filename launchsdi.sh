@@ -202,7 +202,10 @@ function getcolumns()
 # Create necessary folders
 SDIMKDIR $TMPDIR || exit 1
 SDIMKDIR $PIDDIR || exit 1
+SDIMKDIR $PIDDIRSYS || exit 1
 SDIMKDIR $WWWDIR/hosts || exit 1
+SDIMKDIR $STATEDIR || exit 1
+SDIMKDIR $FIFODIR || exit 1
 SDIMKDIR $CLASSESDIR || exit 1
 
 # Check if web mode is enabled
