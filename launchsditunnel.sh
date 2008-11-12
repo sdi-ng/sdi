@@ -189,14 +189,14 @@ function closesdiprocs()
 function closehost()
 {
     local HOST=$1
-    if test -f $PIDDIRHOSTS/$HOST; then
+    if test -f $PIDDIRHOSTS/$HOST.sditunnel; then
         touch $TMPDIR/${HOST}_FINISH
         echo 'killchilds $$' >> $CMDDIR/$HOST
         echo "exit 0" >> $CMDDIR/$HOST
         sleep 15
         echo "exit 0" >> $CMDDIR/$HOST
         printf "Waiting $HOST tunnel finish... "
-        waitend $(cat $PIDDIRHOSTS/$HOST)
+        waitend $(cat $PIDDIRHOSTS/$HOST.sditunnel)
         printf "done\n"
         printf "Blocking $HOST to receive files... "
         sendfile -b $HOST
