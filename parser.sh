@@ -51,8 +51,6 @@ function getattributes()
 function PARSE()
 {
     HOST=$1
-    DATAPATH=$DATADIR/$HOST
-    mkdir -p $DATAPATH
 
     SELF=/proc/self/task/*
     basename $SELF > $PIDDIRSYS/$HOST.parserpid
@@ -68,6 +66,9 @@ function PARSE()
         LOG "PARSER $LINE"
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
+
+        DATAPATH=$DATADIR/$HOST
+        test -d $DATAPATH || mkdir -p $DATAPATH
 
         # unset functions if will force a reload
         test $RELOAD = true &&
