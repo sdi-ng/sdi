@@ -38,6 +38,7 @@ fi
 : ${SHOOKS:=$PREFIX/states-enabled}
 : ${CMDGENERAL:=$CMDDIR/general}
 : ${SDIUSER:=$USER}
+: ${HOSTSPERPARSER:=20}
 
 #Customizable variables, please refer to wwwsdi.conf to change these values
 : ${SDIWEB:=$PREFIX/sdiweb}
@@ -233,12 +234,36 @@ function LAUNCH ()
     # Create file that will be used to send commands to all hosts
     touch $CMDGENERAL
 
-    # Create a fifo to communicate with PARSE() function
-    fifopath=$FIFODIR/fifoparser
+    # Find last fifo created
+    fifocount=$(ls $FIFODIR/fifoparser_* 2> /dev/null | cut -d'_' -f2 |
+                sort -g | tail -1)
+
+    # Next fifo counter value
+    test -z "$fifocount" && fifocount=0 || (( fifocount = fifocount+1 ))
+
+    # Create fifo
+    fifopath=$FIFODIR/fifoparser_${fifocount}
     mkfifo $fifopath
+
+    #Variables to control the fifoparser criation
+    hostsopen=0
+
+    # Open the first PARSE
+    PARSE $fifopath $fifocount &
 
     #Open a tunnel for each host
     for HOST in $*; do
+        # Check if is necessary to create a new fifo and a new PARSE
+        # instance
+        if test $hostsopen -eq $HOSTSPERPARSER; then
+            hostsopen=0
+            (( fifocount++ ))
+            fifopath=$FIFODIR/fifoparser_${fifocount}
+            mkfifo $fifopath
+            PARSE $fifopath $fifocount &
+        fi
+        (( hostsopen++ ))
+
         echo $HOST
         SDITUNNEL $HOST $fifopath &
         sleep $LAUNCHDELAY
