@@ -36,3 +36,16 @@ function SDIMKDIR()
         return 0
     fi
 }
+
+# $1 - PID of process that is listening the fifo
+# $2 - Name of fifo file. closefifo() will look for this file in $FIFODIR
+function closefifo()
+{
+    PIDFIFO=$1
+    FIFO=$2
+    LOG "Closing fifo $FIFO"
+    test -d /proc/$PIDFIFO && echo "exit exit exit" >> $FIFODIR/$FIFO &&
+    waitend $PIDFIFO
+    rm -f $FIFODIR/$FIFO
+}
+
