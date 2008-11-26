@@ -128,8 +128,13 @@ function notunnelisopen()
 
 function closesdiprocs()
 {
-    test -f $PIDDIRSYS/fifo.pid && pidfifo=$(cat $PIDDIRSYS/fifo.pid) &&
-    test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
+    printf "Closing fifo's... "
+    for FIFO in $(ls $PIDDIRSYS | grep '^fifoparser*'); do
+        PIDFIFO=$(cat $PIDDIRSYS/$FIFO)
+        closefifo $PIDFIFO $FIFO
+    done
+    printf "done\n"
+
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
@@ -182,6 +187,7 @@ function closeallhosts()
 function SDITUNNEL()
 {
     HOST=$1
+    PARSERCOM=$2
     CMDFILE=$CMDDIR/$HOST
 
     SELF=/proc/self/task/*
@@ -191,11 +197,12 @@ function SDITUNNEL()
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
-        (printf "STATUS+OFFLINE\n";
+        printf "$HOST STATUS+OFFLINE\n" > $PARSERCOM
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
-         tail -fq -n0 --pid=$SELF $CMDFILE $CMDGENERAL) |
-        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1;
-        printf "STATUS+OFFLINE\n") | PARSE $HOST
+        tail -fq -n0 --pid=$SELF $CMDFILE $CMDGENERAL) |
+            ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1 |
+                xargs -d'\n' -L 1 echo $HOST > $PARSERCOM
+        printf "$HOST STATUS+OFFLINE\n" > $PARSERCOM
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
@@ -226,10 +233,14 @@ function LAUNCH ()
     # Create file that will be used to send commands to all hosts
     touch $CMDGENERAL
 
+    # Create a fifo to communicate with PARSE() function
+    fifopath=$FIFODIR/fifoparser
+    mkfifo $fifopath
+
     #Open a tunnel for each host
     for HOST in $*; do
         echo $HOST
-        SDITUNNEL $HOST &
+        SDITUNNEL $HOST $fifopath &
         sleep $LAUNCHDELAY
     done
 }
