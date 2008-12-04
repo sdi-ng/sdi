@@ -1,0 +1,35 @@
+#!/bin/bash
+
+PREFIX=$(dirname $0)
+
+function usage () {
+    echo "Usage:"
+    echo "  $0 [options]"
+    echo "Options:"
+    echo -ne "  --start\n\tStart SDI.\n"
+    echo -ne "  --stop\n\tStop SDI\n"
+    echo -ne "  --close=host\n\tClose the tunnel of the host\n"
+    echo -ne "  --restart-sdi\n\tRestart SDI\n"
+}
+
+TEMP=$(getopt -o hsScR \
+       --long 'help,start,stop,close:,restart-sdi' \
+       -n 'sdictl' -- "$@")
+
+eval set -- "$TEMP"
+
+while true; do
+    case "$1" in
+        --start) bash $PREFIX/launchsdi.sh
+                 break ;;
+        --stop) bash $PREFIX/launchsditunnel.sh --killall
+                break ;;
+        --restart-sdi) bash $PREFIX/launchsditunnel.sh --killall \
+                       bash $PREFIX/launchsdi.sh
+                       break ;;
+        --close) bash $PREFIX/launchsditunnel.sh --kill="$2"
+                 break ;;
+        *) usage
+           break ;;
+    esac
+done
