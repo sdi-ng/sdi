@@ -1,27 +1,39 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>SDI - Instant Diagnose System</title>
-<link href="css/sdi.css" rel="stylesheet" type="text/css" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>SDI - Instant Diagnose System</title>
+  <link href="css/sdi.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<div id="main">
- <div id="top"><a href="http://sdi.sf.net">SDI</a><a href="index.html"> - Instant Diagnose System</a></div>
- <div id="content">
-    <div id="languages"><a href="index-pt-br.html">pt-BR</a> | en-US</div>
-    <div id="release" >
-      <center><strong>Download SDI</strong></center>
-      Latest SDI stable release is <strong>v1.0.0:</strong><br/>
-      <center>
-        <a href="http://www.c3sl.ufpr.br/sdi/sdi-1.0.0.tar.bz2">v1.0.0</a>
-          (<a href="http://www.c3sl.ufpr.br/sdi/sdi-1.0.0.tar.bz2.md5">md5</a>)
-           2008-11-05
-           <a href="http://www.c3sl.ufpr.br/sdi/ChangeLog-1.0.0">Changelog</a>
-      </center>
+<div id="topbar">
+ <div id="logo">
+    <a href="http://sdi.sf.net"><img src="img/sdi_top.png" alt="SDI"></a>
+ </div>
+ <div id="menu">
+    <ul>
+     <li><a href="index.html">Home</a></li> |
+     <li><a href="http://wiki.c3sl.ufpr.br/sdi">Documentation</a></li> |
+     <li><a href="screens.html">Screenshots</a></li> |
+     <li><a href="http://git.c3sl.ufpr.br/gitweb?p=sdi/sdi.git;a=summary">SDI's Gitweb</a></li>
+    </ul>
+    <div id="languages"><a href="index-pt-br.html">pt-BR</a> | <em>en-US</em></div>
+ </div>
 </div>
-    <br/><br/>
- 	<h2>What's SDI?</h2>
+<div id="main">
+    <div id="release">
+     <h3>Download SDI</h3>
+     <p>Latest SDI stable release is <strong>v1.0.0:</strong><br>
+     <a href="http://www.c3sl.ufpr.br/sdi/sdi-1.0.0.tar.bz2">v1.0.0</a>
+     (<a href="http://www.c3sl.ufpr.br/sdi/sdi-1.0.0.tar.bz2.md5">md5</a>)
+     2008-11-05
+     <a href="http://www.c3sl.ufpr.br/sdi/ChangeLog-1.0.0">Changelog</a>
+     </p>
+    </div>
+
+ <div id="content">
+  <div id="top">SDI - Instant Diagnose System</div>
+    <h2>What's SDI?</h2>
 	<p>SDI is a simple and scalable system to Diagnose Instantly huge (and
     small) networks.  It provides a way to run diagnose scripts at hosts or
     any other kind of script [such as a DEE], also creates a webpage
@@ -31,14 +43,13 @@
     General Public License v2</a>. It was originally written by Bruno Ribas
     and is currently maintained by Bruno Ribas, Diego Pasqualin and Vinicius
     Ruoso.</p>
-	<h2>How SDI works?</h2>
+   	<h2>How SDI works?</h2>
 	<p>Using SSH comunication tunnel, SDI will drag information on the HOSTS
     and drop it directly to generated web pages.</p>
 	<h2>Getting the code</h2>
-	<p>To download SDI code, you must have <a
-    href="http://git.or.cz">git</a> command available. Then type:
-     <pre>git-clone http://git.c3sl.ufpr.br/pub/scm/sdi/sdi.git sdi/
-</pre></p>
+	<p>To download SDI code, you must have <a href="http://git.or.cz">git</a> command available. Then type:
+     </p><pre>git-clone http://git.c3sl.ufpr.br/pub/scm/sdi/sdi.git sdi/
+</pre>
 	<h2>Documentation - Help</h2>
 	<p>To see documentation and how to install and run SDI, you can access
     our <a href="http://wiki.c3sl.ufpr.br/sdi">wiki</a> or refer to README
@@ -65,8 +76,7 @@
     The State public school network has an enrollment of 1.5 million
     students and is staffed by 57.000 teachers.
     <ul>
-    <li> <em>SDI v1.0.0-rc3</em> <a
-    href="http://yoda.c3sl.ufpr.br/sdi/sdi1.0">PrD SDI1.0</a></li>
+    <li> <em>SDI v1.0.0-rc3</em> <a href="http://yoda.c3sl.ufpr.br/sdi/sdi1.0">PrD SDI1.0</a></li>
     </ul>
     </li>
     <li><a href="http://www.sematel.com.br">
@@ -76,12 +86,12 @@
     </ul>
     <h2>Development</h2>
     <p>As exposed above, SDI is tracked by Git. you can see development
-    history at <a
-    href="http://git.c3sl.ufpr.br">http://git.c3sl.ufpr.br</a></p>
+    history at <a href="http://git.c3sl.ufpr.br">http://git.c3sl.ufpr.br</a></p>
  </div>
- <div id="footer"><img src="img/sdi.png" alt="SDI" />
- <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=240343&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
+ <div id="footer"><img src="img/sdi.png" alt="SDI">
+    <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=240343&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
+    <a href="http://www.ufpr.br"><img src="img/ufpr.png" hspace="10" height="40" alt="UFPR" border="0" /></a>
+    <a href="http://www.c3sl.ufpr.br"><img src="img/c3sl.png" width="120" alt="C3SL" border="0" /></a>
  </div>
 </div>
-</body>
-</html>
+</body></html>
