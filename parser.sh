@@ -50,9 +50,10 @@ function getattributes()
 
 function PARSE()
 {
-    PARSERFIFO=$1
-    PARSERID=$2
-    PIDFILE=$PIDDIRSYS/fifoparser_$PARSERID
+    HOST=$1
+
+    SELF=/proc/self/task/*
+    basename $SELF > $PIDDIRSYS/$HOST.parserpid
 
     # cache and reload control
     CACHE=""
@@ -61,15 +62,13 @@ function PARSE()
     # on signal reload parser obejects
     trap "RELOAD=true" USR1
 
-    (tail -f $PARSERFIFO & echo $! >$PIDFILE) |
-    while read HOST LINE; do
-        test $HOST = exit && break
+    while read LINE; do
+        LOG "PARSER $LINE"
+        FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
+        DATA=$(cut -d"+" -f2- <<< $LINE)
 
         DATAPATH=$DATADIR/$HOST
         test -d $DATAPATH || mkdir -p $DATAPATH
-
-        FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
-        DATA=$(cut -d"+" -f2- <<< $LINE)
 
         # unset functions if will force a reload
         test $RELOAD = true &&
@@ -133,10 +132,6 @@ function PARSE()
         done
         unset DATA PSTATE PSTATETYPE
     done
-
-    # Sometimes tail instance not exit automatically, so we need to send a
-    # broken pipe signal to tell them that it works is done
-    kill -s 13 $(cat $PIDFILE)
-    LOG "END of parser(id $PARSERID) function..."
+    rm -f $PIDDIRSYS/$HOST.parserpid
 }
 
