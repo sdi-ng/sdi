@@ -3,7 +3,8 @@
 PREFIX=$(dirname $0)
 
 # try to load configuration and sendfile function
-if ! source $PREFIX/sdi.conf; then
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
 elif ! source $PREFIX/misc.sh; then
@@ -17,37 +18,7 @@ elif ! source $PREFIX/sendfile.sh; then
     echo "WARNING: you will not be able to send files to hosts through SDI"
 fi
 
-# These are minimal configuration needed, user may overwrite any of them by
-# defining at sdi.conf
-: ${TIMEOUT:=240}
-: ${KILLTOUT:=30}
-: ${SSHOPT[0]:="PreferredAuthentications=publickey"}
-: ${SSHOPT[1]:="StrictHostKeyChecking=no"}
-: ${SSHOPT[2]:="ConnectTimeOut=$TIMEOUT"}
-: ${SSHOPT[3]:="TCPKeepAlive=yes"}
-: ${SSHOPT[4]:="ServerAliveCountMax=3"}
-: ${SSHOPT[5]:="ServerAliveInterval=100"}
-
-: ${CMDDIR:=$PREFIX/cmds}
-: ${DATADIR:=$PREFIX/data}
-: ${TMPDIR:=/tmp/SDI}
-: ${PIDDIR:=$TMPDIR/pids}
-: ${PIDDIRHOSTS:=$PIDDIR/hosts}
-: ${PIDDIRSYS:=$PIDDIR/system}
-: ${HOOKS:=$PREFIX/commands-enabled}
-: ${SHOOKS:=$PREFIX/states-enabled}
-: ${CMDGENERAL:=$CMDDIR/general}
-: ${SDIUSER:=$USER}
-
-#Customizable variables, please refer to wwwsdi.conf to change these values
-: ${SDIWEB:=$PREFIX/sdiweb}
-: ${WWWDIR:=$PREFIX/www}
-: ${FIFODIR:=$TMPDIR/fifos}
-: ${SFIFO:=$FIFODIR/states.fifo}
-: ${WEBMODE:=true}
-: ${SDIWEB:=$PREFIX/sdiweb}
-
-: ${LAUNCHDELAY:=0.1}
+# daemon must be set like this
 : ${DAEMON:=false}
 
 # define STATEDIR

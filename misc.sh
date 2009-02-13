@@ -1,9 +1,11 @@
 #!/bin/bash
 PREFIX=$(dirname $0)
 
-source $PREFIX/sdi.conf
-
-: ${LOG:=$PREFIX/sdi.log}
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+fi
 
 # Function to update the sdi log.
 # The log message contains the seconds since

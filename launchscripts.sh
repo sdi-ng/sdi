@@ -7,13 +7,11 @@ if ! source $PREFIX/misc.sh; then
     exit 1
 fi
 
-if ! source $PREFIX/sdi.conf; then
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
     LOG "CRON: failed to load sdi configuration file: $PREFIX/sdi.conf"
     exit 1
 fi
-
-: ${CMDDIR:=$PREFIX/cmds}
-: ${HOOKS:=$PREFIX/commands-enabled}
 
 SOURCE="$1"
 

@@ -2,7 +2,8 @@
 
 PREFIX=$(dirname $0)
 
-if ! source $PREFIX/sdi.conf; then
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
 elif ! source $PREFIX/misc.sh; then
@@ -13,20 +14,6 @@ fi
 # check if realpath command is available
 test -x "$(which realpath)" ||
     { printf "FATAL: \"realpath\" must be installed\n" && exit 1; }
-
-# Customizable variables, please refer to sdi.conf to change these values
-: ${DATADIR:=$PREFIX/data}
-: ${PIDDIR:=$TMPDIR/pids}
-: ${PIDDIRSYS:=$PIDDIR/system}
-: ${SHOOKS:=$PREFIX/states-enabled}
-: ${CLASSESDIR:=$PREFIX/CLASSES}
-: ${CLASSNAME:=Class}
-: ${WWWDIR:=$PREFIX/www}
-: ${SDIWEB:=$PREFIX/sdiweb}
-: ${HOSTCOLUMNNAME:="Host"}
-: ${DEFAULTCOLUMNS:="Uptime"}
-: ${FIFODIR:=$TMPDIR/fifos}
-: ${SFIFO:=$FIFODIR/states.fifo}
 
 # define STATEDIR
 STATEDIR=$WWWDIR/states

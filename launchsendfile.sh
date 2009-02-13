@@ -3,7 +3,8 @@
 PREFIX=$(dirname $0)
 
 # try to load configuration
-if ! source $PREFIX/sdi.conf; then
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
 fi
