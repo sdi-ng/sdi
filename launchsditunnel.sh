@@ -105,7 +105,8 @@ function closesdiprocs()
     removecronconfig
     printf "done\n"
     printf "Waiting savestate to finish... "
-    waitend $(cat $PIDDIRSYS/fifo.pid)
+    PIDFIFO=$(cat $PIDDIRSYS/fifo.pid)
+    closefifo $PIDFIFO "states.fifo"
     printf "done\n"
     printf "Stopping SDI services... "
     kill $(cat $PIDDIRSYS/*) &> /dev/null
