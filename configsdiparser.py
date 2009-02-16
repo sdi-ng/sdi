@@ -31,6 +31,7 @@ class configsdiparser:
                           'sfifo': '%(fifo dir)s/states.fifo'},
             'ssh':       {'sdiuser': 'root',
                           'timeout': '240',
+                          'ssh port': '22',
                           'sshopt[0]': 'PreferredAuthentications=publickey',
                           'sshopt[1]': 'StrictHostKeychecking=no',
                           'sshopt[2]': 'ConnectTimeout=%(timeout)s',

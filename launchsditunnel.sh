@@ -166,7 +166,7 @@ function SDITUNNEL()
         (printf "STATUS+OFFLINE\n";
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
          tail -fq -n0 $CMDFILE $CMDGENERAL & echo $! > $PIDDIRHOSTS/$HOST.tail)|
-        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1;
+        ssh $SSHOPTS -p $SSHPORT -l $SDIUSER $HOST "bash -s" 2>&1;
         printf "STATUS+OFFLINE\n") | PARSE $HOST
         $PREFIX/socketclient $SOCKETPORT "release"
         kill $(cat $PIDDIRHOSTS/$HOST.tail) && rm -f $PIDDIRHOSTS/$HOST.tail
