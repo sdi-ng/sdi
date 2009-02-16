@@ -27,6 +27,7 @@ class configsdiparser:
                           'log': '%(prefix)s/sdi.log',
                           'hooks':  '%(prefix)s/commands-enabled',
                           'fifo dir':  '%(tmp dir)s/fifos',
+                          'socket port': '18193',
                           'sfifo': '%(fifo dir)s/states.fifo'},
             'ssh':       {'sdiuser': 'root',
                           'timeout': '240',
