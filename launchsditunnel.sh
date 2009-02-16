@@ -168,6 +168,7 @@ function SDITUNNEL()
          tail -fq -n0 $CMDFILE $CMDGENERAL & echo $! > $PIDDIRHOSTS/$HOST.tail)|
         ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1;
         printf "STATUS+OFFLINE\n") | PARSE $HOST
+        $PREFIX/socketclient $SOCKETPORT "release"
         kill $(cat $PIDDIRHOSTS/$HOST.tail) && rm -f $PIDDIRHOSTS/$HOST.tail
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
@@ -225,6 +226,7 @@ case $1 in
         ;;
     --killall)
         closeallhosts
+        $PREFIX/socketclient $SOCKETPORT stop
         exit 0
         ;;
     --reload-po)

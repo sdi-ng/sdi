@@ -223,6 +223,9 @@ else
     printf "$0: warning: web mode is disabled.\n"
 fi
 
+# Open socketdaemon
+$PREFIX/socketdaemon.py & disown
+
 # Start runing tunnels for hosts
 CLASSES=$(ls $CLASSESDIR)
 CLASSESNUM=$(ls $CLASSESDIR |wc -l)

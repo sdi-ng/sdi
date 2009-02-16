@@ -65,6 +65,8 @@ function PARSE()
     trap "RELOAD=true" USR1
 
     while read LINE; do
+        $PREFIX/socketclient $SOCKETPORT "acquire"
+
         LOG "PARSER $LINE"
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
@@ -90,6 +92,7 @@ function PARSE()
             test $ENABLED = false &&
             unset ${FIELD}_updatedata ${FIELD}_www &&
             PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
+            $PREFIX/socketclient $SOCKETPORT "release" &&
             continue
 
             # now sourced
@@ -97,6 +100,7 @@ function PARSE()
             CACHE="$CACHE ${FIELD}_updatedata"
         else
             PRINT "$LINE" "$DATAPATH/$HOST.log"
+            $PREFIX/socketclient $SOCKETPORT "release"
             continue
         fi
 
@@ -130,6 +134,8 @@ function PARSE()
             unset $(cut -d: -f1 <<< $VAR)
         done
         unset DATA PSTATE PSTATETYPE
+        
+        $PREFIX/socketclient $SOCKETPORT "release"
     done
     rm -f $PIDDIRSYS/$HOST.parserpid
 }
