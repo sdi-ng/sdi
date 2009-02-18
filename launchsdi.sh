@@ -149,12 +149,10 @@ if test $WEBMODE = true; then
     createstatestructure
     printf "done\n"
 
-    # Create fifo that will be used to manage states
-    # and open function to read fifo
-    rm -f $SFIFO ; mkfifo $SFIFO
-    SSTATE="$PIDDIRSYS/savestate.pid"
-    ( (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE) ) ||
-    (! test -f $SSTATE )) && (savestate & echo $! > $SSTATE)
+    # Start states daemon
+    printf "Launching states daemon... "
+    bash $PREFIX/states.sh
+    printf "done\n"
 else
     printf "$0: warning: web mode is disabled.\n"
 fi

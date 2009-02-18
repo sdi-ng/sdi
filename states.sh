@@ -1,3 +1,19 @@
+#!/bin/bash
+
+PREFIX=$(dirname $0)
+
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+elif ! source $PREFIX/misc.sh; then
+    echo "ERROR: failed to load $PREFIX/misc.sh file"
+    exit 1
+fi
+
+# define STATEDIR
+STATEDIR=$WWWDIR/states
+
 # Update the information about how many hosts are in the $1 state
 function updatecnt() {
     WEBSTATECOUNT="$STATEDIR/$1-count.txt"
@@ -17,7 +33,6 @@ function updatecnt() {
 # Save the states of the remote hosts.
 function savestate()
 {
-    (tail -f -n0 $SFIFO & echo $! > $PIDDIRSYS/fifo.pid) |
     while read HOST PSTATE PSTATETYPE; do
 
         if test "$PSTATE" = "exit"; then
@@ -61,3 +76,22 @@ function savestate()
         unset SSUMARY
     done
 }
+
+function launchsavestate()
+{
+    (tail -f $SFIFO & echo $! > $PIDDIRSYS/savestatetail.pid) | savestate
+    kill $(cat $PIDDIRSYS/savestatetail.pid) 2> /dev/null
+    rm $PIDDIRSYS/savestatetail.pid
+}
+
+# Unset all sourced states functions
+for STATE in $SHOOKS/*; do
+    unset $(basename $STATE)_getstateinfo
+done
+
+# Create fifo that will be used to manage states
+# and open function to read fifo
+rm -f $SFIFO ; mkfifo $SFIFO
+SSTATE="$PIDDIRSYS/savestate.pid"
+( (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE) ) ||
+(! test -f $SSTATE )) && (launchsavestate & echo $! > $SSTATE)
