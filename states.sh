@@ -33,48 +33,86 @@ function updatecnt() {
 # Save the states of the remote hosts.
 function savestate()
 {
-    while read HOST PSTATE PSTATETYPE; do
 
-        if test "$PSTATE" = "exit"; then
-            kill $(cat $PIDDIRSYS/fifo.pid)
-            break
-        fi
+    SELF=/proc/self/task/*
+    basename $SELF > $PIDDIRSYS/savestate.pid
+    SELF=$(cat $PIDDIRSYS/savestate.pid)
+
+    # cahce and reload control
+    CACHE=""
+    RELOAD=false
+
+    # on signal reload states functions
+    trap "RELOAD=true" USR1
+
+    while read HOST PSTATE PSTATETYPE; do
+        test "$PSTATE" = "exit" && break
+
+        test $RELOAD = true &&
+            for FNC in $CACHE; do unset $FNC; done &&
+            RELOAD=false && CACHE=""
 
         local WEBSTATEXML="$STATEDIR/$PSTATETYPE.xml"
+
+        LOAD=0
 
         if ! test -f "$WEBSTATEXML"; then
             LOG "ERROR: file $WEBSTATEXML not found."
             continue
-        elif ! source $SHOOKS/$PSTATETYPE; then
-            LOG "ERROR: fail loading $SHOOKS/$PSTATETYPE"
+        fi
+
+        LOGFILE="$DATADIR/$HOST/$HOST.log"
+        STABLE="true"
+        if ${PSTATETYPE}_getstateinfo 2> /dev/null; then
+            # already loaded
+            LOAD=1
+        elif source $SHOOKS/$PSTATETYPE 2> /dev/null; then
+            # check if state is enabled
+            ENABLED=false
+            for STT in $(ls $SHOOKS/*); do
+                test $(basename $(realpath $STT)) = $PSTATETYPE &&
+                ENABLED=true && break
+            done
+
+            test $ENABLED = false &&
+            unset ${PSTATETYPE}_getstateinfo &&
+            PRINT "ERROR: state $PSTATETYPE not enabled." "$LOGFILE" &&
             continue
-        elif ! getstateinfo; then
-            LOG "ERROR: fail loading getstateinfo (in $SHOOKS/$PSTATETYPE)"
-            continue
+
+            # now sourced
+            LOAD=2
+            CACHE="$CACHE ${PSTATETYPE}_getstateinfo"
         else
-            if test -z "$PSTATE" || test "$PSTATE" == false; then
-                # Remove $HOST entry from $WEBSTATEXML
-                if grep -q "hosts\/$HOST.xml\"" $WEBSTATEXML; then
-                    sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
-                    # Decreases in 1 the amount of hosts in this state
-                    if ! test -z "$SSUMARY"; then
-                        updatecnt $PSTATETYPE sub "$SSUMARY"
-                    fi
+            PRINT "ERROR: state $PSTATETYPE not found." "$LOGFILE" &&
+            continue
+        fi
+
+        # if just sourced, must run getstateinfo again
+        test $LOAD = 2 && ${PSTATETYPE}_getstateinfo 2> /dev/null
+
+        if test -z "$PSTATE" || test "$PSTATE" == false; then
+            # Remove $HOST entry from $WEBSTATEXML
+            if grep -q "hosts\/$HOST.xml\"" $WEBSTATEXML; then
+                sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
+                # Decreases in 1 the amount of hosts in this state
+                if ! test -z "$SSUMARY"; then
+                    updatecnt $PSTATETYPE sub "$SSUMARY"
                 fi
-            else
-                # Add new host entry for this state in $WEBSTATXML
-                tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
-                if ! grep -q "$tag" $WEBSTATEXML; then
-                    sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
-                    # Increases in 1 the amount of hosts in this state
-                    if ! test -z "$SSUMARY"; then
-                        updatecnt $PSTATETYPE add "$SSUMARY"
-                    fi
+            fi
+        else
+            # Add new host entry for this state in $WEBSTATXML
+            tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
+            if ! grep -q "$tag" $WEBSTATEXML; then
+                sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
+                # Increases in 1 the amount of hosts in this state
+                if ! test -z "$SSUMARY"; then
+                    updatecnt $PSTATETYPE add "$SSUMARY"
                 fi
             fi
         fi
         unset SSUMARY
     done
+    rm -f $PIDDIRSYS/savestate.pid
 }
 
 function launchsavestate()
@@ -94,4 +132,4 @@ done
 rm -f $SFIFO ; mkfifo $SFIFO
 SSTATE="$PIDDIRSYS/savestate.pid"
 ( (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE) ) ||
-(! test -f $SSTATE )) && (launchsavestate & echo $! > $SSTATE)
+(! test -f $SSTATE )) && (launchsavestate &)
