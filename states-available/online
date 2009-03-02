@@ -1,4 +1,4 @@
-function getstateinfo()
+function online_getstateinfo()
 {
     STITLE="Online"
     SDESCRIPTION="Hosts online"

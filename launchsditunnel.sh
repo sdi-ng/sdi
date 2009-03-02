@@ -33,9 +33,10 @@ function usage()
     echo "Usage:"
     echo "  $0 [options] host1 [host2 [host3 [host... ]]]"
     echo "Options:"
-    echo "  --kill=HOST    Close the SDI tunnel for HOST"
-    echo "  --killall      Close all SDI tunnels and stop SDI application"
-    echo "  --reload-po    Force a reload of parser objects file"
+    echo "  --kill=HOST      Close the SDI tunnel for HOST"
+    echo "  --killall        Close all SDI tunnels and stop SDI application"
+    echo "  --reload-po      Force a reload of parser objects file"
+    echo "  --reload-states  Force a reload of states files"
 }
 
 function removecronconfig()
@@ -99,13 +100,11 @@ function notunnelisopen()
 
 function closesdiprocs()
 {
-    test -f $PIDDIRSYS/fifo.pid && pidfifo=$(cat $PIDDIRSYS/fifo.pid) &&
-    test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
     printf "Waiting savestate to finish... "
-    PIDFIFO=$(cat $PIDDIRSYS/fifo.pid)
+    PIDFIFO=$(cat $PIDDIRSYS/savestate.pid)
     closefifo $PIDFIFO "states.fifo"
     printf "done\n"
     printf "Stopping SDI services... "
@@ -237,7 +236,12 @@ case $1 in
         printf "done\nParser objects will be reloaded.\n"
         exit 0
         ;;
-
+    --reload-states)
+        printf "Sending signal to states... "
+        kill -USR1 $(cat $PIDDIRSYS/savestate.pid) 2> /dev/null
+        printf "done\nStates files will be reloaded.\n"
+        exit 0
+        ;;
     -h|--help)
         usage
         exit 0
