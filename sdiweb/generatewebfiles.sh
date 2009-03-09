@@ -44,7 +44,8 @@ function createstatestructure()
 {
     for state in $SHOOKS/*; do
         STABLE="true"
-        if ! source $state || ! getstateinfo &> /dev/null; then
+        NAME=$(basename $state)
+        if ! source $state || ! ${NAME}_getstateinfo &> /dev/null; then
             LOG "ERROR: failure to load state $state"
             return 1
         elif test -z "$SSUMARY"; then

@@ -1,9 +1,11 @@
 #!/bin/bash
 PREFIX=$(dirname $0)
 
-source $PREFIX/sdi.conf
-
-: ${LOG:=$PREFIX/sdi.log}
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+fi
 
 # Function to update the sdi log.
 # The log message contains the seconds since
@@ -36,3 +38,16 @@ function SDIMKDIR()
         return 0
     fi
 }
+
+# $1 - PID of process that is listening the fifo
+# $2 - Name of fifo file. closefifo() will look for this file in $FIFODIR
+function closefifo()
+{
+    PIDFIFO=$1
+    FIFO=$2
+    LOG "Closing fifo $FIFO"
+    test -d /proc/$PIDFIFO && echo "exit exit exit" >> $FIFODIR/$FIFO &&
+    waitend $PIDFIFO
+    rm -f $FIFODIR/$FIFO
+}
+

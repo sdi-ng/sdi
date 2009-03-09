@@ -3,48 +3,22 @@
 PREFIX=$(dirname $0)
 
 # try to load configuration and sendfile function
-if ! source $PREFIX/sdi.conf; then
+eval $($PREFIX/configsdiparser.py all)
+if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
 elif ! source $PREFIX/misc.sh; then
     echo "ERROR: failed to load $PREFIX/misc.sh file"
+    exit 1
+elif ! source $PREFIX/parser.sh; then
+    echo "ERROR: failed to load $PREFIX/parser.sh file"
     exit 1
 elif ! source $PREFIX/sendfile.sh; then
     echo "WARNING: failed to load $PREFIX/sendfile.sh file"
     echo "WARNING: you will not be able to send files to hosts through SDI"
 fi
 
-# These are minimal configuration needed, user may overwrite any of them by
-# defining at sdi.conf
-: ${TIMEOUT:=240}
-: ${KILLTOUT:=30}
-: ${SSHOPT[0]:="PreferredAuthentications=publickey"}
-: ${SSHOPT[1]:="StrictHostKeyChecking=no"}
-: ${SSHOPT[2]:="ConnectTimeOut=$TIMEOUT"}
-: ${SSHOPT[3]:="TCPKeepAlive=yes"}
-: ${SSHOPT[4]:="ServerAliveCountMax=3"}
-: ${SSHOPT[5]:="ServerAliveInterval=100"}
-
-: ${CMDDIR:=$PREFIX/cmds}
-: ${DATADIR:=$PREFIX/data}
-: ${TMPDIR:=/tmp/SDI}
-: ${PIDDIR:=$TMPDIR/pids}
-: ${PIDDIRHOSTS:=$PIDDIR/hosts}
-: ${PIDDIRSYS:=$PIDDIR/system}
-: ${HOOKS:=$PREFIX/commands-enabled}
-: ${SHOOKS:=$PREFIX/states-enabled}
-: ${CMDGENERAL:=$CMDDIR/general}
-: ${SDIUSER:=$USER}
-
-#Customizable variables, please refer to wwwsdi.conf to change these values
-: ${SDIWEB:=$PREFIX/sdiweb}
-: ${WWWDIR:=$PREFIX/www}
-: ${FIFODIR:=$TMPDIR/fifos}
-: ${SFIFO:=$FIFODIR/states.fifo}
-: ${WEBMODE:=true}
-: ${SDIWEB:=$PREFIX/sdiweb}
-
-: ${LAUNCHDELAY:=0.1}
+# daemon must be set like this
 : ${DAEMON:=false}
 
 # define STATEDIR
@@ -59,21 +33,10 @@ function usage()
     echo "Usage:"
     echo "  $0 [options] host1 [host2 [host3 [host... ]]]"
     echo "Options:"
-    echo "  --kill=HOST    Close the SDI tunnel for HOST"
-    echo "  --killall      Close all SDI tunnels and stop SDI application"
-    echo "  --reload-po    Force a reload of parser objects file"
-}
-
-function getvars()
-{
-    # Format of vars: nameofvar:obligation:default:webtag
-    # Separator is ','
-    local VARS="PVALUE:true::value
-    PSTATUS:::class
-    PSORTCUSTOM:::sorttable_customkey
-    "
-
-    echo $VARS
+    echo "  --kill=HOST      Close the SDI tunnel for HOST"
+    echo "  --killall        Close all SDI tunnels and stop SDI application"
+    echo "  --reload-po      Force a reload of parser objects file"
+    echo "  --reload-states  Force a reload of states files"
 }
 
 function removecronconfig()
@@ -92,42 +55,6 @@ function configurecron()
     cron[5]="\n$(crontab -l| grep -v launchscripts.sh | uniq)"
     cron[6]="\n"
     printf "${cron[*]}" | crontab -
-}
-
-function getattributes()
-{
-    VARS=$(getvars)
-
-    string=""
-    retcode=0
-    for VAR in $VARS; do
-        varname=$(cut -d: -f1 <<< $VAR)
-        varvalue=$(eval echo \$$varname)
-        varob=$(cut -d: -f2 <<< $VAR)
-        vardefault=$(cut -d: -f3 <<< $VAR)
-        vartag=$(cut -d: -f4 <<< $VAR)
-
-        if ! test -z "$varob"; then
-            if ! test -z "$varvalue"; then
-                string="$string $vartag=\"$varvalue\""
-            elif ! test -z "$vardefault"; then
-                string="$string $vartag=\"$vardefault\""
-            else
-                string="Var $varname must be defined."
-                retcode=1
-                break
-            fi
-        else
-            if ! test -z "$varvalue"; then
-                string="$string $vartag=\"$varvalue\""
-            elif ! test -z "$vardefault"; then
-                string="$string $vartag=\"$vardefault\""
-            fi
-        fi
-    done
-
-    echo $string
-    return $retcode
 }
 
 # function used to kill the childs of a process
@@ -173,13 +100,12 @@ function notunnelisopen()
 
 function closesdiprocs()
 {
-    test -f $PIDDIRSYS/fifo.pid && pidfifo=$(cat $PIDDIRSYS/fifo.pid) &&
-    test -d /proc/$pidfifo && echo "exit exit exit" >> $SFIFO
     printf "Removing cron configuration... "
     removecronconfig
     printf "done\n"
     printf "Waiting savestate to finish... "
-    waitend $(cat $PIDDIRSYS/fifo.pid)
+    PIDFIFO=$(cat $PIDDIRSYS/savestate.pid)
+    closefifo $PIDFIFO "states.fifo"
     printf "done\n"
     printf "Stopping SDI services... "
     kill $(cat $PIDDIRSYS/*) &> /dev/null
@@ -224,92 +150,6 @@ function closeallhosts()
     closesdiprocs
 }
 
-#Prototype of PARSE() function
-function PARSE()
-{
-    HOST=$1
-    DATAPATH=$DATADIR/$HOST
-    mkdir -p $DATAPATH
-
-    SELF=/proc/self/task/*
-    basename $SELF > $PIDDIRHOSTS/$HOST.parserpid
-
-    # cache and reload control
-    CACHE=""
-    RELOAD=false
-
-    # on signal reload parser obejects
-    trap "RELOAD=true" USR1
-
-    while read LINE; do
-        FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
-        DATA=$(cut -d"+" -f2- <<< $LINE)
-
-        # unset functions if will force a reload
-        test $RELOAD = true &&
-            for FNC in $CACHE; do unset $FNC; done &&
-            RELOAD=false && CACHE=""
-
-        LOAD=0
-
-        if ${FIELD}_updatedata $DATA 2> /dev/null; then
-            # already loaded
-            LOAD=1
-        elif source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
-            # check if command is enabled
-            ENABLED=false
-            for CMD in $(ls $HOOKS/*/*); do
-                test $(basename $(realpath $CMD)) = $FIELD &&
-                ENABLED=true && break
-            done
-
-            test $ENABLED = false &&
-            unset ${FIELD}_updatedata ${FIELD}_www &&
-            PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
-            continue
-
-            # now sourced
-            LOAD=2
-            CACHE="$CACHE ${FIELD}_updatedata"
-        else
-            PRINT "$LINE" "$DATAPATH/$HOST.log"
-            continue
-        fi
-
-        # if just sourced, must run updatedata again
-        test $LOAD = 2 && ${FIELD}_updatedata $DATA
-
-        # run script functions
-        PRINT "$UPDATA" "$DATAPATH/$FIELD"
-        if test $WEBMODE = true; then
-            ${FIELD}_www $DATA
-            ATTR=$(getattributes)
-            if test $? == 0; then
-                WWWLINE="<$FIELD $ATTR />"
-                mkdir -p $WWWDIR/hosts/$HOST/
-                echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
-                if ! test -z "$PSTATETYPE"; then
-                    for state in $PSTATETYPE; do
-                        pstate=$(cut -d':' -f2 <<< $state)
-                        pstatetype=$(cut -d':' -f1 <<< $state)
-                        test -z "$pstate" && pstate="false"
-                        echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
-                    done
-                fi
-            else
-                PRINT "ATTR ERROR ON $FIELD: $ATTR" "$DATAPATH/$HOST.log"
-            fi
-        fi
-
-        # unset all variables used by script's
-        for VAR in $(getvars); do
-            unset $(cut -d: -f1 <<< $VAR)
-        done
-        unset DATA PSTATE PSTATETYPE
-    done
-    rm -f $PIDDIRHOSTS/$HOST.parserpid
-}
-
 function SDITUNNEL()
 {
     HOST=$1
@@ -324,9 +164,10 @@ function SDITUNNEL()
         touch $CMDFILE
         (printf "STATUS+OFFLINE\n";
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
-        tail -fq -n0 $CMDFILE $CMDGENERAL & echo $! > $PIDDIRHOSTS/$HOST.tail)|
-        ssh $SSHOPTS -l $SDIUSER $HOST "bash -s" 2>&1;
+         tail -fq -n0 $CMDFILE $CMDGENERAL & echo $! > $PIDDIRHOSTS/$HOST.tail)|
+        ssh $SSHOPTS -p $SSHPORT -l $SDIUSER $HOST "bash -s" 2>&1;
         printf "STATUS+OFFLINE\n") | PARSE $HOST
+        $PREFIX/socketclient $SOCKETPORT "release"
         kill $(cat $PIDDIRHOSTS/$HOST.tail) && rm -f $PIDDIRHOSTS/$HOST.tail
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
@@ -384,17 +225,23 @@ case $1 in
         ;;
     --killall)
         closeallhosts
+        $PREFIX/socketclient $SOCKETPORT stop
         exit 0
         ;;
     --reload-po)
         printf "Sending signal to parsers... "
-        for PARSERPID in $(cat $PIDDIRHOSTS/*.parserpid); do
+        for PARSERPID in $(cat $PIDDIRSYS/*.parserpid); do
             kill -USR1 $PARSERPID 2> /dev/null
         done
         printf "done\nParser objects will be reloaded.\n"
         exit 0
         ;;
-
+    --reload-states)
+        printf "Sending signal to states... "
+        kill -USR1 $(cat $PIDDIRSYS/savestate.pid) 2> /dev/null
+        printf "done\nStates files will be reloaded.\n"
+        exit 0
+        ;;
     -h|--help)
         usage
         exit 0

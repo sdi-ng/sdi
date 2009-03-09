@@ -1,4 +1,4 @@
-function getstateinfo()
+function lowuptime_getstateinfo()
 {
     STITLE="Low uptime"
     SDESCRIPTION="Hosts that have a low uptime"
