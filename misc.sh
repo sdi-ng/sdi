@@ -45,7 +45,6 @@ function closefifo()
 {
     PIDFIFO=$1
     FIFO=$2
-    LOG "Closing fifo $FIFO"
     test -d /proc/$PIDFIFO && echo "exit exit exit" >> $FIFODIR/$FIFO &&
     waitend $PIDFIFO
     rm -f $FIFODIR/$FIFO

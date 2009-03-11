@@ -67,7 +67,6 @@ function PARSE()
     while read LINE; do
         $PREFIX/socketclient $SOCKETPORT "acquire"
 
-        LOG "PARSER $LINE"
         FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
         DATA=$(cut -d"+" -f2- <<< $LINE)
 
