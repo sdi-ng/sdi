@@ -168,7 +168,8 @@ function SDITUNNEL()
         ssh $SSHOPTS -p $SSHPORT -l $SDIUSER $HOST "bash -s" 2>&1;
         printf "STATUS+OFFLINE\n") | PARSE $HOST
         $PREFIX/socketclient $SOCKETPORT "release"
-        kill $(cat $PIDDIRHOSTS/$HOST.tail) && rm -f $PIDDIRHOSTS/$HOST.tail
+        kill $(cat $PIDDIRHOSTS/$HOST.tail) 2> /dev/null &&
+        rm -f $PIDDIRHOSTS/$HOST.tail
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
         sleep $(bc <<< "($RANDOM%600)+120")
     done
