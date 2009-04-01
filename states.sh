@@ -124,7 +124,7 @@ function launchsavestate()
 
 # Unset all sourced states functions
 for STATE in $SHOOKS/*; do
-    unset $(basename $STATE)_getstateinfo
+    unset $(basename $STATE)_getstateinfo 2> /dev/null
 done
 
 # Create fifo that will be used to manage states
