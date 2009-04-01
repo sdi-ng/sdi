@@ -117,8 +117,12 @@ COLUMNS=$(getcolumns)
 
 # Create strucure of xml files for states managing
 printf "Creating states files... "
-createstatestructure
-printf "done\n"
+if createstatestructure; then
+    printf "done\n"
+else
+    printf "failed, check the states functions name and try again.\n"
+    exit 1
+fi
 
 # Create all files
 printf "Creating web files... "
