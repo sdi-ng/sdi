@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys,os
 
 # check python version to import configparser
 if sys.version_info[0]<3:
@@ -11,9 +11,13 @@ else:
 class configsdiparser:
 
     def __init__(self, conf='sdi.conf'):
+        # get the correct conf path
+        dirname = os.path.dirname(sys.argv[0])
+        self.conffilepath = dirname +'/'+ conf
+
         # define default variable values
         self.defaults = {
-            'general':   {'prefix': '.',
+            'general':   {'prefix': dirname,
                           'cmd dir': '%(prefix)s/cmds',
                           'cmd general': '%(cmd dir)s/general',
                           'data dir': '%(prefix)s/data',
@@ -52,7 +56,7 @@ class configsdiparser:
 
         # read the config file
         try:
-            self.config.read('sdi.conf')
+            self.config.read(self.conffilepath)
         except:
             print 'error: bad config file'
             sys.exit(1)
