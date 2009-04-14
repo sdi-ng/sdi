@@ -43,7 +43,7 @@ def serverstart(tcp, host, port):
                 if queue:
                     queue.pop(0).close()
         elif msg == 'rem':
-            if countMax > 0:
+            if countMAX > 0:
                 countMAX -= 10
                 count -= 10
             con.send("New countMAX = %d"%countMAX)
