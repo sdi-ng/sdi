@@ -62,6 +62,7 @@ if __name__ == '__main__':
     from configsdiparser import configsdiparser
     try:
         tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tcp.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
         port = int(configsdiparser().get('general', 'socket port'))
         serverstart(tcp,'', port) 
         tcp.close()
