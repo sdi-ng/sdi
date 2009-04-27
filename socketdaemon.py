@@ -21,12 +21,12 @@ def serverstart(tcp, host, port):
     while True:
         con, cliente = tcp.accept()
         msg = con.recv(1024)
-        if msg == 'acquire': 
-            if count > 0: 
+        if msg == 'acquire':
+            if count > 0:
                 count -= 1
                 con.close()
             else:
-                queue.append(con)       
+                queue.append(con)
         elif msg == 'release':
             con.close()
             if queue:
@@ -57,14 +57,14 @@ def serverstart(tcp, host, port):
         elif msg == 'stop':
             con.close()
             break
-        
+
 if __name__ == '__main__':
     from configsdiparser import configsdiparser
     try:
         tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         tcp.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
         port = int(configsdiparser().get('general', 'socket port'))
-        serverstart(tcp,'', port) 
+        serverstart(tcp,'', port)
         tcp.close()
     except:
         tcp.close()
