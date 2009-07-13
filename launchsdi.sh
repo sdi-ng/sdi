@@ -68,7 +68,7 @@ for CLASS in $CLASSES; do
     HOSTS=$(awk '{print $1}' $CLASSESDIR/$CLASS)
 
     # Launch the tunnels
-    DAEMON=true bash launchsditunnel.sh "$HOSTS"
+    DAEMON=true bash $PREFIX/launchsditunnel.sh "$HOSTS"
     sleep 0.5
 done
 
