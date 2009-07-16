@@ -9,11 +9,11 @@ function usage () {
     echo -ne "  --start\n\tStart SDI.\n"
     echo -ne "  --stop\n\tStop SDI\n"
     echo -ne "  --close=host\n\tClose the tunnel of the host\n"
-    echo -ne "  --restart-sdi\n\tRestart SDI\n"
+    echo -ne "  --restart\n\tRestart SDI\n"
 }
 
 TEMP=$(getopt -o hsScR \
-       --long 'help,start,stop,close:,restart-sdi' \
+       --long 'help,start,stop,close:,restart' \
        -n 'sdictl' -- "$@")
 
 eval set -- "$TEMP"
@@ -26,7 +26,7 @@ while true; do
         --stop)
             bash $PREFIX/launchsditunnel.sh --killall
             break ;;
-        --restart-sdi)
+        --restart)
             bash $PREFIX/launchsditunnel.sh --killall
             bash $PREFIX/launchsdi.sh
             break ;;
