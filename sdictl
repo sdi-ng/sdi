@@ -20,16 +20,21 @@ eval set -- "$TEMP"
 
 while true; do
     case "$1" in
-        --start) bash $PREFIX/launchsdi.sh
-                 break ;;
-        --stop) bash $PREFIX/launchsditunnel.sh --killall
-                break ;;
-        --restart-sdi) bash $PREFIX/launchsditunnel.sh --killall \
-                       bash $PREFIX/launchsdi.sh
-                       break ;;
-        --close) bash $PREFIX/launchsditunnel.sh --kill="$2"
-                 break ;;
-        *) usage
-           break ;;
+        --start)
+            bash $PREFIX/launchsdi.sh
+            break ;;
+        --stop)
+            bash $PREFIX/launchsditunnel.sh --killall
+            break ;;
+        --restart-sdi)
+            bash $PREFIX/launchsditunnel.sh --killall
+            bash $PREFIX/launchsdi.sh
+            break ;;
+        --close)
+            bash $PREFIX/launchsditunnel.sh --kill="$2"
+            break ;;
+        *)
+            usage
+            break ;;
     esac
 done
