@@ -3,6 +3,7 @@ var menu_scroll = new Array();
 var pagetype;
 var update = false;
 var months;
+var lang = false;
 
 // main function, must be called when page is fully loaded
 // its responsable to set all table and page features
@@ -12,7 +13,7 @@ function populate(){
     var cols;
 
     // discover and set language
-    load_language(false);
+    if (!lang) load_language(false);
 
     // get pagetype
     pagetype = document.getElementById('pagetype').innerHTML;
@@ -383,6 +384,9 @@ function create_tablebody(xmlNode){
 // appending it to the tableContainer.
 // check the documentation to the XML format
 function create_table_from_xml(xmlURI, tableID, tableContainerID){
+    // discover and set language
+    if (!lang) load_language(false);
+
     // load XML
     xmlDoc = load_xml(xmlURI);
 
@@ -490,6 +494,9 @@ function create_table_structure(tableID){
 }
 
 function create_summary_from_xml(xmlURI, containerID){
+    // discover and set language
+    if (!lang) load_language(false);
+
     // load XML
     xmlDoc = load_xml(xmlURI);
 
@@ -506,9 +513,8 @@ function create_summary_from_xml(xmlURI, containerID){
     }
 
     // create table elemen
-    var span = document.createElement('span');
+    var span = document.getElementById('summary_text');
     span.innerHTML = text;
-    container.appendChild(span);
 
     var tables = xmlDoc.getElementsByTagName("table");
 
@@ -536,21 +542,19 @@ function create_summary_from_xml(xmlURI, containerID){
 
         var id = title.replace(/ /g,'');
 
-        var table_bar = create_table_topbar(id, title, columns);
-        var table_struct = create_table_structure(id);
-        container.appendChild(table_bar);
-        container.appendChild(table_struct);
-
-        // create table element
+        // create a table element
         var table = document.createElement('table');
         table.setAttribute('id',id);
         table.setAttribute('class','sortable');
         table.setAttribute('style','display: none;');
 
-        var tablebody = create_tablebody(tables[i].getElementsByTagName("host"));
-        table.appendChild(tablebody);
+        // create the table body and append to it
+        var tbbody = create_tablebody(tables[i].getElementsByTagName("host"));
+        table.appendChild(tbbody);
 
-        container.appendChild(table);
+        // show the data table
+        var tablediv = document.getElementById(id+'_div');
+        tablediv.appendChild(table);
     }
 
 }

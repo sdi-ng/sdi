@@ -18,7 +18,37 @@ function generatesummary()
     sed "s/$STR>/$STR selected=\"selected\">/g" $TMP >> $PAGE
     rm -f "$TMP"
 
-    printf "<div id=\"summary_container\"></div>\n" >> $PAGE
+    SUMMARYFILE="$PREFIX/summaries-available/$FILE"
+    source "$SUMMARYFILE"
+    getsummaryinfo
+
+    # create a holder to summary to text with a loading message
+    printf "<div id=\"summary_container\">\n" >> $PAGE
+    printf "<span id=\"summary_text\"><br />\n" >> $PAGE
+    printf "<img src=\"img/loader.gif\" class=\"loading_image\" " >> $PAGE
+    printf "alt=\"\" title=\"\" />\n" >> $PAGE
+    printf "<span class=\"loading_message\"></span></span>\n" >> $PAGE
+
+    # create a table environment for each state
+    for STATE in ${STATES[@]}; do
+        STATEFILE="$PREFIX/states-enabled/$STATE"
+        source "$STATEFILE"
+        unset STITLE SDEFCOLUMNS STABLE
+        ${STATE}_getstateinfo
+
+        # check if the table must be hidden
+        if test "$STABLE" = false; then
+            continue
+        fi
+
+        TITLE="$STITLE"
+        DEFAULTCOLUMNS="$SDEFCOLUMNS"
+        generatetablestruct "$TITLE" >> $PAGE
+    done
+    printf "</div>\n" >> $PAGE
+
+    # generatetablestruct destroy with FILE, we must set it again
+    FILE=$1
 
     # function of generateclasspage.sh
     loadlanguages >> $PAGE
