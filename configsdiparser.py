@@ -20,7 +20,6 @@ class configsdiparser:
             'general':   {'prefix': dirname,
                           'cmd dir': '%(prefix)s/cmds',
                           'cmd general': '%(cmd dir)s/general',
-                          'data dir': '%(prefix)s/data',
                           'tmp dir': '/tmp/sdi',
                           'pid dir': '%(tmp dir)s/pids',
                           'pid dir sys': '%(pid dir)s/system',
@@ -49,6 +48,11 @@ class configsdiparser:
                           'wwwdir': 'www',
                           'host columnname': 'Hostname',
                           'default columns': 'Hostname,Uptime,Status'},
+            'data':      {'data dir': '%(prefix)s/data',
+                          'use fast data dir': 'no',
+                          'fast data dir': '/dev/shm/sdi/data',
+                          'data sync interval': '3',
+                          'data history format': '%Y.%m'},
             'send file': {'send limit': '1'}
         }
 

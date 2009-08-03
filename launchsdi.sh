@@ -58,6 +58,13 @@ printf "Launching sendfile deamon... "
 (! test -f $DAEMON )) && bash $PREFIX/launchsendfile.sh
 printf "done\n"
 
+# Check if must use a fast dir or the disk
+if test "$USEFASTDATADIR" = "yes"; then
+    SDIMKDIR "$FASTDATADIR" || exit 1
+else
+    SDIMKDIR "$DATADIR" || exit 1
+fi
+
 # Start launching the tunnels
 COUNT=0
 for CLASS in $CLASSES; do

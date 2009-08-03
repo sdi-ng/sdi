@@ -21,6 +21,11 @@ fi
 # daemon must be set like this
 : ${DAEMON:=false}
 
+# Check if must use the fast data dir
+if test "$USEFASTDATADIR" = "yes"; then
+    DATADIR="$FASTDATADIR"
+fi
+
 # define STATEDIR
 STATEDIR=$WWWDIR/states
 
@@ -41,19 +46,32 @@ function usage()
 
 function removecronconfig()
 {
-    crontab -l | grep -v launchscripts.sh | crontab -
+    crontab -l | grep -v "launchscripts.sh" | crontab -
+    crontab -l | grep -v "sdictl --sync-data" | crontab -
 }
 
 function configurecron()
 {
+    # first the basic scripts proccess
     script=$(realpath launchscripts.sh)
     cron[0]="* * * * * $script minutely"
     cron[1]="\n0 * * * * $script hourly"
     cron[2]="\n0 0 * * * $script daily"
     cron[3]="\n0 0 1 * * $script montly"
     cron[4]="\n0 0 * * 0 $script weekly"
-    cron[5]="\n$(crontab -l| grep -v launchscripts.sh | uniq)"
-    cron[6]="\n"
+
+    # check if we must add the data sync
+    if test "$USEFASTDATADIR" = "yes"; then
+        script=$(realpath sdictl)
+        cron[5]="\n20 */$DATASYNCINTERVAL * * * $script --sync-data"
+        cron[6]="\n$(crontab -l| \
+                     egrep -v '(sdictl --sync-data|launchscripts.sh)'| uniq)"
+        cron[7]="\n"
+    else
+        cron[6]="\n"
+    fi
+
+    # update the crontab
     printf "${cron[*]}" | crontab -
 }
 
