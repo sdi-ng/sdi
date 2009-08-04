@@ -64,12 +64,12 @@ function configurecron()
     if test "$USEFASTDATADIR" = "yes"; then
         script=$(realpath sdictl)
         cron[5]="\n20 */$DATASYNCINTERVAL * * * $script --sync-data"
-        cron[6]="\n$(crontab -l| \
-                     egrep -v '(sdictl --sync-data|launchscripts.sh)'| uniq)"
-        cron[7]="\n"
-    else
-        cron[6]="\n"
     fi
+
+    # add old cron info
+    cron[6]="\n$(crontab -l| \
+                 egrep -v '(sdictl --sync-data|launchscripts.sh)'| uniq)"
+    cron[7]="\n"
 
     # update the crontab
     printf "${cron[*]}" | crontab -
