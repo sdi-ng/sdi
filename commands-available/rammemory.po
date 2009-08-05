@@ -1,14 +1,14 @@
-function rammemory_updatedata()
+rammemory_updatedata()
 {
     UPDATA="$*"
 }
 
-function rammemory_www()
+rammemory_www()
 {
     PVALUE="$*"
 }
 
-function getcolumninfo()
+getcolumninfo()
 {
     WEBINTERFACE=true
     COLNAME="RAM (Mb)"
