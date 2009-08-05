@@ -1,5 +1,5 @@
 # the parser API to send files to host
-function sendfile()
+sendfile()
 {
     # the fifo
     FILEFIFO="$FIFODIR/sendfile.fifo"
