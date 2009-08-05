@@ -1,9 +1,9 @@
-function status_updatedata()
+status_updatedata()
 {
    UPDATA="$*"
 }
 
-function status_www()
+status_www()
 {
     if test "$*" = "ONLINE"; then
         PSTATUS=green
@@ -16,7 +16,7 @@ function status_www()
     PVALUE="$*"
 }
 
-function getcolumninfo()
+getcolumninfo()
 {
     WEBINTERFACE=true
     COLNAME=Status
