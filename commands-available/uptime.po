@@ -1,9 +1,9 @@
-function uptime_updatedata()
+uptime_updatedata()
 {
    UPDATA="$*"
 }
 
-function uptime_www()
+uptime_www()
 {
     UP="$*"
     UPDAYS=$(awk -F" days" '{print $1}' <<< $UP)
@@ -23,7 +23,7 @@ function uptime_www()
     PVALUE="$*"
 }
 
-function getcolumninfo()
+getcolumninfo()
 {
     WEBINTERFACE=true
     COLNAME=Uptime
