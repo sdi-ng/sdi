@@ -33,7 +33,7 @@ for OPT in "${SSHOPT[@]}"; do
     SSHOPTS="$SSHOPTS -o $OPT"
 done
 
-function usage()
+usage()
 {
     echo "Usage:"
     echo "  $0 [options] host1 [host2 [host3 [host... ]]]"
@@ -44,13 +44,13 @@ function usage()
     echo "  --reload-states  Force a reload of states files"
 }
 
-function removecronconfig()
+removecronconfig()
 {
     crontab -l | grep -v "launchscripts.sh" | crontab -
     crontab -l | grep -v "sdictl --sync-data" | crontab -
 }
 
-function configurecron()
+configurecron()
 {
     # first the basic scripts proccess
     script=$(realpath launchscripts.sh)
@@ -76,7 +76,7 @@ function configurecron()
 }
 
 # function used to kill the childs of a process
-function killchilds()
+killchilds()
 {
     PID=$1
     CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
@@ -88,7 +88,7 @@ function killchilds()
     done
 }
 
-function waitend()
+waitend()
 {
     iter=0
     for pid in $*; do
@@ -108,7 +108,7 @@ function waitend()
     done
 }
 
-function notunnelisopen()
+notunnelisopen()
 {
     for pid in $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null); do
         test -d /proc/$pid && return 1
@@ -116,7 +116,7 @@ function notunnelisopen()
     return 0
 }
 
-function closesdiprocs()
+closesdiprocs()
 {
     printf "Removing cron configuration... "
     removecronconfig
@@ -130,7 +130,7 @@ function closesdiprocs()
     printf "done\n"
 }
 
-function closehost()
+closehost()
 {
     local HOST=$1
     if test -f $PIDDIRHOSTS/$HOST.sditunnel; then
@@ -155,7 +155,7 @@ function closehost()
     fi
 }
 
-function closeallhosts()
+closeallhosts()
 {
     printf "Waiting tunnels to finish... "
     touch $TMPDIR/SDIFINISH
@@ -168,7 +168,7 @@ function closeallhosts()
     closesdiprocs
 }
 
-function SDITUNNEL()
+SDITUNNEL()
 {
     HOST=$1
     CMDFILE=$CMDDIR/$HOST
@@ -194,7 +194,7 @@ function SDITUNNEL()
     rm -f $PIDDIRHOSTS/$HOST.sditunnel
 }
 
-function LAUNCH ()
+LAUNCH ()
 {
     #If there are SDI tunnels opened, the execution should be stopped
     hostsrunning=""
