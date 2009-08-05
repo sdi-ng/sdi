@@ -1,6 +1,6 @@
 # This function defines and returns the vars available to users by API of
 # SDI
-function getvars()
+getvars()
 {
     # Format of vars: nameofvar:obligation:default:webtag
     # Separator is ','
@@ -12,7 +12,7 @@ function getvars()
     echo $VARS
 }
 
-function getattributes()
+getattributes()
 {
     VARS=$(getvars)
 
@@ -48,7 +48,7 @@ function getattributes()
     return $retcode
 }
 
-function PARSE()
+PARSE()
 {
     HOST=$1
     DATAPATH=$DATADIR/$HOST
