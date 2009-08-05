@@ -10,19 +10,19 @@ fi
 # Function to update the sdi log.
 # The log message contains the seconds since
 # 1970 and the contents of $1 parameter
-function LOG()
+LOG()
 {
     echo "$(date +%s) $1" >> $LOG
 }
 
 # Write $1 (string) into $2 (file) with the seconds since 1970
-function PRINT()
+PRINT()
 {
     echo "$(date +%s) $1" >> $2
 }
 
 # Create a directory and ensure that it is accessible, or exit SDI
-function SDIMKDIR()
+SDIMKDIR()
 {
     dir=$1
     if ! (mkdir -p $dir &&
@@ -41,7 +41,7 @@ function SDIMKDIR()
 
 # $1 - PID of process that is listening the fifo
 # $2 - Name of fifo file. closefifo() will look for this file in $FIFODIR
-function closefifo()
+closefifo()
 {
     PIDFIFO=$1
     FIFO=$2
