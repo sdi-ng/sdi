@@ -76,6 +76,15 @@ class configsdiparser:
                 for var,value in self.defaults[sec].items():
                     if not var in [i[0] for i in self.config.items(sec,1)]:
                         self.config.set(sec,var,value)
+                # Transform array into a single option
+                if sec == "ssh":
+                    newopt = "'"
+                    for key, value in self.config.items("ssh",1):
+                        if key.startswith('sshopt'):
+                            newopt += "-o %s " % value
+                            self.config.remove_option("ssh",key)
+                    newopt += "'"
+                    self.config.set("ssh","sshopts",newopt)
 
             for var,value in self.config.items(sec):
                 print '%s=%s ' %(var.upper().replace(' ',''),value),

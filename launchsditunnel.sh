@@ -29,10 +29,6 @@ fi
 # define STATEDIR
 STATEDIR=$WWWDIR/states
 
-for OPT in "${SSHOPT[@]}"; do
-    SSHOPTS="$SSHOPTS -o $OPT"
-done
-
 usage()
 {
     echo "Usage:"
