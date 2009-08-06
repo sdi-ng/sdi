@@ -19,6 +19,7 @@ function generatesummary()
     rm -f "$TMP"
 
     SUMMARYFILE="$PREFIX/summaries-available/$FILE"
+    unset STATES
     source "$SUMMARYFILE"
     getsummaryinfo
 
