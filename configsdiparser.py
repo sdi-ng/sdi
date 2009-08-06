@@ -49,7 +49,7 @@ class configsdiparser:
                           'wwwdir': 'www',
                           'host columnname': 'Hostname',
                           'default columns': 'Hostname,Uptime,Status'},
-            'data':      {'prefix', dirname,
+            'data':      {'prefix': dirname,
                           'data dir': '%(prefix)s/data',
                           'use fast data dir': 'no',
                           'fast data dir': '/dev/shm/sdi/data',
