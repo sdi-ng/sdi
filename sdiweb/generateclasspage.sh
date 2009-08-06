@@ -33,8 +33,8 @@ function generatetablestruct()
     FILE=$SDIWEB/html/table.html
     TID="$(tr -d ' ' <<<$1 | sed "s/'/\\\'/g")"
 
-    sed "s/{TID}/$TID/g; s/{COLUMNS}/$DEFAULTCOLUMNS/g" $FILE |
-    sed "s/{TITLE}/$TITLE/g"
+    sed "s#{TID}#$TID#g; s#{COLUMNS}#$DEFAULTCOLUMNS#g" $FILE |
+    sed "s#{TITLE}#$TITLE#g"
 }
 
 function loadlanguages()
