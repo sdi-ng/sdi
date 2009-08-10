@@ -78,19 +78,22 @@ class configsdiparser:
                         self.config.set(sec,var,value)
                 # Transform array into a single option
                 if sec == "ssh":
-                    newopt = "'"
-                    for key, value in self.config.items("ssh",1):
-                        if key.startswith('sshopt'):
-                            newopt += "-o %s " % value.replace('"','')
-                            self.config.remove_option("ssh",key)
-                    newopt += "'"
-                    self.config.set("ssh","sshopts",newopt)
+                    self._sshopts_to_posix()
 
             for var,value in self.config.items(sec):
                 print '%s=%s ' %(var.upper().replace(' ',''),value),
 
     def get(self, section, var):
         return self.config.get(section, var)
+
+    def _sshopts_to_posix(self):
+        newopt = "'"
+        for key, value in self.config.items("ssh",1):
+            if key.startswith('sshopt'):
+                newopt += "-o %s " % value.replace('"','')
+                self.config.remove_option("ssh",key)
+        newopt += "'"
+        self.config.set("ssh","sshopts",newopt)
 
 if __name__ == '__main__':
     if len(sys.argv)==1:
