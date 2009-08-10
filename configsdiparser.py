@@ -67,19 +67,13 @@ class configsdiparser:
             print 'error: bad config file'
             sys.exit(1)
 
+        # Load default config values
+        self._load_default_options()
+
     def printvars(self, sections):
         if sections[0] == 'all':
             sections = self.config.sections()
-
         for sec in sections:
-            if self.defaults.has_key(sec):
-                for var,value in self.defaults[sec].items():
-                    if not var in [i[0] for i in self.config.items(sec,1)]:
-                        self.config.set(sec,var,value)
-                # Transform array into a single option
-                if sec == "ssh":
-                    self._sshopts_to_posix()
-
             for var,value in self.config.items(sec):
                 print '%s=%s ' %(var.upper().replace(' ',''),value),
 
@@ -94,6 +88,16 @@ class configsdiparser:
                 self.config.remove_option("ssh",key)
         newopt += "'"
         self.config.set("ssh","sshopts",newopt)
+
+    def _load_default_options(self):
+        for sec in self.config.sections():
+            if self.defaults.has_key(sec):
+                for var,value in self.defaults[sec].items():
+                    if not var in [i[0] for i in self.config.items(sec,1)]:
+                        self.config.set(sec,var,value)
+                # Transform array into a single option
+                if sec == "ssh":
+                    self._sshopts_to_posix()
 
 if __name__ == '__main__':
     if len(sys.argv)==1:
