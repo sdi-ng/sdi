@@ -81,7 +81,7 @@ class configsdiparser:
                     newopt = "'"
                     for key, value in self.config.items("ssh",1):
                         if key.startswith('sshopt'):
-                            newopt += "-o %s " % value
+                            newopt += "-o %s " % value.replace('"','')
                             self.config.remove_option("ssh",key)
                     newopt += "'"
                     self.config.set("ssh","sshopts",newopt)
