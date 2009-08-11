@@ -2,7 +2,7 @@
 
 PREFIX=$(dirname $0)
 
-eval $($PREFIX/configsdiparser.py all)
+eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
 if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1

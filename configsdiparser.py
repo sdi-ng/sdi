@@ -10,10 +10,10 @@ else:
 
 class configsdiparser:
 
-    def __init__(self, conf='sdi.conf'):
+    def __init__(self, conf=os.path.dirname(sys.argv[0]) + '/' + 'sdi.conf'):
         # get the correct conf path
         dirname = os.path.dirname(sys.argv[0])
-        self.conffilepath = dirname +'/'+ conf
+        self.conffilepath = conf
 
         # define default variable values
         self.defaults = {
@@ -100,8 +100,8 @@ class configsdiparser:
                     self._sshopts_to_posix()
 
 if __name__ == '__main__':
-    if len(sys.argv)==1:
+    if len(sys.argv)<=2:
         sys.exit(1)
 
-    parse = configsdiparser()
-    parse.printvars(sys.argv[1:])
+    parse = configsdiparser(sys.argv[1])
+    parse.printvars(sys.argv[2:])
