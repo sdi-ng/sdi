@@ -72,10 +72,10 @@ for CLASS in $CLASSES; do
     printf "Starting $CLASS ($COUNT/$CLASSESNUM)...\n"
     sleep 0.5
 
-    HOSTS=$(awk '{print $1}' $CLASSESDIR/$CLASS)
+    HOSTS=$(awk -F':' '{print $1}' $CLASSESDIR/$CLASS)
 
     # Launch the tunnels
-    DAEMON=true bash $PREFIX/launchsditunnel.sh "$HOSTS"
+    DAEMON=true CLASS=$CLASS bash $PREFIX/launchsditunnel.sh "$HOSTS"
     sleep 0.5
 done
 
