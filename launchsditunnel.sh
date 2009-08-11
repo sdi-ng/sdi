@@ -167,6 +167,8 @@ closeallhosts()
 SDITUNNEL()
 {
     HOST=$1
+    SENDCMD=$2
+    RECEIVECMD=$3
     CMDFILE=$CMDDIR/$HOST
 
     SELF=/proc/self/task/*
@@ -179,8 +181,8 @@ SDITUNNEL()
         (printf "STATUS+OFFLINE\n";
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
          tail -fq -n0 $CMDFILE $CMDGENERAL & echo $! > $PIDDIRHOSTS/$HOST.tail)|
-        ssh $SSHOPTS -p $SSHPORT -l $SDIUSER $HOST "bash -s" 2>&1;
-        printf "STATUS+OFFLINE\n") | PARSE $HOST
+        $SENDDIR/$SENDCMD $HOST;
+        printf "STATUS+OFFLINE\n") | $RECEIVEDIR/$RECEIVECMD $HOST | PARSE $HOST
         $PREFIX/socketclient $SOCKETPORT "release"
         kill $(cat $PIDDIRHOSTS/$HOST.tail) 2> /dev/null &&
         rm -f $PIDDIRHOSTS/$HOST.tail
@@ -217,7 +219,17 @@ LAUNCH ()
     #Open a tunnel for each host
     for HOST in $*; do
         echo $HOST
-        SDITUNNEL $HOST &
+
+        SENDCMD=$(awk -F':' '$1 ~ /^'$HOST'$/ {print $2}'\
+        $CLASSESDIR/$CLASS)
+        test -z "$SENDCMD" && SENDCMD="$DEFAULTSEND"
+
+        RECEIVECMD=$(awk -F':' '$1 ~ /^'$HOST'$/ {print $3}'\
+        $CLASSESDIR/$CLASS)
+        test -z "$RECEIVECMD" && RECEIVECMD="$DEFAULTRECEIVE"
+
+        SDITUNNEL $HOST $SENDCMD $RECEIVECMD &
+
         sleep $LAUNCHDELAY
     done
 }
