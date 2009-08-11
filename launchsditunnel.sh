@@ -185,7 +185,7 @@ SDITUNNEL()
         kill $(cat $PIDDIRHOSTS/$HOST.tail) 2> /dev/null &&
         rm -f $PIDDIRHOSTS/$HOST.tail
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
-        sleep $(bc <<< "($RANDOM%600)+120")
+        sleep $(echo "($RANDOM%600)+120" | bc)
     done
     rm -f $PIDDIRHOSTS/$HOST.sditunnel
 }
