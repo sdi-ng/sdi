@@ -19,11 +19,11 @@ getattributes()
     string=""
     retcode=0
     for VAR in $VARS; do
-        varname=$(cut -d: -f1 <<< $VAR)
+        varname=$(echo $VAR | cut -d: -f1)
         varvalue=$(eval echo \$$varname)
-        varob=$(cut -d: -f2 <<< $VAR)
-        vardefault=$(cut -d: -f3 <<< $VAR)
-        vartag=$(cut -d: -f4 <<< $VAR)
+        varob=$(echo $VAR | cut -d: -f2)
+        vardefault=$(echo $VAR | cut -d: -f3)
+        vartag=$(echo $VAR | cut -d: -f4)
 
         if ! test -z "$varob"; then
             if ! test -z "$varvalue"; then
@@ -67,8 +67,8 @@ PARSE()
     while read LINE; do
         $PREFIX/socketclient $SOCKETPORT "acquire"
 
-        FIELD=$(cut -d"+" -f1 <<< $LINE |tr '[:upper:]' '[:lower:]')
-        DATA=$(cut -d"+" -f2- <<< $LINE)
+        FIELD=$(echo $LINE | cut -d"+" -f1 |tr '[:upper:]' '[:lower:]')
+        DATA=$(echo $LINE | cut -d"+" -f2- )
 
         # unset functions if will force a reload
         test $RELOAD = true &&
@@ -117,8 +117,8 @@ PARSE()
                 echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
                 if ! test -z "$PSTATETYPE"; then
                     for state in $PSTATETYPE; do
-                        pstate=$(cut -d':' -f2 <<< $state)
-                        pstatetype=$(cut -d':' -f1 <<< $state)
+                        pstate=$(echo $state | cut -d':' -f2)
+                        pstatetype=$(echo $state | cut -d':' -f1)
                         test -z "$pstate" && pstate="false"
                         echo "$HOST" "$pstate" "$pstatetype" >> $SFIFO
                     done
@@ -130,7 +130,7 @@ PARSE()
 
         # unset all variables used by script's
         for VAR in $(getvars); do
-            unset $(cut -d: -f1 <<< $VAR)
+            unset $(echo $VAR | cut -d: -f1)
         done
         unset DATA PSTATE PSTATETYPE
         
