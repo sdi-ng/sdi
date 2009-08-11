@@ -7,13 +7,13 @@ eval $($PREFIX/configsdiparser.py all)
 if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
-elif ! source $PREFIX/misc.sh; then
+elif ! . $PREFIX/misc.sh; then
     echo "ERROR: failed to load $PREFIX/misc.sh file"
     exit 1
-elif ! source $PREFIX/parser.sh; then
+elif ! . $PREFIX/parser.sh; then
     echo "ERROR: failed to load $PREFIX/parser.sh file"
     exit 1
-elif ! source $PREFIX/sendfile.sh; then
+elif ! . $PREFIX/sendfile.sh; then
     echo "WARNING: failed to load $PREFIX/sendfile.sh file"
     echo "WARNING: you will not be able to send files to hosts through SDI"
 fi
