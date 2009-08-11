@@ -55,7 +55,12 @@ class configsdiparser:
                           'fast data dir': '/dev/shm/sdi/data',
                           'data sync interval': '3',
                           'data history format': '%Y.%m'},
-            'send file': {'send limit': '1'}
+            'send file': {'send limit': '1'},
+            'modules':   {'prefix': dirname,
+                          'send dir': '%(prefix)s/modules/send',
+                          'default send': 'ssh.sh',
+                          'receive dir': '%(prefix)s/modules/receive',
+                          'default receive': 'cat.sh'}
         }
 
         self.config = configparser()
