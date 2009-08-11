@@ -80,7 +80,7 @@ PARSE()
         if ${FIELD}_updatedata $DATA 2> /dev/null; then
             # already loaded
             LOAD=1
-        elif source $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
+        elif . $PREFIX/commands-available/$FIELD.po 2> /dev/null; then
             # check if command is enabled
             ENABLED=false
             for CMD in $(ls $HOOKS/*/*); do
