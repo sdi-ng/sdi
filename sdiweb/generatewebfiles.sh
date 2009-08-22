@@ -56,6 +56,7 @@ function createstatestructure()
             LOG "ERROR: state $state: \$STITLE must be set in $state"
         else
             state=$(basename $state)
+            SDIMKDIR "$STATEDIR/$state"
             test -f "$STATEDIR/$state.xml" && continue
             cat <<EOF > $STATEDIR/$state.xml
 <table title="$STITLE" columns="$SDEFCOLUMNS" showtable="$STABLE">

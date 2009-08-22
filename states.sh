@@ -90,10 +90,13 @@ function savestate()
         # if just sourced, must run getstateinfo again
         test $LOAD = 2 && ${PSTATETYPE}_getstateinfo 2> /dev/null
 
+        HOSTSTATEFILE="$STATEDIR/$PSTATETYPE/$HOST"
+
         if test -z "$PSTATE" || test "$PSTATE" == false; then
             # Remove $HOST entry from $WEBSTATEXML
-            if grep -q "hosts\/$HOST.xml\"" $WEBSTATEXML; then
+            if test -f "$HOSTSTATEFILE"; then
                 sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
+                rm -f "$HOSTSTATEFILE"
                 # Decreases in 1 the amount of hosts in this state
                 if ! test -z "$SSUMARY"; then
                     updatecnt $PSTATETYPE sub "$SSUMARY"
@@ -102,8 +105,9 @@ function savestate()
         else
             # Add new host entry for this state in $WEBSTATXML
             tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
-            if ! grep -q "$tag" $WEBSTATEXML; then
+            if ! test -f "$HOSTSTATEFILE"; then
                 sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
+                touch "$HOSTSTATEFILE"
                 # Increases in 1 the amount of hosts in this state
                 if ! test -z "$SSUMARY"; then
                     updatecnt $PSTATETYPE add "$SSUMARY"
