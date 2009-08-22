@@ -133,7 +133,7 @@ PARSE()
             unset $(echo $VAR | cut -d: -f1)
         done
         unset DATA PSTATE PSTATETYPE
-        
+
         $PREFIX/socketclient $SOCKETPORT "release"
     done
     rm -f $PIDDIRSYS/$HOST.parserpid
