@@ -97,7 +97,7 @@ waitend()
                 kill $pid
                 break
             else
-                (( iter = iter + 1 ))
+                iter=$((iter+1))
             fi
             sleep 1
         done
