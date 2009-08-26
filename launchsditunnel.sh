@@ -50,25 +50,25 @@ configurecron()
 {
     # first the basic scripts proccess
     script=$(realpath launchscripts.sh)
-    cron[0]="* * * * * $script minutely"
-    cron[1]="\n0 * * * * $script hourly"
-    cron[2]="\n0 0 * * * $script daily"
-    cron[3]="\n0 0 1 * * $script montly"
-    cron[4]="\n0 0 * * 0 $script weekly"
+    cron="* * * * * $script minutely"
+    cron="$cron\n0 * * * * $script hourly"
+    cron="$cron\n0 0 * * * $script daily"
+    cron="$cron\n0 0 1 * * $script montly"
+    cron="$cron\n0 0 * * 0 $script weekly"
 
     # check if we must add the data sync
     if test "$USEFASTDATADIR" = "yes"; then
         script=$(realpath sdictl)
-        cron[5]="\n20 */$DATASYNCINTERVAL * * * $script --sync-data"
+        cron="$cron\n20 */$DATASYNCINTERVAL * * * $script --sync-data"
     fi
 
     # add old cron info
-    cron[6]="\n$(crontab -l| \
+    cron="$cron\n$(crontab -l| \
                  egrep -v '(sdictl --sync-data|launchscripts.sh)'| uniq)"
-    cron[7]="\n"
+    cron="$cron\n"
 
     # update the crontab
-    printf "${cron[*]}" | crontab -
+    printf "$cron" | crontab -
 }
 
 # function used to kill the childs of a process
