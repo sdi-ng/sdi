@@ -95,14 +95,14 @@ class configsdiparser:
         self.config.set("ssh","sshopts",newopt)
 
     def _load_default_options(self):
-        for sec in self.config.sections():
-            if self.defaults.has_key(sec):
-                for var,value in self.defaults[sec].items():
-                    if not var in [i[0] for i in self.config.items(sec,1)]:
-                        self.config.set(sec,var,value)
-                # Transform array into a single option
-                if sec == "ssh":
-                    self._sshopts_to_posix()
+       for default_sec, default_values in self.defaults.items():
+            if not self.config.has_section(default_sec):
+                self.config.add_section(default_sec)
+            for opt, value in default_values.items():
+                if not self.config.has_option(default_sec,opt):
+                    self.config.set(default_sec,opt,value)
+            if default_sec == "ssh":
+                self._sshopts_to_posix()
 
 if __name__ == '__main__':
     if len(sys.argv)<=2:
