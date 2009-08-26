@@ -6,9 +6,9 @@ uptime_updatedata()
 uptime_www()
 {
     UP="$*"
-    UPDAYS=$(awk -F" days" '{print $1}' <<< $UP)
-    UPMINUTES=$(cut -d":" -f2 <<< $UP)
-    UPHOURS=$(awk -F"days, " '{print $2}' <<< $UP | cut -d":" -f1)
+    UPDAYS=$(echo $UP | awk -F" days" '{print $1}')
+    UPMINUTES=$(echo $UP | cut -d":" -f2)
+    UPHOURS=$(echo $UP | awk -F"days, " '{print $2}' | cut -d":" -f1)
 
     PSORTCUSTOM=$(printf "%d%.2d%.2d" $UPDAYS $UPHOURS $UPMINUTES)
 
