@@ -111,7 +111,7 @@ PARSE()
         if test $WEBMODE = true; then
             ${FIELD}_www $DATA
             ATTR=$(getattributes)
-            if test $? == 0; then
+            if test $? -eq 0; then
                 WWWLINE="<$FIELD $ATTR />"
                 mkdir -p $WWWDIR/hosts/$HOST/
                 echo $WWWLINE > $WWWDIR/hosts/$HOST/${FIELD}.xml
