@@ -70,7 +70,7 @@ fi
 COUNT=0
 for CLASS in $CLASSES; do
     ((COUNT++))
-    printf "Starting $CLASS ($COUNT/$CLASSESNUM)...\n"
+    printf "\nStarting $CLASS ($COUNT/$CLASSESNUM)...\n"
     sleep 0.5
 
     HOSTS=$(awk -F':' '{print $1}' $CLASSESDIR/$CLASS)
@@ -80,4 +80,4 @@ for CLASS in $CLASSES; do
     sleep 0.5
 done
 
-printf "All done.\n"
+printf "\nAll done.\n"
