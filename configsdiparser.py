@@ -75,6 +75,10 @@ class configsdiparser:
         # Load default config values
         self._load_default_options()
 
+        # Write back sdi.conf if it does not exist
+        if not os.path.exists(dirname+'/sdi.conf'):
+            self.config.write(open(dirname+'/sdi.conf','w'))
+
     def printvars(self, sections):
         if sections[0] == 'all':
             sections = self.config.sections()
