@@ -22,9 +22,9 @@ function updatecnt() {
     SUMMARYPHRASE=$3
     NHOSTS=$(cat $WEBSTATECOUNT)
     if test "$OP" = "sub" && test $NHOSTS -gt 0; then
-        ((NHOSTS=NHOSTS-1))
+        NHOSTS=$((NHOSTS-1))
     else
-        ((NHOSTS=NHOSTS+1))
+        NHOSTS=$((NHOSTS+1))
     fi
     printf "$NHOSTS\n" > $WEBSTATECOUNT
     printf "<$1>$SUMMARYPHRASE</$1>\n" $NHOSTS > $WEBSTATESTATUS
