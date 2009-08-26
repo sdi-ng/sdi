@@ -15,9 +15,9 @@ fi
 
 SOURCE="$1"
 
-if ! test -f $CMDDIR/general; then
-    LOG "CRON: file not found: $CMDDIR/general"
+if ! test -f $CMDGENERAL; then
+    LOG "CRON: file not found: $CMDGENERAL"
 elif test -d $HOOKS/$SOURCE.d; then
-    cat $HOOKS/$SOURCE.d/* >> $CMDDIR/general
+    cat $HOOKS/$SOURCE.d/* >> $CMDGENERAL
 fi
 
