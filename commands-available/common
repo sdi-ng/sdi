@@ -1,7 +1,7 @@
 # Functions defined here can be used by others scripts
 
 # function to check if a sendfile request has been finished
-function waitsendfile()
+waitsendfile()
 {
     FILE=$1
     DATE=$(date +%s)
@@ -16,7 +16,7 @@ function waitsendfile()
 # function used to kill the childs of a process
 # you must not remove this function, it's essential
 # to close hosts connections correctly
-function killchilds()
+killchilds()
 {
     PID=$1
     CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
