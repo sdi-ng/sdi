@@ -292,7 +292,7 @@ LAUNCH $*
 #Initiate crontab
 configurecron
 
-if test $DAEMON == true; then
+if test $DAEMON = true; then
     exit 0
 else
     printf "Waiting SDI Tunnels to finish"
