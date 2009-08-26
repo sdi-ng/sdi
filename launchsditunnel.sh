@@ -195,20 +195,26 @@ SDITUNNEL()
 LAUNCH ()
 {
     #If there are SDI tunnels opened, the execution should be stopped
-    hostsrunning=""
+    unset hostsrunning
+    unset hoststoopen
     for HOST in $*; do
         if test -f $PIDDIRHOSTS/$HOST.sditunnel; then
             PID=$(cat $PIDDIRHOSTS/$HOST.sditunnel)
             if test -d /proc/$PID; then
                 hostsrunning="$hostsrunning $HOST"
+            else
+                hoststoopen="$hoststoopen $HOST"
             fi
+        else
+            hoststoopen="$hoststoopen $HOST"
         fi
     done
     if ! test -z "$hostsrunning"; then
-        printf "Some SDI tunnels still opened. Close them and try to "
-        printf "run SDI again.\n"
-        printf "\tHosts:$hostsrunning\n"
-        exit 1
+        printf "\tSome SDI tunnels are already opened. Ignoring them.\n"
+        printf "\tOpened hosts:$hostsrunning\n"
+        if ! test -z "$hoststoopen"; then
+            printf "\nThe following tunnels will be opened now.\n"
+        fi
     fi
 
     rm -f $TMPDIR/*FINISH
@@ -217,7 +223,7 @@ LAUNCH ()
     touch $CMDGENERAL
 
     #Open a tunnel for each host
-    for HOST in $*; do
+    for HOST in $hoststoopen; do
         echo $HOST
 
         SENDCMD=$(awk -F':' '$1 ~ /^'$HOST'$/ {print $2}'\
