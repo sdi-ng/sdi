@@ -5,7 +5,7 @@ loadavg_updatedata()
 
 loadavg_www()
 {
-    PSORTCUSTOM=$(awk '{print $1}' <<< "$*" | sed "s/\.//g")
+    PSORTCUSTOM=$(echo "$*" | awk '{print $1}' | sed "s/\.//g")
     PVALUE="$*"
 }
 
