@@ -7,7 +7,7 @@ if ! source $PREFIX/misc.sh; then
     exit 1
 fi
 
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
+eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf general)
 if test $? != 0; then
     LOG "CRON: failed to load sdi configuration file: $PREFIX/sdi.conf"
     exit 1
