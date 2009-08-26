@@ -8,7 +8,7 @@ waitsendfile()
     FINISHFILE="/tmp/.sdi.sendfile.finish"
 
     touch $FINISHFILE
-    while [[ -z $(grep "$FILE$" $FINISHFILE | awk '$1 > '$DATE) ]]; do
+    while test -z $(grep "$FILE$" $FINISHFILE | awk '$1 > '$DATE); do
         sleep 0.5
     done
 }
