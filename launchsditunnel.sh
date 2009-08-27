@@ -175,14 +175,17 @@ SDITUNNEL()
     basename $SELF > $PIDDIRHOSTS/$HOST.sditunnel
     SELF=$(cat $PIDDIRHOSTS/$HOST.sditunnel)
 
+    . "$SENDDIR/$SENDCMD"
+    . "$RECEIVEDIR/$RECEIVECMD"
+
     while true; do
         rm -f $CMDFILE
         touch $CMDFILE
         (printf "STATUS+OFFLINE\n";
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
-         tail -fq -n0 $CMDFILE $CMDGENERAL & echo $! > $PIDDIRHOSTS/$HOST.tail)|
-        $SENDDIR/$SENDCMD $HOST;
-        printf "STATUS+OFFLINE\n") | $RECEIVEDIR/$RECEIVECMD $HOST | PARSE $HOST
+         tail -fq -n0 $CMDFILE $CMDGENERAL &\
+         echo $! > $PIDDIRHOSTS/$HOST.tail)| sdisend $HOST;
+        printf "STATUS+OFFLINE\n") | sdireceive $HOST | PARSE $HOST
         $PREFIX/socketclient $SOCKETPORT "release"
         kill $(cat $PIDDIRHOSTS/$HOST.tail) 2> /dev/null &&
         rm -f $PIDDIRHOSTS/$HOST.tail
