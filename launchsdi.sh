@@ -54,10 +54,13 @@ $PREFIX/socketdaemon.py & disown
 # Start sendfile deamon
 DAEMON="$PIDDIRSYS/sendfiledaemon.pid"
 printf "Launching sendfile deamon... "
-( ( (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON) ) ||
-(! test -f $DAEMON) ) && bash $PREFIX/launchsendfile.sh &&
-printf "done\n" ) ||
-printf "already running\n"
+if (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON)) ||
+   (! test -f $DAEMON); then
+    bash $PREFIX/launchsendfile.sh
+else
+    printf "already running, "
+fi
+printf "done\n"
 
 # Check if must use a fast dir or the disk
 if test "$USEFASTDATADIR" = "yes"; then
