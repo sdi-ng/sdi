@@ -19,7 +19,7 @@ elif ! . $PREFIX/sendfile.sh; then
 fi
 
 # daemon must be set like this
-: ${DAEMON:=false}
+${DAEMON:=false}
 
 # Check if must use the fast data dir
 if test "$USEFASTDATADIR" = "yes"; then
