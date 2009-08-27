@@ -118,7 +118,7 @@ closesdiprocs()
     removecronconfig
     printf "done\n"
     printf "Waiting savestate to finish... "
-    PIDFIFO=$(cat $PIDDIRSYS/savestate.pid)
+    PIDFIFO=$(cat $PIDDIRSYS/statesdaemon.pid)
     closefifo $PIDFIFO "states.fifo"
     printf "done\n"
     printf "Stopping SDI services... "
@@ -275,7 +275,7 @@ case $1 in
         ;;
     --reload-states)
         printf "Sending signal to states... "
-        kill -USR1 $(cat $PIDDIRSYS/savestate.pid) 2> /dev/null
+        kill -USR1 $(cat $PIDDIRSYS/statesdaemon.pid) 2> /dev/null
         printf "done\nStates files will be reloaded.\n"
         exit 0
         ;;

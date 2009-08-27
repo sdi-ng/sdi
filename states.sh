@@ -35,8 +35,8 @@ function savestate()
 {
 
     SELF=/proc/self/task/*
-    basename $SELF > $PIDDIRSYS/savestate.pid
-    SELF=$(cat $PIDDIRSYS/savestate.pid)
+    basename $SELF > $PIDDIRSYS/statesdaemon.pid
+    SELF=$(cat $PIDDIRSYS/statesdaemon.pid)
 
     # cahce and reload control
     CACHE=""
@@ -116,7 +116,7 @@ function savestate()
         fi
         unset SSUMARY
     done
-    rm -f $PIDDIRSYS/savestate.pid
+    rm -f $PIDDIRSYS/statesdaemon.pid
 }
 
 function launchsavestate()
@@ -134,6 +134,6 @@ done
 # Create fifo that will be used to manage states
 # and open function to read fifo
 rm -f $SFIFO ; mkfifo $SFIFO
-SSTATE="$PIDDIRSYS/savestate.pid"
+SSTATE="$PIDDIRSYS/statesdaemon.pid"
 ( (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE) ) ||
 (! test -f $SSTATE )) && (launchsavestate &)
