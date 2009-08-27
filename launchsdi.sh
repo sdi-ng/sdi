@@ -52,7 +52,7 @@ fi
 $PREFIX/socketdaemon.py & disown
 
 # Start sendfile deamon
-DAEMON="$PIDDIRSYS/deamon.pid"
+DAEMON="$PIDDIRSYS/sendfiledaemon.pid"
 printf "Launching sendfile deamon... "
 ( ( (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON) ) ||
 (! test -f $DAEMON) ) && bash $PREFIX/launchsendfile.sh &&

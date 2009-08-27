@@ -111,4 +111,4 @@ function sendfiledeamon()
 # run the deamon and finish watcher
 transferend &
 sendfiledeamon &
-echo $! > $PIDDIRSYS/deamon.pid
+echo $! > $PIDDIRSYS/sendfiledaemon.pid
