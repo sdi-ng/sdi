@@ -133,7 +133,12 @@ done
 
 # Create fifo that will be used to manage states
 # and open function to read fifo
-rm -f $SFIFO ; mkfifo $SFIFO
 SSTATE="$PIDDIRSYS/statesdaemon.pid"
-( (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE) ) ||
-(! test -f $SSTATE )) && (launchsavestate &)
+if (test -f $SSTATE && ! test -d /proc/$(cat $SSTATE)) ||
+   (! test -f $SSTATE ); then
+    rm -f $SFIFO
+    mkfifo $SFIFO
+    launchsavestate &
+else
+    printf "already running, "
+fi
