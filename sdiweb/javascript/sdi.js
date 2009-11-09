@@ -505,10 +505,16 @@ function create_summary_from_xml(xmlURI, containerID){
     var data = xmlDoc.getElementsByTagName("data")[0].childNodes;
     var text = '<br />';
 
+    var tables = xmlDoc.getElementsByTagName("table");
+
     // first print the data on xml
+    // we are consulting the "table" elements to find hosts count
+    tndx = 0;
     for (i=0; i<data.length; i++){
         if (data[i].nodeType==1){
-            text = text + data[i].textContent + '<br />';
+            size = tables[tndx].getElementsByTagName("host").length-1;
+            text = text + data[i].textContent.replace("%d",size) + '<br />';
+            tndx++;
         }
     }
 
@@ -516,8 +522,7 @@ function create_summary_from_xml(xmlURI, containerID){
     var span = document.getElementById('summary_text');
     span.innerHTML = text;
 
-    var tables = xmlDoc.getElementsByTagName("table");
-
+    // display all tables
     for (i=0; i<tables.length; i++){
         var show = "true";
         for (j=0; j<tables[i].attributes.length; j++){
