@@ -64,8 +64,7 @@ function createstatestructure()
     <!--NEW-->
 </table>
 EOF
-            printf "0\n" > "$STATEDIR/$state-count.txt"
-            printf "<$state>$SSUMARY</$state>\n" 0 >\
+            echo "<$state>$SSUMARY</$state>" >\
             "$STATEDIR/$state-status.xml"
         fi
     done

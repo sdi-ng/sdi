@@ -14,22 +14,6 @@ fi
 # define STATEDIR
 STATEDIR=$WWWDIR/states
 
-# Update the information about how many hosts are in the $1 state
-function updatecnt() {
-    WEBSTATECOUNT="$STATEDIR/$1-count.txt"
-    WEBSTATESTATUS="$STATEDIR/$1-status.xml"
-    OP=$2
-    SUMMARYPHRASE=$3
-    NHOSTS=$(cat $WEBSTATECOUNT)
-    if test "$OP" = "sub" && test $NHOSTS -gt 0; then
-        NHOSTS=$((NHOSTS-1))
-    else
-        NHOSTS=$((NHOSTS+1))
-    fi
-    printf "$NHOSTS\n" > $WEBSTATECOUNT
-    printf "<$1>$SUMMARYPHRASE</$1>\n" $NHOSTS > $WEBSTATESTATUS
-}
-
 # Save the states of the remote hosts.
 function savestate()
 {
@@ -97,10 +81,6 @@ function savestate()
             if test -f "$HOSTSTATEFILE"; then
                 sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
                 rm -f "$HOSTSTATEFILE"
-                # Decreases in 1 the amount of hosts in this state
-                if ! test -z "$SSUMARY"; then
-                    updatecnt $PSTATETYPE sub "$SSUMARY"
-                fi
             fi
         else
             # Add new host entry for this state in $WEBSTATXML
@@ -108,10 +88,6 @@ function savestate()
             if ! test -f "$HOSTSTATEFILE"; then
                 sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
                 touch "$HOSTSTATEFILE"
-                # Increases in 1 the amount of hosts in this state
-                if ! test -z "$SSUMARY"; then
-                    updatecnt $PSTATETYPE add "$SSUMARY"
-                fi
             fi
         fi
         unset SSUMARY
