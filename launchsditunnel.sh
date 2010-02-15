@@ -244,12 +244,6 @@ LAUNCH ()
     done
 }
 
-if test $# -eq 0  ; then
-    echo "Usage:"
-    echo "  $0 host1 [host2 [host3 [host... ]]]"
-    exit 1
-fi
-
 if test $# -eq 0 ; then
     usage
     exit 1
