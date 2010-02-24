@@ -27,6 +27,6 @@ Parser::~Parser() {
 
 void Parser::parse(char* host, char* message) {
 
-    DEBUG("Parsing: %s", message);
-    fprintf(cmdStdin,"%s\n",message);
+    DEBUG("Parsing: %s: %s\n", host, message);
+    fprintf(cmdStdin,"%s %s\n", host, message);
 }
