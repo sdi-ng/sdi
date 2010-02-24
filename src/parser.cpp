@@ -7,7 +7,7 @@
 #include "parser.h"
 
 Parser::Parser() {
-    const char* cmd = "parser.sh";
+    const char* cmd = "./parser.sh";
 
     DEBUG("In parser constructor\n");
     if ( !(cmdStdin = popen(cmd,"w")) ) {
