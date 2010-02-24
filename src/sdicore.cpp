@@ -39,6 +39,7 @@ void* producer_thread(void* targ) {
 // TODO: substitute this function by a type which allows initialization
 consumer_thread_t* init_consumer_thread(list<char*> &messages) {
     consumer_thread_t* ct;
+    ct = (consumer_thread_t*) malloc(sizeof(consumer_thread_t));
     ct->quit = false;
     ct->messages = &messages;
     return ct;
