@@ -20,7 +20,6 @@ Parser::~Parser() {
 
     DEBUG("In parser destructor\n");
     // Close parser.sh and cmdStdin stream
-    fprintf(cmdStdin,"exit exit exit\nexit exit exit\n",NULL);
     if ( pclose(cmdStdin) != 0) {
         WARNING("parser.sh exit with error: %s\n",strerror(errno));
     }
