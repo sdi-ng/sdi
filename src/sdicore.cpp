@@ -15,7 +15,7 @@
 using namespace std;
 
 // Globals
-sem_t* sem_global; // Semaphore
+sem_t sem_global; // Semaphore
 
 // This thread is reponsible to keep the consumer consuming
 void* consumer_thread(void* threadarg) {
@@ -50,7 +50,7 @@ consumer_thread_t* init_consumer_thread(list<char*> &messages) {
 int main(int argc, char** argv) {
 
     list<char*> messages;
-    sem_init(sem_global, 0, 1);
+    sem_init(&sem_global, 0, 1);
     unsigned int threads_consumer_counter = 0;
     unsigned int i;
     consumer_thread_t* ct_tmp;
@@ -100,6 +100,6 @@ int main(int argc, char** argv) {
         // happen, or the program will hold in this line
         pthread_join((threads_consumer[i])->thread_id, NULL);
     }
-    sem_destroy(sem_global);
+    sem_destroy(&sem_global);
     return 0;
 }

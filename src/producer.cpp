@@ -5,7 +5,7 @@
 #include "common.h"
 #include "hostmessage.h"
 
-Producer::Producer(list<char*> &messages, sem_t* s) {
+Producer::Producer(list<char*> &messages, sem_t s) {
     DEBUG("In Producer constructor\n");
     msgs = messages;
     sem = s;
@@ -19,7 +19,7 @@ Producer::~Producer() {
 
 void Producer::start() {
 
-    sem_wait(sem);
+    sem_wait(&sem);
     msgs.push_front(socket.GetMessage());
-    sem_post(sem);
+    sem_post(&sem);
 }

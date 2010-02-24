@@ -3,7 +3,7 @@
 #include "hostmessage.h"
 #include "consumer.h"
 
-Consumer::Consumer(list<char*> &messages, sem_t* s) {
+Consumer::Consumer(list<char*> &messages, sem_t s) {
     DEBUG("In Consumer constructor\n");
     sem = s;
     msgs = messages;
@@ -13,10 +13,10 @@ Consumer::Consumer(list<char*> &messages, sem_t* s) {
 void Consumer::consume() {
     char* message;
 
-    sem_wait(sem);
+    sem_wait(&sem);
     message = msgs.back();
     msgs.pop_back();
-    sem_post(sem);
+    sem_post(&sem);
 
     HostMessage hm(message);
     p.parse(hm.GetHost(),hm.GetMessage());

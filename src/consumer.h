@@ -11,12 +11,12 @@ using namespace std;
 // Read messages from a list
 class Consumer {
     public:
-        Consumer(list<char*> &messages, sem_t* s);
+        Consumer(list<char*> &messages, sem_t s);
         ~Consumer();
         void consume();
     private:
         list<char*> msgs;
-        sem_t* sem;
+        sem_t sem;
         Parser p;
 };
 
