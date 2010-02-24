@@ -1,19 +1,20 @@
 SHELL:=/bin/bash
-LIBS=-lpthread
 BIN=sdicore
-CFLAGS=-DDEBUGFLAG
+BINSCLIENT=socketclient
+SRCDIR=./src
 
-all: socketclient sdicore
+all: $(BIN) $(BINSCLIENT)
 
-sdicore: sdicore.cpp sdicore.h socket.o common.h
-	$(CXX) $(CFLAGS) $@.cpp -c
-	$(CXX) $(CFLAGS) $(LIBS) $@.o socket.o -o $(BIN)
+$(BIN):
+	@cd $(SRCDIR) && make $@
+	mv ${SRCDIR}/${BIN} .
 
-socket.o: socket.cpp socket.h
-	$(CXX) $(CFLAGS) socket.cpp -c
-
-socketclient: socketclient.c
-	$(CC) $(CFLAGS) $@.c -o $@
+$(BINSCLIENT):
+	@cd $(SRCDIR) && make $@
+	mv ${SRCDIR}/${BINSCLIENT} .
 
 clean:
-	rm -f socketclient *.o $(BIN)
+	rm -f ${BIN} ${BINSCLIENT}
+
+distclean: clean
+	@cd ${SRCDIR} && make distclean
