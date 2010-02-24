@@ -6,3 +6,4 @@ sdicore
 socket
 socketclient
 *.pyc
+.deps
