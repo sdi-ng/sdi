@@ -7,7 +7,6 @@ Consumer::Consumer(list<char*> &messages, sem_t s) {
     DEBUG("In Consumer constructor\n");
     sem = s;
     msgs = &messages;
-    p = Parser();
 }
 
 void Consumer::consume() {
