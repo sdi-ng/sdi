@@ -15,7 +15,7 @@ class Consumer {
         ~Consumer();
         void consume();
     private:
-        list<char*> msgs;
+        list<char*> *msgs;
         sem_t sem;
         Parser p;
 };

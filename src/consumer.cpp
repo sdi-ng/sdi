@@ -6,7 +6,7 @@
 Consumer::Consumer(list<char*> &messages, sem_t s) {
     DEBUG("In Consumer constructor\n");
     sem = s;
-    msgs = messages;
+    msgs = &messages;
     p = Parser();
 }
 
@@ -14,8 +14,8 @@ void Consumer::consume() {
     char* message;
 
     sem_wait(&sem);
-    message = msgs.back();
-    msgs.pop_back();
+    message = msgs->back();
+    msgs->pop_back();
     sem_post(&sem);
 
     HostMessage hm(message);
