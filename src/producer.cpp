@@ -9,7 +9,6 @@ Producer::Producer(list<char*> &messages, sem_t s) {
     DEBUG("In Producer constructor\n");
     msgs = &messages;
     sem = s;
-    SocketServer socket;
 }
 
 Producer::~Producer() {
