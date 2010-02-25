@@ -22,6 +22,4 @@ void Consumer::consume() {
 
 }
 
-Consumer::~Consumer() {
-    delete &p;
-}
+Consumer::~Consumer() { }
