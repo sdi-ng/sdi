@@ -7,7 +7,7 @@
 
 Producer::Producer(list<char*> &messages, sem_t s) {
     DEBUG("In Producer constructor\n");
-    msgs = messages;
+    msgs = &messages;
     sem = s;
     SocketServer socket;
 }
@@ -20,6 +20,6 @@ Producer::~Producer() {
 void Producer::start() {
 
     sem_wait(&sem);
-    msgs.push_front(socket.GetMessage());
+    msgs->push_front(socket.GetMessage());
     sem_post(&sem);
 }

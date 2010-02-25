@@ -12,7 +12,7 @@ class Producer {
         ~Producer();
         void start();
     private:
-        list<char*> msgs;
+        list<char*> *msgs;
         SocketServer socket;
         sem_t sem;
 };
