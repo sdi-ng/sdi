@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-main(int argc, char *argv[]) 
+main(int argc, char *argv[])
 
  {  int sock_descr;
     int NumBytesRecebidos;
@@ -30,7 +30,7 @@ main(int argc, char *argv[])
       exit(1);
     }
 
-    bcopy((char *)RegistroDNS->h_addr, (char *)&EnderecRemoto.sin_addr, 
+    bcopy((char *)RegistroDNS->h_addr, (char *)&EnderecRemoto.sin_addr,
        RegistroDNS->h_length);
     EnderecRemoto.sin_family = AF_INET;
     EnderecRemoto.sin_port = htons(port);
@@ -44,17 +44,16 @@ main(int argc, char *argv[])
 sizeof(EnderecRemoto)) < 0) {
       puts("Unable to connect to server.");
       exit(1);
-    } 
+    }
 
     if(write(sock_descr, data, strlen(data)) != strlen(data)){
-      puts("Unable to send data."); 
+      puts("Unable to send data.");
       exit(1);
     }
 
     read(sock_descr, buffer, BUFSIZ);
-    if (strlen(buffer) > 0) 
+    if (strlen(buffer) > 0)
         printf("%s\n", buffer);
-   
     close(sock_descr);
     exit(0);
 }
