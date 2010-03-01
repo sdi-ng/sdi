@@ -16,12 +16,13 @@ using namespace std;
 
 // Globals
 sem_t sem_global; // Semaphore
+sem_t sem_empty; // Holds the execution when the messages list is empty
 
 // This thread is reponsible to keep the consumer consuming
 void* consumer_thread(void* threadarg) {
     consumer_thread_t* ct;
     ct = (consumer_thread_t*) malloc(sizeof(consumer_thread_t));
-    Consumer c(*ct->messages,sem_global);
+    Consumer c(*ct->messages,sem_global,sem_empty);
     while ( !ct->quit ) {
         c.consume();
     }
@@ -30,7 +31,7 @@ void* consumer_thread(void* threadarg) {
 // This thread is reponsible to keep the producer producing
 void* producer_thread(void* targ) {
     producer_thread_t* p = (producer_thread_t*) targ;
-    Producer prod(*p->messages,sem_global);
+    Producer prod(*p->messages,sem_global,sem_empty);
     while ( !p->quit ) {
         prod.start();
     }
@@ -52,6 +53,7 @@ int main(int argc, char** argv) {
 
     list<char*> messages;
     sem_init(&sem_global, 0, 1);
+    sem_init(&sem_empty, 0, 0);
     unsigned int threads_consumer_counter = 0;
     unsigned int i;
     consumer_thread_t* ct_tmp;
