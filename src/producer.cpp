@@ -18,7 +18,9 @@ Producer::~Producer() {
 
 void Producer::start() {
 
+    char *msg = socket.GetMessage();
+
     sem_wait(&sem);
-    msgs->push_front(socket.GetMessage());
+    msgs->push_front(msg);
     sem_post(&sem);
 }
