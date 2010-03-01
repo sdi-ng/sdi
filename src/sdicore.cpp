@@ -53,7 +53,6 @@ int main(int argc, char** argv) {
     list<char*> messages;
     sem_init(&sem_global, 0, 1);
     sem_init(&sem_empty, 0, 0);
-    unsigned int threads_consumer_counter = 0;
     unsigned int i;
     consumer_thread_t* ct_tmp;
     vector<consumer_thread_t*> threads_consumer;
