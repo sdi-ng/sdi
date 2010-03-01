@@ -8,14 +8,14 @@
 // Read socket's and insert messages into a list
 class Producer {
     public:
-        Producer(list<char*> &messages, sem_t s, sem_t se);
+        Producer(list<char*> &messages, sem_t &s, sem_t &se);
         ~Producer();
         void start();
     private:
         list<char*> *msgs;
         SocketServer socket;
-        sem_t sem;
-        sem_t sem_empty;
+        sem_t *sem;
+        sem_t *sem_empty;
 };
 
 #endif
