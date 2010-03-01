@@ -20,8 +20,7 @@ sem_t sem_empty; // Holds the execution when the messages list is empty
 
 // This thread is reponsible to keep the consumer consuming
 void* consumer_thread(void* threadarg) {
-    consumer_thread_t* ct;
-    ct = (consumer_thread_t*) malloc(sizeof(consumer_thread_t));
+    consumer_thread_t* ct = (consumer_thread_t*) threadarg;
     Consumer c(*ct->messages,sem_global,sem_empty);
     while ( !ct->quit ) {
         c.consume();
