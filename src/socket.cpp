@@ -45,6 +45,7 @@ char* SocketServer::GetMessage() {
 
     unsigned int aux, n;
     char *buffer = (char*) malloc(BUFSIZ);
+    struct sockaddr_in ClientAddress;
 
     aux = sizeof(LocalAddress);
     if ( (sock_answer=accept(sock_listen, (struct sockaddr *) &ClientAddress,

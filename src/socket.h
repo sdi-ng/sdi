@@ -22,7 +22,7 @@ class SocketServer {
         char* GetMessage();
     private:
         int sock_listen, sock_answer;
-        struct sockaddr_in LocalAddress, ClientAddress;
+        struct sockaddr_in LocalAddress;
 };
 
 #endif
