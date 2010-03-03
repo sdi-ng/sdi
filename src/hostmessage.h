@@ -1,16 +1,20 @@
 #ifndef __HOSTMESSAGE_H_
 #define __HOSTMESSAGE_H_
 
+#include <string>
+
+using namespace std;
+
 // Separates msg into two elements: host and message
 class HostMessage {
     public:
-        HostMessage(char* msg);
+        HostMessage(string msg);
         ~HostMessage();
-        char* GetHost() const { return host; };
-        char* GetMessage() const { return message; };
+        string GetHost() const { return host; };
+        string GetMessage() const { return message; };
     private:
-        char* host;
-        char* message;
+        string host;
+        string message;
 };
 
 #endif

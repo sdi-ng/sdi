@@ -41,8 +41,8 @@ Parser::~Parser() {
     pthread_join(thread.tid,NULL);
 }
 
-void Parser::parse(char* host, char* message) {
+void Parser::parse(string host, string message) {
 
-    DEBUG("Parsing: %s: %s\n", host, message);
-    fprintf(cmdStdin,"%s %s\n", host, message);
+    DEBUG("Parsing: %s: %s\n", host.c_str(), message.c_str());
+    fprintf(cmdStdin,"%s %s\n", host.c_str(), message.c_str());
 }

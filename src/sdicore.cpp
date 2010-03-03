@@ -37,7 +37,7 @@ void* producer_thread(void* targ) {
 }
 
 // TODO: substitute this function by a type which allows initialization
-consumer_thread_t* init_consumer_thread(list<char*> &messages) {
+consumer_thread_t* init_consumer_thread(list<string> &messages) {
     consumer_thread_t* ct;
     ct = (consumer_thread_t*) malloc(sizeof(consumer_thread_t));
     ct->quit = false;
@@ -50,7 +50,7 @@ consumer_thread_t* init_consumer_thread(list<char*> &messages) {
 // ------------------------------------------------------------------
 int main(int argc, char** argv) {
 
-    list<char*> messages;
+    list<string> messages;
     sem_init(&sem_global, 0, 1);
     sem_init(&sem_empty, 0, 0);
     unsigned int i;

@@ -1,23 +1,13 @@
 #include <iostream>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
+#include <sstream>
 #include "hostmessage.h"
 
-HostMessage::HostMessage(char* msg) {
-    char* idxmsg = strchr(msg, ' ');
-    int n = idxmsg - msg;
-    int nend = strlen(msg)-n;
-
-    host = (char*) malloc( n*sizeof(char)+1 );
-    message = (char*) malloc( nend*sizeof(char)+1 );
-
-    strncpy(host,msg,n);
-    strncpy(message,&msg[n+1],nend);
-    host[n] = '\0';
-    message[strlen(msg)] = '\0';
+HostMessage::HostMessage(string msg) {
+    unsigned int idx = msg.find_first_of(" ",0);
+    host = msg.substr(0,idx);
+    message = msg.substr(idx+1);
 }
 
-HostMessage::~HostMessage() {
-    free(host);
-    free(message);
-}
+HostMessage::~HostMessage() { }

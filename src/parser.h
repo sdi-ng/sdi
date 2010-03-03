@@ -2,8 +2,11 @@
 #define __PARSER_H_
 
 #include <stdio.h>
+#include <string>
 
 #define FLUSHPERIOD 30
+
+using namespace std;
 
 typedef struct p_flush {
         FILE* cmdStdin;
@@ -16,7 +19,7 @@ class Parser {
     public:
         Parser();
         ~Parser();
-        void parse(char* host, char* message);
+        void parse(string host, string message);
     private:
         FILE* cmdStdin;
         p_flush_t thread;
