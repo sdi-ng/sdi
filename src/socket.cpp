@@ -7,6 +7,48 @@
 
 using namespace std;
 
+SocketClient::SocketClient(int port, string h) {
+
+    struct sockaddr_in RemoteAddress;
+    struct hostent *DNSRegister;
+    const char* hostname = h.c_str();
+
+    if((DNSRegister = gethostbyname(hostname)) == NULL){
+      ERROR("Unable to get server address\n");
+      exit(1);
+    }
+
+    bcopy((char *)DNSRegister->h_addr, (char *)&RemoteAddress.sin_addr,
+       DNSRegister->h_length);
+    RemoteAddress.sin_family = AF_INET;
+    RemoteAddress.sin_port = htons(port);
+
+    if((sock_send=socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        ERROR("%s\n",strerror(errno));
+        exit(2);
+    }
+
+    if(connect(sock_send, (struct sockaddr *) &RemoteAddress,
+               sizeof(RemoteAddress)) < 0) {
+        ERROR("%s\n",strerror(errno));
+        exit(3);
+    }
+}
+
+void SocketClient::SendMessage(string data) {
+    char buffer[BUFSIZ];
+
+    if(write(sock_send, data.c_str(), data.size()) != data.size()) {
+        ERROR("%s\n",strerror(errno));
+        exit(1);
+    }
+}
+
+SocketClient::~SocketClient() {
+    close(sock_send);
+}
+
+
 SocketServer::SocketServer() {
 
     struct sockaddr_in LocalAddress, ClientAddress;

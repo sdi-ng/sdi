@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
 using namespace std;
 
@@ -23,6 +24,15 @@ class SocketServer {
     private:
         int sock_listen, sock_answer;
         struct sockaddr_in LocalAddress;
+};
+
+class SocketClient {
+    public:
+        SocketClient(int p, string h);
+        ~SocketClient();
+        void SendMessage(string msg);
+    private:
+        int sock_send;
 };
 
 #endif
