@@ -25,6 +25,7 @@ void* consumer_thread(void* threadarg) {
     while ( !ct->quit ) {
         c.consume();
     }
+    return NULL;
 }
 
 // This thread is reponsible to keep the producer producing
@@ -34,6 +35,7 @@ void* producer_thread(void* targ) {
     while ( !p->quit ) {
         prod.start();
     }
+    return NULL;
 }
 
 // TODO: substitute this function by a type which allows initialization
