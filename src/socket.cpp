@@ -38,7 +38,7 @@ SocketClient::SocketClient(int port, string h) {
 void SocketClient::SendMessage(string data) {
     char buffer[BUFSIZ];
 
-    if(write(sock_send, data.c_str(), data.size()) != data.size()) {
+    if(write(sock_send, data.c_str(), data.size()) != (int)data.size()) {
         ERROR("%s\n",strerror(errno));
         exit(1);
     }
