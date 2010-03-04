@@ -50,7 +50,7 @@ SocketClient::~SocketClient() {
 
 SocketServer::SocketServer() {
 
-    struct sockaddr_in LocalAddress, ClientAddress;
+    struct sockaddr_in LocalAddress;
     struct hostent *DNSRegister;
     int port = 18193;
     char HostName[10] = "localhost";
