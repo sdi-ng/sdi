@@ -15,6 +15,7 @@ void* parser_flush(void* ta) {
         sleep(FLUSHPERIOD);
     }
     DEBUG("p Ending parser_flush\n");
+    return NULL;
 }
 
 Parser::Parser() {
