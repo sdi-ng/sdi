@@ -92,6 +92,8 @@ int main(int argc, char** argv) {
             // happen, or the program will hold in this line
             pthread_join(ct_tmp->thread_id,NULL);
         }
+        // sleep 0.1 seconds
+        usleep(100000);
     }
 
     pt.quit = true;
