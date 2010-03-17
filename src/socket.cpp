@@ -9,7 +9,6 @@ using namespace std;
 
 SocketClient::SocketClient(int port, string h) {
 
-    struct sockaddr_in RemoteAddress;
     struct hostent *DNSRegister;
     const char* hostname = h.c_str();
 
@@ -20,25 +19,22 @@ SocketClient::SocketClient(int port, string h) {
 
     bcopy((char *)DNSRegister->h_addr, (char *)&RemoteAddress.sin_addr,
        DNSRegister->h_length);
-    RemoteAddress.sin_family = AF_INET;
+    RemoteAddress.sin_family = DNSRegister->h_addrtype;
     RemoteAddress.sin_port = htons(port);
 
-    if((sock_send=socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        ERROR("%s\n",strerror(errno));
+    if((sock_send=socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        ERROR("sc socket: %s\n",strerror(errno));
         exit(2);
-    }
-
-    if(connect(sock_send, (struct sockaddr *) &RemoteAddress,
-               sizeof(RemoteAddress)) < 0) {
-        ERROR("%s\n",strerror(errno));
-        exit(3);
     }
 }
 
 void SocketClient::SendMessage(string data) {
+    const char *d = data.c_str();
 
-    if(write(sock_send, data.c_str(), data.size()) != (int)data.size()) {
-        ERROR("%s\n",strerror(errno));
+    if(sendto(sock_send, d, strlen(d)+1, 0,
+            (struct sockaddr *) &RemoteAddress,
+            sizeof RemoteAddress) != strlen(d)+1) {
+        ERROR("sendto: %s\n",strerror(errno));
         exit(1);
     }
 }
@@ -61,24 +57,20 @@ SocketServer::SocketServer() {
     }
 
     LocalAddress.sin_port = htons(port);
-    LocalAddress.sin_family = AF_INET;
+    LocalAddress.sin_family = DNSRegister->h_addrtype;
+
     bcopy ((char *) DNSRegister->h_addr, (char *) &LocalAddress.sin_addr,
              DNSRegister->h_length);
 
-    if ((sock_listen = socket(AF_INET,SOCK_STREAM,0)) < 0){
-        ERROR("%s\n",strerror(errno));
+    if ((sock_listen = socket(AF_INET,SOCK_DGRAM,0)) < 0){
+        ERROR("socket %s\n",strerror(errno));
         exit(2);
     }
 
     if (bind(sock_listen, (struct sockaddr *) &LocalAddress,
             sizeof(LocalAddress)) < 0) {
-        ERROR("%s\n",strerror(errno));
+        ERROR("bind %s\n",strerror(errno));
         exit(3);
-    }
-
-    if ( listen(sock_listen, QUEUESIZE)!=0 ) {
-        ERROR("%s\n",strerror(errno));
-        exit(4);
     }
 }
 
@@ -89,20 +81,10 @@ char* SocketServer::GetMessage() {
     struct sockaddr_in ClientAddress;
 
     aux = sizeof(LocalAddress);
-    if ( (sock_answer=accept(sock_listen, (struct sockaddr *) &ClientAddress,
-             &aux)) < 0) {
-        ERROR("%s\n",strerror(errno));
-        exit(4);
-    }
-    if ( (n=read(sock_answer, buffer, BUFSIZ)) < 0 ) {
-        ERROR("%s\n",strerror(errno));
-        exit(5);
-    }
-    buffer[n+1] = '\0';
-    DEBUG("I got a message ----> %s\n", buffer);
+    recvfrom(sock_listen, buffer, BUFSIZ, 0,
+             (struct sockaddr *) &LocalAddress, &aux);
+    DEBUG("I got a message(%d) --> %s\n", strlen(buffer),buffer);
     // TODO: return an appropriate message to client
-    write(sock_answer, buffer, n+1);
-    close(sock_answer);
     return buffer;
 }
 

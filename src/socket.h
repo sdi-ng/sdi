@@ -33,6 +33,7 @@ class SocketClient {
         void SendMessage(string msg);
     private:
         int sock_send;
+        struct sockaddr_in RemoteAddress;
 };
 
 #endif
