@@ -1,3 +1,17 @@
+#!/bin/bash
+
+PREFIX=$(dirname $0)
+
+# try to load configuration and sendfile function
+eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
+if test $? != 0; then
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+elif ! . $PREFIX/misc.sh; then
+    echo "ERROR: failed to load $PREFIX/misc.sh file"
+    exit 1
+fi
+
 # This function defines and returns the vars available to users by API of
 # SDI
 getvars()
@@ -50,13 +64,6 @@ getattributes()
 
 PARSE()
 {
-    HOST=$1
-    DATAPATH=$DATADIR/$HOST
-    mkdir -p $DATAPATH
-
-    SELF=/proc/self/task/*
-    basename $SELF > $PIDDIRSYS/$HOST.parserpid
-
     # cache and reload control
     CACHE=""
     RELOAD=false
@@ -64,8 +71,10 @@ PARSE()
     # on signal reload parser obejects
     trap "RELOAD=true" USR1
 
-    while read LINE; do
-        $PREFIX/socketclient $SOCKETPORT "acquire"
+    while read HOST LINE; do
+
+        DATAPATH=$DATADIR/$HOST
+        mkdir -p $DATAPATH
 
         FIELD=$(echo $LINE | cut -d"+" -f1 |tr '[:upper:]' '[:lower:]')
         DATA=$(echo $LINE | cut -d"+" -f2- )
@@ -92,7 +101,6 @@ PARSE()
             test $ENABLED = false &&
             unset ${FIELD}_updatedata ${FIELD}_www &&
             PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
-            $PREFIX/socketclient $SOCKETPORT "release" &&
             continue
 
             # now sourced
@@ -100,7 +108,6 @@ PARSE()
             CACHE="$CACHE ${FIELD}_updatedata"
         else
             PRINT "$LINE" "$DATAPATH/$HOST.log"
-            $PREFIX/socketclient $SOCKETPORT "release"
             continue
         fi
 
@@ -135,8 +142,6 @@ PARSE()
         done
         unset DATA PSTATE PSTATETYPE
 
-        $PREFIX/socketclient $SOCKETPORT "release"
     done
-    rm -f $PIDDIRSYS/$HOST.parserpid
 }
-
+PARSE
