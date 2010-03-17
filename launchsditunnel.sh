@@ -10,9 +10,6 @@ if test $? != 0; then
 elif ! . $PREFIX/misc.sh; then
     echo "ERROR: failed to load $PREFIX/misc.sh file"
     exit 1
-elif ! . $PREFIX/parser.sh; then
-    echo "ERROR: failed to load $PREFIX/parser.sh file"
-    exit 1
 elif ! . $PREFIX/sendfile.sh; then
     echo "WARNING: failed to load $PREFIX/sendfile.sh file"
     echo "WARNING: you will not be able to send files to hosts through SDI"
@@ -185,8 +182,8 @@ SDITUNNEL()
         (cat $HOOKS/onconnect.d/* 2>/dev/null;
          tail -fq -n0 $CMDFILE $CMDGENERAL &\
          echo $! > $PIDDIRHOSTS/$HOST.tail)| sdisend $HOST;
-        printf "STATUS+OFFLINE\n") | sdireceive $HOST | PARSE $HOST
-        $PREFIX/socketclient $SOCKETPORT "release"
+        printf "STATUS+OFFLINE\n") | sdireceive $HOST |
+            ./socketclient $SOCKETPORT "localhost" $HOST
         kill $(cat $PIDDIRHOSTS/$HOST.tail) 2> /dev/null &&
         rm -f $PIDDIRHOSTS/$HOST.tail
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
@@ -256,10 +253,10 @@ case $1 in
         ;;
     --killall)
         closeallhosts
-        $PREFIX/socketclient $SOCKETPORT stop
         exit 0
         ;;
     --reload-po)
+        # TODO: For sdicore we need to rewrite this piece of code
         printf "Sending signal to parsers... "
         for PARSERPID in $(cat $PIDDIRSYS/*.parserpid); do
             kill -USR1 $PARSERPID 2> /dev/null
