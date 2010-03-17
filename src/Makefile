@@ -25,8 +25,8 @@ ${OBJDIR}/%.o: ${SRCDIR}/%.cpp
 sdicore: sdicore.o socket.o producer.o consumer.o hostmessage.o parser.o
 	$(CXX) -o $@ $^ $(CFLAGS) $(LDLIBS)
 
-socketclient: socketclient.c
-	$(CC) $(CFLAGS) $@.c -o $(BINSCLIENT)
+socketclient: socket.o socketclient.o
+	$(CXX) -o $@ $^ $(CFLAGS) $(LDLIBS)
 
 clean:
 	rm -f *.o $(BIN) $(BINSCLIENT)
