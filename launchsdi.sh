@@ -49,7 +49,7 @@ else
 fi
 
 # Open socketdaemon
-$PREFIX/socketdaemon.py & disown
+$PREFIX/sdicore & disown
 
 # Start sendfile deamon
 DAEMON="$PIDDIRSYS/sendfiledaemon.pid"
