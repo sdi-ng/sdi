@@ -13,7 +13,7 @@ class Consumer {
     public:
         Consumer(list<string> &messages, sem_t &s, sem_t &se);
         ~Consumer();
-        void consume();
+        bool consume();
     private:
         list<string> *msgs;
         sem_t *sem;
