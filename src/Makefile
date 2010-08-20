@@ -1,5 +1,5 @@
 SHELL:=/bin/bash
-LDLIBS=-pthread
+LDLIBS=-pthread -lrt
 BIN=sdicore
 BINSCLIENT=socketclient
 CFLAGS=-DDEBUGFLAG

@@ -19,6 +19,7 @@ class Consumer {
         sem_t *sem;
         sem_t *sem_empty;
         Parser p;
+        struct timespec ts; // Used to set a timeout on sem_wait()
 };
 
 #endif

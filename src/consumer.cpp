@@ -1,10 +1,12 @@
 #include <iostream>
+#include <time.h>
 #include "common.h"
 #include "hostmessage.h"
 #include "consumer.h"
 
 Consumer::Consumer(list<string> &messages, sem_t &s, sem_t &se) {
     DEBUG("In Consumer constructor\n");
+
     sem = &s;
     sem_empty = &se;
     msgs = &messages;
@@ -17,8 +19,18 @@ bool Consumer::consume() {
     string message;
     bool read = true;
 
-    sem_wait(sem_empty);
-    sem_wait(sem);
+    // Workaround to avoid an infinite block of consumer thread
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 10;
+
+    if (sem_timedwait(sem_empty, &ts) == -1) {
+        return read;
+    }
+
+    if (sem_timedwait(sem, &ts) == -1) {
+        return read;
+    }
+
     message = msgs->back();
     msgs->pop_back();
     sem_post(sem);

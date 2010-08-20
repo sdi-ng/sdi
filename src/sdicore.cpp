@@ -97,9 +97,6 @@ int main(int argc, char** argv) {
             ct_tmp = threads_consumer.back();
             threads_consumer.pop_back();
             ct_tmp->quit = true;
-            // TODO: Consumer can wait for ever for a message comming
-            // from the socket. Create a way to ensure that this will never
-            // happen, or the program will hold in this line
             pthread_join(ct_tmp->thread_id,NULL);
         }
         // sleep 0.1 seconds
