@@ -10,7 +10,7 @@ class Producer {
     public:
         Producer(list<string> &messages, sem_t &s, sem_t &se);
         ~Producer();
-        void start();
+        bool start();
     private:
         list<string> *msgs;
         SocketServer socket;
