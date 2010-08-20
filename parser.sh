@@ -73,6 +73,11 @@ PARSE()
 
     while read HOST LINE; do
 
+        # Exit parser.sh if "exit exit exit" was received
+        if test "$LINE" = "exit exit exit"; then
+            break
+        fi
+
         DATAPATH=$DATADIR/$HOST
         mkdir -p $DATAPATH
 
