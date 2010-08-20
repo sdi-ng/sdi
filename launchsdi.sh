@@ -49,7 +49,7 @@ else
 fi
 
 # Open socketdaemon
-$PREFIX/sdicore & disown
+($PREFIX/sdicore & echo $! > $PIDDIRSYS/sdicore.pid) & disown
 
 # Start sendfile deamon
 DAEMON="$PIDDIRSYS/sendfiledaemon.pid"
