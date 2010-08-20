@@ -190,6 +190,7 @@ SDITUNNEL()
         RANDOM=$(date +%N)
         sleep $(echo "($RANDOM%600)+120" | bc)
     done
+    echo "exit exit exit" | ./socketclient $SOCKETPORT "localhost" $HOST
     rm -f $PIDDIRHOSTS/$HOST.sditunnel
 }
 
