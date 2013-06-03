@@ -297,24 +297,23 @@ function getElementsByClass(searchClass,node,tag) {
 
 // loads a xmlURI and return the DOM object
 function load_xml(xmlURI){
-    try {
-        // IE
-        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-    } catch(e) {
-        try {
-            // Firefox
-            xmlDoc = document.implementation.createDocument("","",null);
-        } catch(e) {
-            alert(e.message);
-            return;
+    // branch for native XMLHttpRequest object
+    if (window.XMLHttpRequest) {
+        req = new XMLHttpRequest();
+        req.open("GET", xmlURI, false);
+        req.send(null);
+        if(req.responseXML==null) return false;
+	      return req.responseXML.documentElement;
+    // branch for IE/Windows ActiveX version
+    } else if (window.ActiveXObject) {
+        req = new ActiveXObject("Microsoft.XMLDOM");
+        if (req) {
+            // get the file
+            req.async = false;
+            req.load(xmlURI);
+	          return req;
         }
     }
-
-    // get the file
-    xmlDoc.async = false;
-    xmlDoc.load(xmlURI);
-
-    return xmlDoc;
 }
 
 // get the first element with tagname
@@ -359,13 +358,13 @@ function create_tablebody(xmlNode){
 	            for (j=0; j<fields[i].attributes.length; j++)
                     if (fields[i].attributes[j].name=='value'){
                         // IE hack should go here
-                        innerTEXT = fields[i].attributes[j].textContent;
+                        innerTEXT = fields[i].attributes[j].nodeValue;
                         innerTEXT = document.createTextNode(innerTEXT);
                         col[i].appendChild(innerTEXT);
                     } else {
                         // IE hack should go here
                         col[i].setAttribute(fields[i].attributes[j].name,
-                                      fields[i].attributes[j].textContent);
+                                      fields[i].attributes[j].nodeValue);
                     }
 
                 // append the col
@@ -652,7 +651,7 @@ function load_language(language){
     xmlDoc = load_xml('langs/'+lang+'.xml');
 
     // check if the language selected has been loaded
-    if (xmlDoc.getElementsByTagName('language').length==0){
+    if (xmlDoc==false){
         load_language('en-US');
         return false;
     }
