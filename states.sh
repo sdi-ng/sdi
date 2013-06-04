@@ -79,14 +79,14 @@ function savestate()
         if test -z "$PSTATE" || test "$PSTATE" == false; then
             # Remove $HOST entry from $WEBSTATEXML
             if test -f "$HOSTSTATEFILE"; then
-                sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
+                sed -i "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
                 rm -f "$HOSTSTATEFILE"
             fi
         else
             # Add new host entry for this state in $WEBSTATXML
             tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
             if ! test -f "$HOSTSTATEFILE"; then
-                sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
+                sed -i "/--NEW--/i\\\t$tag" $WEBSTATEXML
                 touch "$HOSTSTATEFILE"
             fi
         fi
