@@ -13,16 +13,6 @@ var path = require('path');
 var StatesManager = require(__dirname+'/states.js');
 var sm = new StatesManager();
 
-// create a new map manager
-/*
-var MapManager = require(__dirname+'/map.js');
-var mm = new MapManager(
-  '/home/planetmon/share/database',
-  '/home/planetmon/share/nodes'
-);
-*/
-
-
 // get configuration
 var execSync = require('exec-sync');
 var config = execSync(__dirname+'/../configsdiparser.py '+__dirname+'/../sdi.conf js all');
@@ -130,7 +120,6 @@ var nodeList = {};
   for(var id in nodesSplitted){
     if(id==nodesSplitted.length-1) break;
     nodeList[id] = nodesSplitted[id].split(':')[1];
-    mm.registerNode(nodeList[id]);
   }
 }
 
@@ -232,30 +221,6 @@ function parse(host,data){
     fs.appendFile(datafile,ts+' '+datatowrite+'\n');
   });
 
-  // special treatment to the map subroutine
-/*
-  if(cmd=='map'){
-    commands[cmd].parse(data,function(err,info){
-      //console.log(util.inspect(info));
-      if(info.type=='ADD'){
-        mm.addConnection(host,info.node);
-        mapBroadcast({type:'add',nodeA:host,nodeB:info.node});
-      } else if(info.type=='UPDATE'){
-        mm.updateConnection(host,info.node,info.attrs);
-        mapBroadcast({type:'update',nodeA:host,nodeB:info.node,attrs:info.attrs});
-      } else if(info.type=='UPDATENODE'){
-        if(info.attrs){
-          mm.updateNode(host,info.attrs);
-          mapBroadcast({type:'updatenode',nodeA:host,attrs:info.attrs});
-        }
-      } else if(info.type=='REMOVE'){
-        mm.removeConnection(host,info.node);
-        mapBroadcast({type:'remove',nodeA:host,nodeB:info.node});
-      }
-    });
-  }
-*/
-
   // update www information
   var wwwfile = wwwdir+'/hosts/'+host+'/'+cmd+'.xml';
   commands[cmd].www(host,data,function(err,wwwinfo){
@@ -338,7 +303,7 @@ https.createServer(options,function(req,res){
   auth = getauthentication(req);
   if(auth.length!=2 || !validcredentials(auth)){
     res.statusCode = 401; // Unauthorized
-    res.setHeader('WWW-Authenticate', 'Basic realm="Planetmon Secure Area"');
+    res.setHeader('WWW-Authenticate', 'Basic realm="SDI Secure Area"');
     res.end('Please provide credentials.');
     res.end();
     return;
@@ -409,39 +374,8 @@ var xmlserver = http.createServer(function(req,res){
   // inspect the directory to check if its summary or class xml
   var dir = path.dirname(file);
 
-  // we are talking about the map xml
-  if(path.basename(file,'.xml').toLowerCase()=='map'){
-    res.writeHead(200,{
-      'Content-Type':'application/xml',
-      'Access-Control-Allow-Origin':'http://planetmon.inf.ufpr.br'
-    });
-    res.write('<?xml version="1.0" encoding="utf-8"?>');
-    res.write('<planetmon version="1.0"><nodes>');
-    var nodesData = mm.getNodes();
-    for(var node in nodesData){
-      var info = nodesData[node];
-      res.write('<node '+
-        'id="'+info.id+'" name="'+info.name+'" ip="'+info.ip+'" '+
-        'latitude="'+info.latitude+'" longitude="'+info.longitude+'" '+
-        'color="'+info.color+'" site="'+info.site+'" />');
-    }
-    res.write('</nodes><connections>');
-    var connections = mm.getConnections();
-    for(var nodefrom in connections){
-      var nodeConnections = connections[nodefrom];
-      for(var nodeto in nodeConnections){
-        var conn = nodeConnections[nodeto];
-        res.write('<connection '+
-          'nodeida="'+nodefrom+'" nodeidb="'+nodeto+'" '+
-          'color="'+conn.color+'" opacity="'+conn.opacity+'" '+
-          'weight="'+conn.weight+'" />');
-      }
-    }
-    res.write('</connections></planetmon>');
-    res.end();
-
   // we are talking about a summary
-  } else if(dir=='/'){
+  if(dir=='/'){
     summary = path.basename(file,'.xml').toLowerCase();
     if(!summaries[summary]){
       res.writeHead(404);
@@ -502,27 +436,3 @@ var xmlserver = http.createServer(function(req,res){
     res.end();
   }
 }).listen(httpport,'0.0.0.0');
-
-// socket to map updates
-var io = require('socket.io').listen(xmlserver);
-io.enable('browser client gzip');
-io.set('log level', 1);
-var wssockets = {};
-var wsid = 0;
-io.sockets.on('connection',function(socket){
-//  setTimeout(function(){
-//    mapBroadcast({type:'add',nodeA:'planetlab4.csail.mit.edu',nodeB:'planetlab2.pop-pa.rnp.br'});
-//  },3000);
-
-  var socketid = wsid++;
-  wssockets[socketid] = socket;
-  socket.on('disconnect',function(){
-    delete wssockets[socketid];
-  });
-});
-
-
-function mapBroadcast(e){
-  for(i in wssockets)
-    wssockets[i].emit('event',e);
-}
