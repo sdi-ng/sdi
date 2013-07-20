@@ -32,18 +32,6 @@ eval(config);
 var statedir = wwwdir+'/states';
 //if(usefastdatadir=='yes') datadir=fastdatadir;
 
-var executionid;
-
-/*
-function getexecutionid(){
-  data = fs.readFileSync(__dirname+'/../executionid');
-  executionid = parseInt(data,10);
-}
-
-getexecutionid();
-process.on('SIGUSR1',getexecutionid);
-*/
-
 //function isNumeric(a){ return !isNaN(parseFloat(a)) && isFinite(a); }
 
 // load the enabled commands
@@ -383,14 +371,6 @@ https.createServer(options,function(req,res){
       var body = postdata.split('\n');
       var host = body[0]; body.shift();
 
-/*
-      if(executionid!=reqexecutionid){
-        console.log('bad execution id');
-        res.statusCode = 500;
-        res.end();
-        return;
-      }
-*/
       // find the hostname based on the host number
       // process the data and return to the client
       findHost(host,function(err,host){
