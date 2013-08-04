@@ -94,7 +94,7 @@ send(){
       -T 30 -t 1 "${WSADDR}"
     test "$?" = 0 && break
     ((CNT=CNT+1))
-    test "${CNT}" -gt 30 && return 1
+    test "${CNT}" -gt 30 && (rm -f "${FILE}"; return 1)
   done
   rm -f "${FILE}"
   return 0
@@ -106,14 +106,10 @@ send(){
 watchdog(){
   while true; do
     BLOCKS=`stat -c"%b" "${SDIOUTPUT}"`
-    if test "$?" != 0; then
-      return 1
-    fi
+    test "$?" != 0 && return 1
     if test ${BLOCKS} -gt 0; then
       send
-      if test "$?" != 0; then
-        return 1
-      fi
+      test "$?" != 0 && return 1
     fi
     sleep 0.5
   done
