@@ -50,3 +50,12 @@ closefifo()
     rm -f $FIFODIR/$FIFO
 }
 
+
+issdirunning()
+{
+  for PID in $(find "${PIDDIRHOSTS}" "${PIDDIRSYS}" -type f \
+      -exec cat {} \; 2>/dev/null); do
+    test -d /proc/$PID && return 0
+  done
+  return 1
+}
