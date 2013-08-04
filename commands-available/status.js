@@ -1,3 +1,8 @@
+exports.info = {
+  'webinterface': true,
+  'colname': 'Status'
+};
+
 exports.updatedata = function(host,data,callback){
   callback(null,data);
 };
