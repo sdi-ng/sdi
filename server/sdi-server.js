@@ -110,7 +110,7 @@ var summaries = {};
 
 
 // load the node list in memory and calculate its md5
-var nodeListTxt = fs.readFileSync(nodedbdir+'/list','utf-8');
+var nodeListTxt = fs.readFileSync(nodedb,'utf-8');
 var nodeListHash = crypto.createHash('md5').update(nodeListTxt).digest('hex');
 
 // process the list and create a map from id to host name
@@ -309,23 +309,7 @@ https.createServer(options,function(req,res){
     return;
   }
   req.setEncoding('utf8');
-
-  if(req.method=='GET'){
-    req.on('end',function(){
-      if(req.url=='/list.md5'){
-        res.writeHead(200,{'Content-Type':'text/plain'});
-        res.write(nodeListHash);
-        console.log('Sent HASH of list of nodes to '+req.connection.remoteAddress);
-      } else if(req.url=='/list.txt'){
-        res.writeHead(200,{'Content-Type':'text/plain'});
-        res.write(nodeListTxt);
-        console.log('Sent list of nodes to '+req.connection.remoteAddress);
-      } else {
-        res.statusCode = 404;
-      }
-      res.end();
-    });
-  } else if(req.method=='POST'){
+  if(req.method=='POST'){
     var postdata = "";
     req.on('data',function(d){ postdata += d; });
     req.on('end',function(){
@@ -349,6 +333,8 @@ https.createServer(options,function(req,res){
         res.end();
       });
     });
+  } else {
+    res.end();
   }
 }).listen(serverport,'0.0.0.0');
 
