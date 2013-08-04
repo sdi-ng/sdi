@@ -15,16 +15,8 @@ fi
 test -x "$(which realpath)" ||
   { printf "FATAL: \"realpath\" must be installed\n" && exit 1; }
 
-isrunning()
-{
-  for PID in $(find $PIDDIRHOSTS -type f -exec cat {} \; 2> /dev/null); do
-    test -d /proc/$PID && return 0
-  done
-  return 1
-}
-
-# Check if SDI is already running
-if ! isrunning; then
+# check if SDI is already running
+if ! issdirunning; then
   echo "SDI is not running. Aborting."
   exit 1
 fi
@@ -55,13 +47,10 @@ TUNNELPIDS=$(cat "${PIDDIRHOSTS}/"*".sditunnel" 2>/dev/null)
 kill -9 ${TUNNELPIDS} 2>/dev/null
 
 # finish the services (nodejs main server)
+# kill server
 printf "Finishing all servers and services... not waiting...\n"
 kill -9 $(cat "${PIDDIRSYS}/runner.pid") 2>/dev/null
-
-# kill server
-kill -9 $(cat "${PIDDIRSYS}/node-server.pid")
-node "${PREFIX}/server/sdi-server.js" &>>"${PREFIX}/sdi.log" &
-  echo $! > "${PIDDIRSYS}/node-server.pid"
+kill -9 $(cat "${PIDDIRSYS}/node-server.pid") 2>/dev/null
 
 # looks like we are all done
 printf "\nAll done.\n"
