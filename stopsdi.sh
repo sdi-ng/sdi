@@ -24,6 +24,11 @@ fi
 # prevent from creating new tunnels when killing tunnels
 touch "${TMPDIR}/finish"
 
+# prevent from sending more commands to the hosts
+printf "Removing cron configuration... "
+removecronconfig
+printf "done.\n"
+
 # send the finish message and a few exit 0 messages
 # the finisheverything message
 echo "finisheverything" >> "${CMDGENERAL}"
