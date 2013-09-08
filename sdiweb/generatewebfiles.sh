@@ -128,11 +128,11 @@ for CLASS in $CLASSES; do
         createdatastructure $HOST
     done
 done
-printf "done\n"
+printf "done.\n"
 
 # Generate summaries
 printf "Generating summaries... "
 for SUMMARY in $(\ls $PREFIX/summaries-enabled/* 2> /dev/null); do
     generatesummary $(basename $(realpath $SUMMARY))
 done
-printf "done\n"
+printf "done.\n"
