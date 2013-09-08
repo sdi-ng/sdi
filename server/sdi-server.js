@@ -20,9 +20,7 @@ eval(config);
 
 // fix some basic config
 var statedir = wwwdir+'/states';
-//if(usefastdatadir=='yes') datadir=fastdatadir;
-
-//function isNumeric(a){ return !isNaN(parseFloat(a)) && isFinite(a); }
+if(usefastdatadir=='yes') datadir=fastdatadir;
 
 // load the enabled commands
 var commands = {};
@@ -30,8 +28,8 @@ var commands = {};
   var errors = [];
   process.stdout.write('Loading commands... ');
 
-  // traverse on each hooks dir (onconnect.d, on.minutely.d, ...)
-  // the hooks dir come from the configuration
+  // traverse on each hooks dir (onconnect.d, minutely.d, ...)
+  // the hooks dir came from the configuration
   var relativePaths = [];
   var dirs = fs.readdirSync(hooks);
   for(var dir in dirs){
@@ -45,9 +43,9 @@ var commands = {};
     return path.basename(a)>path.basename(b);
   });
 
-  // loat the commands
+  // load the commands
   for(var index in relativePaths){
-    // try loading the user script, and alerts in case of errors
+    // try loading the user scripts, and alert in case of errors
     try {
       var relativePath = relativePaths[index];
       var path = fs.realpathSync(relativePath);
@@ -67,10 +65,10 @@ var states = {};
   var errors = [];
   process.stdout.write('Loading states... ');
 
-  // the shooks dir come from the configuration
+  // the shooks dir came from the configuration
   var files = fs.readdirSync(shooks);
   for(var file in files){
-    // try loading the user script, and alerts in case of errors
+    // try loading the user states, and alert in case of errors
     try {
       var relativePath = shooks+'/'+files[file];
       var path = fs.realpathSync(relativePath);
@@ -91,10 +89,10 @@ var summaries = {};
   var errors = [];
   process.stdout.write('Loading summaries... ');
 
-  // the shooks dir come from the configuration
+  // the sumhooks dir came from the configuration
   var files = fs.readdirSync(sumhooks);
   for(var file in files){
-    // try loading the user script, and alerts in case of errors
+    // try loading the user summaries, and alert in case of errors
     try {
       var relativePath = sumhooks+'/'+files[file];
       var path = fs.realpathSync(relativePath);
@@ -108,12 +106,10 @@ var summaries = {};
   console.log('done.');
 }
 
-
 // load the node list in memory and calculate its md5
 var nodeListTxt = fs.readFileSync(nodedb,'utf-8');
-var nodeListHash = crypto.createHash('md5').update(nodeListTxt).digest('hex');
 
-// process the list and create a map from id to host name
+// process the list and create a map from id to hostname
 var nodeList = {};
 {
   var nodesSplitted = nodeListTxt.split('\n');
@@ -129,10 +125,10 @@ var classes = {};
   var errors = [];
   process.stdout.write('Loading classes... ');
 
-  // the shooks dir come from the configuration
+  // the classesdir dir came from the configuration
   var files = fs.readdirSync(classesdir);
   for(var file in files){
-    // try loading the user script, and alerts in case of errors
+    // try loading the user node classes, and alert in case of errors
     try {
       var path = classesdir+'/'+files[file];
       var classname = files[file].toLowerCase();
@@ -178,7 +174,6 @@ var nodeData = {};
 // find if a host with that id exists
 function findHost(hostId,callback){
   if(!nodeList[hostId]) return callback(new Error('host '+hostId+' not found'));
-  console.log("ID: "+hostId+" -> "+nodeList[hostId]);
   return callback(null,nodeList[hostId]);
 }
 
@@ -193,7 +188,6 @@ function parsestate(host,state){
       return new Error('invalid state type for '+statename);
     sm.setState(host,statename,state[statename]);
   }
-  return;
 }
 
 // TODO calls to updatedata and www should within try/catch
@@ -282,15 +276,15 @@ function getauthentication(req){
   return parts;
 }
 
-// TODO: read credentials from file and store then in memory
+// check if basic http auth credentials are correct
 function validcredentials(auth){
-  return (auth[0]=='user' && auth[1]=='senha');
+  return (auth[0]==wsuser && auth[1]==wspass);
 }
 
 // start the server
-var httpport = parseInt(serverport)+1;
-console.log('Running at https://0.0.0.0:'+serverport+'/');
-console.log('Running at http://0.0.0.0:'+httpport+'/');
+var httpport = parseInt(wsport)+1;
+console.log('Running data receiver at https://0.0.0.0:'+wsport+'/');
+console.log('Running data provider at http://0.0.0.0:'+httpport+'/');
 
 // server HTTPS key/cert
 var options = {
@@ -313,7 +307,6 @@ https.createServer(options,function(req,res){
     var postdata = "";
     req.on('data',function(d){ postdata += d; });
     req.on('end',function(){
-      console.log(postdata);
       // TODO: move connection end here
 
       // separate host and data
@@ -336,11 +329,11 @@ https.createServer(options,function(req,res){
   } else {
     res.end();
   }
-}).listen(serverport,'0.0.0.0');
+}).listen(wsport,'0.0.0.0');
 
 
 var path = require('path');
-// this is the server that will responde to XML calls
+// this is the server that will respond to XML calls
 var xmlserver = http.createServer(function(req,res){
   // we only serve get requests
   if(req.method!='GET'){
@@ -369,7 +362,7 @@ var xmlserver = http.createServer(function(req,res){
       return;
     }
 
-    // all ok. lets responde with the summary xml
+    // all ok. lets respond with the summary xml
     res.writeHead(200,{
       'Content-Type':'application/xml',
       'Access-Control-Allow-Origin':'http://planetmon.inf.ufpr.br'
@@ -385,7 +378,8 @@ var xmlserver = http.createServer(function(req,res){
     for(var state in summaries[summary].info['states']){
       state = summaries[summary].info['states'][state];
       info = states[state].info;
-      res.write('<table title="'+info.title+'" columns="'+info.defaultcols+'" showtable="'+info.showtable+'">');
+      res.write('<table title="'+info.title+'" columns="'+info.defaultcols+
+        '" showtable="'+info.showtable+'">');
       if(info.showtable){
         res.write(columnsXML());
         var nodesInState = sm.getState(state);
@@ -401,7 +395,6 @@ var xmlserver = http.createServer(function(req,res){
   } else {
 
     nodeclass = dir.split('/')[1].toLowerCase();
-    //console.log(nodeclass);
     if(!classes[nodeclass]){
       res.writeHead(404);
       res.end();
