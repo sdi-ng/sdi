@@ -69,6 +69,29 @@ done
 printf "$ID nodes found.\n"
 N=$ID
 
+
+# set status to be offline
+# try a few times (the node server may not be started yet)
+setoffline(){
+  OFFID=$1
+
+  # write post data to temp file
+  POSTFILE=`mktemp`
+  echo -e "${OFFID}\nSTATUS+OFFLINE" > ${POSTFILE}
+
+  CNT=0
+  while true; do
+    curl -s -k -u "${WSUSER}:${WSPASS}" -X POST \
+      --data-binary @"${POSTFILE}" https://127.0.0.1:${WSPORT}
+    test "$?" = 0 && break
+    ((CNT=CNT+1))
+    test "${CNT}" -gt 30 && (rm -f "${POSTFILE}"; return 1)
+    sleep 0.5
+  done
+  rm -f "${POSTFILE}"
+  return 0
+}
+
 # The sdi tunnel
 sditunnel(){
   HOSTID=$1
@@ -81,18 +104,23 @@ sditunnel(){
   TAILPID="${PIDDIRHOSTS}/${HOST}.tail"
   TUNNNELPID="${PIDDIRHOSTS}/${HOST}.sditunnel"
 
-  # Start the tunnel
+  setoffline "${HOSTID}"
+  test "$?" != 0 && return 1
+
+  # start the tunnel
   printf "Connecting to ${HOST}\n"
   (
    echo "MYID=${HOSTID}";
-   #echo "WSADDR=\"https://ec2-54-232-228-140.sa-east-1.compute.amazonaws.com:12368\"";
-   echo "WSADDR=\"https://54.232.228.140:12368\"";
+   echo "WSUSER=\"${WSUSER}\"";
+   echo "WSPASS=\"${WSPASS}\"";
+   echo "WSADDR=\"https://${WSADDR}:${WSPORT}\"";
    cat $HOOKS/onconnect.d/*;
    tail -fq -n0 "${CMDGENERAL}" & echo $! > "${TAILPID}") | \
      ssh ${SSHOPTS} -p ${SSHPORT} -l ${SDIUSER} ${HOST} "bash -s" &>> "${HOSTLOG}"
 
   # Lost connection
   printf "Lost connection to ${HOST}\n"
+  setoffline "${HOSTID}"
 
   kill -9 $(cat "${TAILPID}") 2> /dev/null &&
     rm -f "${TAILPID}.tail" 2> /dev/null
@@ -125,16 +153,29 @@ runner(){
 }
 
 # launch everything
-printf "Starting SDI main services..."
+printf "Starting SDI main services... "
 > "${CMDGENERAL}"
 
-test -f "${PIDDIRSYS}/node-server.pid" &&
-  kill -9 $(cat "${PIDDIRSYS}/node-server.pid") 2>/dev/null
+# node server
+PIDNODE="${PIDDIRSYS}/node-server.pid"
+
+# kill current
+test -f "${PIDNODE}" &&
+  test -d /proc/$(cat "${PIDNODE}") &&
+  kill -9 $(cat "${PIDNODE}") 2>/dev/null
+
+# launch
 node "${PREFIX}/server/sdi-server.js" &>>"${PREFIX}/sdi.log" &
-  echo $! > "${PIDDIRSYS}/node-server.pid"
+  echo $! > "${PIDNODE}"
 
 # remove finish file and start
 rm -f "${TMPDIR}/finish" 2>/dev/null
 runner &>>"${PREFIX}/sdi.log" &
+printf "done.\n"
+
+# configure cron to send automatically send commands to hosts
+printf "Configuring crontab... "
+configurecron &>/dev/null
+printf "done.\n"
 
 printf "\nAll done.\n"

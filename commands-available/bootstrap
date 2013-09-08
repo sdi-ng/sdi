@@ -55,11 +55,9 @@ test "$?" = 0 || exit 1
 
 # WSADDR is set when creating the connection
 # it represents the webserver address to communicate
+# WSUSER and WSPASS is also already set
 
-# credentials and default wget HTTPS related parameters
-# USER/PASSWORD must come from the connection
-WSUSER="user"
-WSPASS="senha"
+# default wget HTTPS related parameters
 WGETPARAMS="--no-check-certificate --auth-no-challenge \
 --http-user=${WSUSER} --http-password=${WSPASS}"
 
