@@ -23,15 +23,14 @@ Our goals are mainly:
 Documentation && Howto
 ~~~~~~~~~~~~~~~~~~~~~~
 
-To see documentation, how to install and run SDI, you can access our
-website (http://sdi.sf.net) and/or our wiki at http://wiki.c3sl.ufpr.br/sdi
- - Help us improve our wiki =)
+The documentation is in the repository wiki.
+It contains: how to install and run SDI.
+
+- Help us improve our wiki =)
 
 Contact
 ~~~~~~~
 
-The user discussion and development of SDI and most tools related to SDI
-takes place on the SDI mailing list - everyone is welcome to post bug
-reports, feature requests, comments and patches to sdi@c3sl.ufpr.br. To
-subscribe to the list, send an empty email to sdi-subscribe@c3sl.ufpr.br.
-The mailing list archives are available at http://listas.c3sl.ufpr.br/sdi
+The discussion and development of SDI or tools related to SDI are conducted 
+through issues.
+Everyone is welcome to post bug reports, feature requests, comments and patches.
