@@ -2,8 +2,8 @@
 # SDI is an open source project.
 # Licensed under the GNU General Public License v2.
 #
-# File Description: 
-# 
+# File Description: This is the control of SDI. He interprets 
+# what the user wants and run.
 #
 #############################################################
 
