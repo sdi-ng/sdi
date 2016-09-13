@@ -23,7 +23,10 @@ Our goals are mainly:
 Documentation && Howto
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The documentation is in the repository wiki.
+The documentation is in the Wiki of the repository.
+
+https://github.com/sdi-ng/sdi/wiki
+
 It contains: how to install and run SDI.
 
 - Help us improve our wiki =)
@@ -31,6 +34,7 @@ It contains: how to install and run SDI.
 Contact
 ~~~~~~~
 
-The discussion and development of SDI or tools related to SDI are conducted 
-through issues.
+The discussion and development of SDI or tools related to SDI are conducted through issues.
 Everyone is welcome to post bug reports, feature requests, comments and patches.
+
+https://github.com/sdi-ng/sdi/issues
