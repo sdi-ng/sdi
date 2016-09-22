@@ -16,7 +16,7 @@ Goals
 Our goals are mainly:
 - Write a simple and scalable diagnose system
 - Simple CODE (write in some scriptable languange as much as possible)
- + Our code is written all in BASH today
+ + Our code is written in BASH and PYTHON today
 - Simple API to collect data, so the creator of the script should not know
   how to generate HTMLs and any other stuff, just GIVE information.
 
