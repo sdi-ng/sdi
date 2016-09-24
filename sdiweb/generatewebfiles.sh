@@ -89,7 +89,8 @@ function getcolumns()
     done
 
     for FIELD in $FIELDS; do
-        source $(realpath $FIELD).po
+        source $(realpath $FIELD).po 2>/dev/null
+        test "$?" != 0 && continue
         getcolumninfo
 
         # add column to list
@@ -115,15 +116,6 @@ create_links $WWWDIR
 SDIBAR=$(generatesdibar)
 COLUMNS=$(getcolumns)
 
-# Create strucure of xml files for states managing
-printf "Creating states files... "
-if createstatestructure; then
-    printf "done\n"
-else
-    printf "failed, check the states functions name and try again.\n"
-    exit 1
-fi
-
 # Create all files
 printf "Creating web files... "
 for CLASS in $CLASSES; do
@@ -136,11 +128,11 @@ for CLASS in $CLASSES; do
         createdatastructure $HOST
     done
 done
-printf "done\n"
+printf "done.\n"
 
 # Generate summaries
 printf "Generating summaries... "
 for SUMMARY in $(\ls $PREFIX/summaries-enabled/* 2> /dev/null); do
     generatesummary $(basename $(realpath $SUMMARY))
 done
-printf "done\n"
+printf "done.\n"
