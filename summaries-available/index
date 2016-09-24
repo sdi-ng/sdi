@@ -2,8 +2,6 @@ function getsummaryinfo()
 {
     SNAME="SUMMARY"
 
-    STATES[0]="online"
-    STATES[1]="offline"
-    STATES[3]="lowuptime"
-    STATES[4]="highuptime"
+    STATES[0]="lowuptime"
+    STATES[1]="highuptime"
 }

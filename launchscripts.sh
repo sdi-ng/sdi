@@ -11,25 +11,22 @@
 
 PREFIX=$(dirname $0)
 
-if ! source "${PREFIX}/misc.sh"; then
-  echo "SDI(cron): failed to load ${PREFIX}/misc.sh"
-  exit 1
+if ! source $PREFIX/misc.sh; then
+    echo "SDI(cron): failed to load $PREFIX/misc.sh"
+    exit 1
 fi
 
-eval $("${PREFIX}/configsdiparser.py" "${PREFIX}/sdi.conf" shell general)
-if test "$?" != 0; then
-  LOG "CRON: failed to load sdi configuration file: ${PREFIX}/sdi.conf"
-  exit 1
+eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf general)
+if test $? != 0; then
+    LOG "CRON: failed to load sdi configuration file: $PREFIX/sdi.conf"
+    exit 1
 fi
 
-PERIOD="$1"
+SOURCE="$1"
 
-# do not allow to execute the onconnect again
-# (this is to avoid problems with the bootstrap command)
-test "${PERIOD}" = "onconnect" && exit 0
-
-if ! test -f "${CMDGENERAL}"; then
-  LOG "CRON: file not found: ${CMDGENERAL}"
-elif test -d "${HOOKS}/${PERIOD}.d"; then
-  cat "${HOOKS}/${PERIOD}.d/"* >> "${CMDGENERAL}"
+if ! test -f $CMDGENERAL; then
+    LOG "CRON: file not found: $CMDGENERAL"
+elif test -d $HOOKS/$SOURCE.d; then
+    cat $HOOKS/$SOURCE.d/* >> $CMDGENERAL
 fi
+

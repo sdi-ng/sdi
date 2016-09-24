@@ -30,23 +30,17 @@ class configsdiparser:
                           'cmd dir': '%(prefix)s/cmds',
                           'cmd general': '%(cmd dir)s/general',
                           'tmp dir': '/tmp/sdi',
-                          'node db': '%(tmp dir)s/nodedb',
                           'pid dir': '%(tmp dir)s/pids',
                           'pid dir sys': '%(pid dir)s/system',
                           'pid dir hosts': '%(pid dir)s/hosts',
-                          'lock dir': '%(tmp dir)s/locks',
-                          'hooks':  '%(prefix)s/commands-enabled',
                           'shooks': '%(prefix)s/states-enabled',
-                          'sumhooks': '%(prefix)s/summaries-enabled',
                           'launch delay': '0.05',
                           'kill tout': '30',
                           'log': '%(prefix)s/sdi.log',
+                          'hooks':  '%(prefix)s/commands-enabled',
                           'fifo dir':  '%(tmp dir)s/fifos',
+                          'socket port': '18193',
                           'sfifo': '%(fifo dir)s/states.fifo'},
-            'server':    {'ws user': 'user',
-                          'ws pass': 'password',
-                          'ws addr': '54.232.228.140',
-                          'ws port': '12345'},
             'ssh':       {'sdiuser': 'root',
                           'timeout': '240',
                           'ssh port': '22',
@@ -59,7 +53,7 @@ class configsdiparser:
             'web':       {'prefix': dirname,
                           'web mode': 'true',
                           'sdi web': 'sdiweb',
-                          'classes dir': '%(prefix)s/CLASSES',
+                          'classes dir': 'CLASSES',
                           'class name': 'MACHINES',
                           'wwwdir': 'www',
                           'host columnname': 'Hostname',
@@ -94,26 +88,23 @@ class configsdiparser:
         if not os.path.exists(dirname+'/sdi.conf'):
             self.config.write(open(dirname+'/sdi.conf','w'))
 
-    def printvars(self, output, sections):
+    def printvars(self, sections):
         if sections[0] == 'all':
             sections = self.config.sections()
         for sec in sections:
             for var,value in self.config.items(sec):
-                value = value.replace('"','')
-                if output=='js':
-                  print 'var %s="%s";' %(var.lower().replace(' ',''),value),
-                if output=='shell':
-                  print '%s="%s" ' %(var.upper().replace(' ',''),value),
+                print '%s=%s ' %(var.upper().replace(' ',''),value),
 
     def get(self, section, var):
         return self.config.get(section, var)
 
     def _sshopts_to_posix(self):
-        newopt = ""
+        newopt = "'"
         for key, value in self.config.items("ssh",1):
             if key.startswith('sshopt'):
                 newopt += "-o %s " % value.replace('"','')
                 self.config.remove_option("ssh",key)
+        newopt += "'"
         self.config.set("ssh","sshopts",newopt)
 
     def _load_default_options(self):
@@ -131,4 +122,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     parse = configsdiparser(sys.argv[1])
-    parse.printvars(sys.argv[2],sys.argv[3:])
+    parse.printvars(sys.argv[2:])

@@ -17,12 +17,13 @@ function usage () {
     echo "Options:"
     echo -ne "  --start\n\tStart SDI.\n"
     echo -ne "  --stop\n\tStop SDI\n"
+    echo -ne "  --close=host\n\tClose the tunnel of the host\n"
     echo -ne "  --restart\n\tRestart SDI\n"
     echo -ne "  --sync-data\n\tSyncronize fast data dir with data dir\n"
 }
 
 TEMP=$(getopt -o hsScR \
-       --long 'help,start,stop,restart,sync-data' \
+       --long 'help,start,stop,close:,restart,sync-data' \
        -n 'sdictl' -- "$@")
 
 eval set -- "$TEMP"
@@ -30,16 +31,19 @@ eval set -- "$TEMP"
 while true; do
     case "$1" in
         --start)
-            bash $PREFIX/startsdi.sh
+            bash $PREFIX/launchsdi.sh
             break ;;
         --stop)
             bash $PREFIX/sync.sh
-            bash $PREFIX/stopsdi.sh
+            bash $PREFIX/launchsditunnel.sh --killall
             break ;;
         --restart)
             bash $PREFIX/sync.sh
-            bash $PREFIX/stopsdi.sh
-            bash $PREFIX/startsdi.sh
+            bash $PREFIX/launchsditunnel.sh --killall
+            bash $PREFIX/launchsdi.sh
+            break ;;
+        --close)
+            bash $PREFIX/launchsditunnel.sh --kill="$2"
             break ;;
         --sync-data)
             bash $PREFIX/sync.sh

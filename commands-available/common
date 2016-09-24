@@ -1,28 +1,29 @@
-#!/bin/bash
 # Functions defined here can be used by others scripts
+
+# function to check if a sendfile request has been finished
+waitsendfile()
+{
+    FILE=$1
+    DATE=$(date +%s)
+    FINISHFILE="/tmp/.sdi.sendfile.finish"
+
+    touch $FINISHFILE
+    while test -z $(grep "$FILE$" $FINISHFILE | awk '$1 > '$DATE); do
+        sleep 0.5
+    done
+}
 
 # function used to kill the childs of a process
 # you must not remove this function, it's essential
 # to close hosts connections correctly
-killchilds(){
-  local PID=$1
-  ps ${PID} &>/dev/null || return
-  # needed to stop quickly forking parent from
-  # producing child between child killing and parent killing
-  kill -stop ${PID}
-  for CHILD in $(ps -o pid --no-headers --ppid ${PID}); do
-    killchilds ${CHILD}
-  done
-  kill -9 ${PID}
-  wait ${PID} 2>/dev/null
-}
-
-# funcion to destroy everything going on here
-finisheverything(){
-  PID=$$
-  for CHILD in $(ps -o pid --no-headers --ppid ${PID}); do
-    killchilds ${CHILD}
-  done
-  rm -Rf "${TEMPDIR}"
-  kill -9 ${PID}
+killchilds()
+{
+    PID=$1
+    CHILDS=$(ps --ppid $PID |awk 'NR>1{print $1}')
+    if test $PID != $$ && test -d /proc/$PID; then
+        kill $PID
+    fi
+    for CHILD in $CHILDS; do
+        killchilds $CHILD
+    done
 }
