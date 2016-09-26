@@ -2,8 +2,8 @@
 # SDI is an open source project.
 # Licensed under the GNU General Public License v2.
 #
-# File Description:
-#
+# File Description: This Makefile compiles socketclient.c 
+# source code.
 #
 #############################################################
 
