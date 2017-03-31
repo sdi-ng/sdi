@@ -8,7 +8,7 @@ informations summarized.
 
 SDI is an Open Source project covered by the GNU General Public License v2.
 It was originally written by Bruno Ribas and is currently maintained by
-Bruno Ribas, Diego Pasqualin and Vinicius Ruoso.
+Bruno Ribas, Diego Pasqualin, Vinicius Ruoso and Vagner Kaefer Dos Santos.
 
 Goals
 ~~~~~
@@ -16,25 +16,21 @@ Goals
 Our goals are mainly:
 - Write a simple and scalable diagnose system
 - Simple CODE (write in some scriptable languange as much as possible)
- + Our code is written in BASH and PYTHON today
+ + Our code is written all in BASH today
 - Simple API to collect data, so the creator of the script should not know
   how to generate HTMLs and any other stuff, just GIVE information.
 
 Documentation && Howto
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The documentation is in the Wiki of the repository.
-
-https://github.com/sdi-ng/sdi/wiki
-
-It contains: how to install and run SDI.
-
-- Help us improve our wiki =)
+To see documentation, how to install and run SDI, you can access our wiki at https://github.com/sdi-ng/sdi/wiki
+ - Help us improve our wiki =)
 
 Contact
 ~~~~~~~
 
-The discussion and development of SDI or tools related to SDI are conducted through issues.
-Everyone is welcome to post bug reports, feature requests, comments and patches.
-
-https://github.com/sdi-ng/sdi/issues
+The user discussion and development of SDI and most tools related to SDI
+takes place on the SDI mailing list - everyone is welcome to post bug
+reports, feature requests, comments and patches to sdi@c3sl.ufpr.br. To
+subscribe to the list, send an empty email to sdi-subscribe@c3sl.ufpr.br.
+The mailing list archives are available at http://listas.c3sl.ufpr.br/sdi

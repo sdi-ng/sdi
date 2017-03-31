@@ -1,12 +1,4 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description: The parser API to send files to host
-# 
-#
-#############################################################
-
+# the parser API to send files to host
 sendfile()
 {
     # the fifo

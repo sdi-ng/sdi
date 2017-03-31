@@ -1,24 +1,20 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description:
-#
-#
-#############################################################
-
 #!/bin/bash
 
 PREFIX=$(dirname $0)
 
-if ! source $PREFIX/misc.sh; then
-    echo "SDI(cron): failed to load $PREFIX/misc.sh"
+if [ ! -e $PREFIX'/sdi.conf' ]; then
+    echo "ERROR: The $PREFIX/sdi.conf  file does not exist or can not be accessed"
     exit 1
 fi
 
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf general)
+source $PREFIX'/sdi.conf'
+
+#test if config is loaded
 if test $? != 0; then
-    LOG "CRON: failed to load sdi configuration file: $PREFIX/sdi.conf"
+    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    exit 1
+elif ! source $PREFIX/misc.sh; then
+    echo "ERROR: failed to load $PREFIX/misc.sh file"
     exit 1
 fi
 

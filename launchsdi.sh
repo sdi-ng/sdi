@@ -1,17 +1,15 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description:
-#
-#
-#############################################################
-
 #!/bin/bash
 
 PREFIX=$(dirname $0)
 
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
+if [ ! -e $PREFIX'/sdi.conf' ]; then
+    echo "ERROR: The $PREFIX/sdi.conf  file does not exist or can not be accessed"
+    exit 1
+fi
+
+source $PREFIX'/sdi.conf'
+
+#test if config is loaded
 if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
@@ -38,33 +36,40 @@ SDIMKDIR $CLASSESDIR || exit 1
 
 # Start runing tunnels for hosts
 CLASSES=$(ls $CLASSESDIR)
-CLASSESNUM=$(ls $CLASSESDIR |wc -l)
+CLASSESNUM=$(ls $CLASSESDIR | wc -l)
+
 if test $CLASSESNUM -eq 0; then
-    printf "ERROR: no class set. At least one class of hosts must be defined
-    in $CLASSESDIR directory.\n"
+    printf "ERROR: no class set. At least one class of hosts must be defined in $CLASSESDIR directory.\n"
     exit 1
 fi
 
 # Check if web mode is enabled
 if test $WEBMODE = true; then
+
     source $SDIWEB/generatewebfiles.sh
 
     # Start states daemon
     printf "Launching states daemon... "
     bash $PREFIX/states.sh
     printf "done\n"
+
 else
-    printf "$0: warning: web mode is disabled.\n"
+
+    printf "WARNING: web mode is disabled.\n"
+
 fi
 
 # Open socketdaemon
-$PREFIX/socketdaemon.py & disown
+# PS: Sockets foram usados pelo vinicius, essa versão utilizará o SSH, não sockets para comunicação...
+#$PREFIX/socketdaemon.py & disown
 
 # Start sendfile deamon
 DAEMON="$PIDDIRSYS/sendfiledaemon.pid"
 printf "Launching sendfile deamon... "
 if (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON)) ||
    (! test -f $DAEMON); then
+
+    #ENTROU
     bash $PREFIX/launchsendfile.sh
 else
     printf "already running, "
@@ -83,13 +88,15 @@ COUNT=0
 for CLASS in $CLASSES; do
     ((COUNT++))
     printf "\nStarting $CLASS ($COUNT/$CLASSESNUM)...\n"
-    sleep 0.5
+    sleep $LAUNCHDELAY
 
     HOSTS=$(awk -F':' '{print $1}' $CLASSESDIR/$CLASS)
 
     # Launch the tunnels
-    DAEMON=true CLASS=$CLASS $CORESHELL $PREFIX/launchsditunnel.sh "$HOSTS"
-    sleep 0.5
+    DAEMON=true 
+    CLASS=$CLASS$CORESHELL 
+    $PREFIX/launchsditunnel.sh "$HOSTS"
+    sleep $LAUNCHDELAY
 done
 
 printf "\nAll done.\n"

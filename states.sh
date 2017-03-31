@@ -1,12 +1,3 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description: 
-# 
-#
-#############################################################
-
 #!/bin/bash
 
 PREFIX=$(dirname $0)
@@ -88,14 +79,14 @@ function savestate()
         if test -z "$PSTATE" || test "$PSTATE" == false; then
             # Remove $HOST entry from $WEBSTATEXML
             if test -f "$HOSTSTATEFILE"; then
-                sed -i "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
+                sed -ie "/hosts\/$HOST.xml\"/d" $WEBSTATEXML
                 rm -f "$HOSTSTATEFILE"
             fi
         else
             # Add new host entry for this state in $WEBSTATXML
             tag="<\!--#include virtual=\"../hosts/$HOST.xml\"-->"
             if ! test -f "$HOSTSTATEFILE"; then
-                sed -i "/--NEW--/i\\\t$tag" $WEBSTATEXML
+                sed -ie "/--NEW--/i\\\t$tag" $WEBSTATEXML
                 touch "$HOSTSTATEFILE"
             fi
         fi
