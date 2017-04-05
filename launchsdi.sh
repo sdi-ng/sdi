@@ -83,6 +83,7 @@ else
     SDIMKDIR "$DATADIR" || exit 1
 fi
 
+
 # Start launching the tunnels
 COUNT=0
 for CLASS in $CLASSES; do
@@ -93,9 +94,7 @@ for CLASS in $CLASSES; do
     HOSTS=$(awk -F':' '{print $1}' $CLASSESDIR/$CLASS)
 
     # Launch the tunnels
-    DAEMON=true 
-    CLASS=$CLASS$CORESHELL 
-    $PREFIX/launchsditunnel.sh "$HOSTS"
+    DAEMON=true CLASS=$CLASS $CORESHELL $PREFIX/launchsditunnel.sh "$HOSTS"
     sleep $LAUNCHDELAY
 done
 

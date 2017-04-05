@@ -1,10 +1,11 @@
 #!/bin/bash
+
 PREFIX=$(dirname $0)
 
 source $PREFIX'/sdi.conf'
 
 if test $? != 0; then
-    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    echo "ERROR: failed to load $PREFIX/sdi.conf file (mish.sh)"
     exit 1
 fi
 

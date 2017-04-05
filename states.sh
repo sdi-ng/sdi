@@ -2,7 +2,14 @@
 
 PREFIX=$(dirname $0)
 
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
+if [ ! -e $PREFIX'/sdi.conf' ]; then
+    echo "ERROR: The $PREFIX/sdi.conf  file does not exist or can not be accessed"
+    exit 1
+fi
+
+source $PREFIX'/sdi.conf'
+
+#test if config is loaded
 if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
@@ -10,7 +17,6 @@ elif ! source $PREFIX/misc.sh; then
     echo "ERROR: failed to load $PREFIX/misc.sh file"
     exit 1
 fi
-
 # define STATEDIR
 STATEDIR=$WWWDIR/states
 
