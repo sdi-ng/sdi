@@ -10,11 +10,12 @@ function usage () {
     echo -ne "  --stop\n\tStop SDI\n"
     echo -ne "  --close=host\n\tClose the tunnel of the host\n"
     echo -ne "  --restart\n\tRestart SDI\n"
+    echo -ne "  --cleardata\n\tClear all data files\n"
     echo -ne "  --sync-data\n\tSyncronize fast data dir with data dir\n"
 }
 
 TEMP=$(getopt -o hsScR \
-       --long 'help,start,stop,close:,restart,sync-data' \
+       --long 'help,start,stop,close:,restart,sync-data,cleardata' \
        -n 'sdictl' -- "$@")
 
 eval set -- "$TEMP"
@@ -35,6 +36,9 @@ while true; do
             break ;;
         --close)
             bash $PREFIX/launchsditunnel.sh --kill="$2"
+            break ;;
+        --cleardata)
+            rm -r data/*
             break ;;
         --sync-data)
             bash $PREFIX/sync.sh
