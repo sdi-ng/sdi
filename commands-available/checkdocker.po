@@ -1,0 +1,21 @@
+checkdocker_updatedata()
+{
+   UPDATA="$*"
+}
+
+statusdocker_www()
+{
+    if test "$*" = "SUPPORT"; then
+        PSTATETYPE="support:true not_support:false"
+    else
+        PSTATETYPE="support:false not_support:true"
+    fi
+
+    PVALUE="$*"
+}
+
+getcolumninfo()
+{
+    WEBINTERFACE=true
+    COLNAME=Docker_Support
+}
