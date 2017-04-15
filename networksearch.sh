@@ -60,7 +60,7 @@ do
       echo -e ${YEL}$base$i conectado com sucesso, porem ja faz parte do SDI, ignorado...${NC}
     else
       ((COUNTER++))
-      echo "" > CLASSES/$base$i
+      echo $base$i >> CLASSES/autoinsert
       echo -e ${GREEN}$COUNTER: $base$i conectado com sucesso... Adicionado ao SDI...${NC} 
     fi
     
