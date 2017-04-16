@@ -69,7 +69,6 @@ printf "Launching sendfile deamon... "
 if (test -f $DAEMON && ! test -d /proc/$(cat $DAEMON)) ||
    (! test -f $DAEMON); then
 
-    #ENTROU
     bash $PREFIX/launchsendfile.sh
 else
     printf "already running, "

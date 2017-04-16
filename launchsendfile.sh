@@ -26,7 +26,7 @@ done
 FILEFIFO="$FIFODIR/sendfile.fifo"
 FINISHFIFO="$FIFODIR/sendfile_finish.fifo"
 FILEBLOCK="$TMPDIR/sendfile.blocked"
-FINISH="$TMPDIR/.sdi.sendfile.finish"
+FINISH="$TMPDIR/sdi.sendfile.finish"
 
 
 
@@ -69,7 +69,8 @@ function waittransferend()
     while test -d /proc/$PID; do
         sleep 0.5
     done
-    echo "$PID" >> $FINISHFIFO
+    echo $PID >> $FINISHFIFO
+
     echo 'echo $(date +%s) '$DESTINATION' >> '$FINISH'' >> $CMDDIR/$HOST
 }
 
@@ -77,6 +78,7 @@ function waittransferend()
 # will launch the files transfers
 function sendfiledeamon()
 {
+
     (tail -f $FILEFIFO & echo $! > $PIDDIRSYS/tailfifo.pid) |
     while read HOST FILE DESTINATION LIMIT; do
         # wait to send file

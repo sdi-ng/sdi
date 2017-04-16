@@ -5,7 +5,7 @@ waitsendfile()
 {
     FILE=$1
     DATE=$(date +%s)
-    FINISHFILE="/tmp/.sdi.sendfile.finish"
+    FINISHFILE="$TMPDIR/sdi.sendfile.finish"
 
     touch $FINISHFILE
     while test -z $(grep "$FILE$" $FINISHFILE | awk '$1 > '$DATE); do
