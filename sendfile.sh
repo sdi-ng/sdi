@@ -7,10 +7,10 @@ sendfile()
     FILEBLOCK="$TMPDIR/sendfile.blocked"
 
     # first secure the options are empty
-    unset LIMIT FILE DESTINATION
+    unset FILE DESTINATION
 
     # arguments parser
-    TEMP=$(getopt -o b:l:f:d: --long --block:--limit:--file:--dest: \
+    TEMP=$(getopt -o b:l:f:d: --long --block:--file:--dest: \
          -n 'example.bash' -- "$@")
 
     if [ $? != 0 ] ; then echo "Error running sendfile." >&2 ; return 1 ; fi
@@ -20,8 +20,6 @@ sendfile()
     while true ; do
         case "$1" in
             -b|--block) BLOCK=$2
-                        shift 2 ;;
-            -l|--limit) LIMIT=$2
                         shift 2 ;;
             -f|--file)  FILE=$2
                         shift 2 ;;
@@ -38,10 +36,9 @@ sendfile()
     test ! -z "$BLOCK" && echo "$BLOCK" >> $FILEBLOCK && return 0
 
     # check the arguments data
-    test -z "$LIMIT" && LIMIT=0
     test -z "$FILE"  && exit 1
     test -z "$DESTINATION" && exit 1
     test -z "$HOST" && exit 1
 
-    echo "$HOST $FILE $DESTINATION $LIMIT" >> $FILEFIFO
+    echo "$HOST $FILE $DESTINATION" >> $FILEFIFO
 }

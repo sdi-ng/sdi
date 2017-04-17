@@ -12,10 +12,12 @@ function usage () {
     echo -ne "  --restart\n\tRestart SDI\n"
     echo -ne "  --cleardata\n\tClear all data files\n"
     echo -ne "  --sync-data\n\tSyncronize fast data dir with data dir\n"
+    echo -ne "  --sendimage=/full/patch/folder/image.tar.gz\n\tSend a docker image and install in all hosts\n"
+    echo -ne "  --senddockerfile=/full/patch/folder/Dockerfile\n\tSend a docker file to generate a image and install in all hosts\n"
 }
 
 TEMP=$(getopt -o hsScR \
-       --long 'help,start,stop,close:,restart,sync-data,cleardata' \
+       --long 'help,start,stop,close:,restart,sync-data,cleardata,sendimage:,senddockerfile:' \
        -n 'sdictl' -- "$@")
 
 eval set -- "$TEMP"
@@ -39,6 +41,16 @@ while true; do
             break ;;
         --cleardata)
             rm -r data/*
+            rm -r /tmp/sdi/*
+            break ;;
+        --sendimage)
+            # CONTINUAR AQUI
+            #printf "envia imagem $2"
+            bash $PREFIX/sendimage.sh --image="$2"
+            break ;;
+        --senddockerfile)
+            # CONTINUAR AQUI
+            printf "envia dockerfile $2"
             break ;;
         --sync-data)
             bash $PREFIX/sync.sh
