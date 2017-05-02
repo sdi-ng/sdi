@@ -11,13 +11,14 @@ function usage () {
     echo -ne "  --close=host\n\tClose the tunnel of the host\n"
     echo -ne "  --restart\n\tRestart SDI\n"
     echo -ne "  --cleardata\n\tClear all data files\n"
+    echo -ne "  --container=/full/patch/folder/container.tar.gz\n\tSend and execute a container\n"
     echo -ne "  --sync-data\n\tSyncronize fast data dir with data dir\n"
     echo -ne "  --sendimage=/full/patch/folder/image.tar.gz\n\tSend a docker image and install in all hosts\n"
     echo -ne "  --senddockerfile=/full/patch/folder/Dockerfile\n\tSend a docker file to generate a image and install in all hosts\n"
 }
 
 TEMP=$(getopt -o hsScR \
-       --long 'help,start,stop,close:,restart,sync-data,cleardata,sendimage:,senddockerfile:' \
+       --long 'help,start,stop,close:,restart,sync-data,cleardata,sendimage:,container:,senddockerfile:' \
        -n 'sdictl' -- "$@")
 
 eval set -- "$TEMP"
@@ -42,6 +43,9 @@ while true; do
         --cleardata)
             rm -r data/*
             rm -r /tmp/sdi/*
+            break ;;
+        --container)
+            bash $PREFIX/sendcontainer.sh --container="$2"
             break ;;
         --sendimage)
             # CONTINUAR AQUI
