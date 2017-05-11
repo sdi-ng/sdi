@@ -40,7 +40,7 @@ chose_host(){
     # verifica se suporta docker
     # sistema de controle se esta ocupado ou com X (X < limit) containers em execucao
 
-    HOST_DESTINO="138.197.75.38"
+    HOST_DESTINO="10.132.111.184"
 
 }
 
@@ -60,15 +60,6 @@ generate_id(){
         mkdir $CONTAINER_POOL
         if [ ! -d "$CONTAINER_POOL" ]; then
             printf "ERRO: Pasta $CONTAINER_POOL não existe e não pode ser criada...\n"
-            exit 1
-        fi
-    fi
-
-    #check if data folder exist
-    if [ ! -d "$CONTAINER_DATA" ]; then
-        mkdir $CONTAINER_DATA
-        if [ ! -d "$CONTAINER_DATA" ]; then
-            printf "ERRO: Pasta $CONTAINER_DATA não existe e não pode ser criada...\n"
             exit 1
         fi
     fi
@@ -109,7 +100,10 @@ sendcontainer(){
     scp -q $CONTAINER_POOL/$NEW_UUID/"container" $HOST_DESTINO:/containerstoexecute/$NEW_UUID
 
     #insert the execution in the "bd"
-    echo -e "$NEW_UUID\t$(date)\tSENT-RUNNING" >> $CONTAINER_DATA/"database"
+    echo -e "$(date)" > $CONTAINER_POOL/$NEW_UUID/"date"
+    echo -e $HOST_DESTINO > $CONTAINER_POOL/$NEW_UUID/"destination_host"
+    echo -e "SENT-RUNNING" > $CONTAINER_POOL/$NEW_UUID/"status"
+    echo -e 1 > $CONTAINER_POOL/$NEW_UUID/"attempts"
 }
 
 case $1 in

@@ -9,7 +9,9 @@ for arq in `ls /containersrunning/`; do
   	#ve se gerou saida, se nao gerou provavelmente tem erro...
   	if [ ! -e "/data/"$arq ] ; then
   		echo "SDI ERROR: Container nao gerou saida..." >> /data/$arq.log
-  	fi
+  	else
+      echo "SDI FINISHED: Done..." >> /data/$arq.log
+    fi
 
   	rm /containersrunning/$arq
   	docker rm $arq

@@ -42,7 +42,7 @@ done
 
 printf "done\n"
 
-sleep 3
+sleep 1
 
 printf "Sending commands to iniciatialize cron jobs...\n"
 
