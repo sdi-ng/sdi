@@ -30,58 +30,9 @@ usage()
     echo "Usage:"
     echo "  $0 [options]"
     echo "Options:"
-    echo "  --image=/full/patch/image      Send a docker image and install in all hosts"
+    echo "  --container=/full/patch/container.tar.gz      Send and execute a docker container"
 }
 
-listahosts(){
-    
-    IMAGE=$1 
-    CLASSES=$(ls $CLASSESDIR)
-    CLASSESNUM=$(ls $CLASSESDIR | wc -l)
-
-    #check if image exists and is acessible
-    if [ ! -e $IMAGE ]; then
-        echo "ERROR: The image $IMAGE does not exist or can not be accessed"
-        exit 1
-    fi
-
-    printf "Iniciando envio da imagem...\n"
-
-    echo "mkdir -p /tmp/sdiimages/" >> $CMDGENERAL
-
-    COUNT=0
-    for CLASS in $CLASSES; do
-        
-        ((COUNT++))
-        
-        printf "\nInserindo na fila os hosts da classe $CLASS ($COUNT/$CLASSESNUM)..."
-        
-        sleep $LAUNCHDELAY
-
-        HOSTS=$(awk -F':' '{print $1}' $CLASSESDIR/$CLASS)
-
-        enviaimagem $HOSTS
-
-        printf "done\n"
-        
-        sleep $LAUNCHDELAY
-    
-    done
-
-    printf "Fila criada com sucesso, aguarde a transferencia...\n"
-
-}
-
-enviaimagem(){
-
-    FILEFIFO="$FIFODIR/sendfile.fifo"
-
-    for HOST in $*; do
-        #printf "$HOST $IMAGE /tmp/sdiimages/ >> $FILEFIFO\n" 
-        echo "$HOST $IMAGE /tmp/sdiimages/" >> $FILEFIFO
-    done
-
-}
 
 chose_host(){
 
@@ -104,15 +55,25 @@ generate_id(){
     # bash generate random 64 character alphanumeric string (upper and lowercase) and 
     NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)
 
-    #check if pool exist
+    #check if pool folder exist
     if [ ! -d "$CONTAINER_POOL" ]; then
         mkdir $CONTAINER_POOL
         if [ ! -d "$CONTAINER_POOL" ]; then
-            printf "ERRO: Pool de containers não existe e não pode ser criada...\n"
+            printf "ERRO: Pasta $CONTAINER_POOL não existe e não pode ser criada...\n"
             exit 1
         fi
     fi
 
+    #check if data folder exist
+    if [ ! -d "$CONTAINER_DATA" ]; then
+        mkdir $CONTAINER_DATA
+        if [ ! -d "$CONTAINER_DATA" ]; then
+            printf "ERRO: Pasta $CONTAINER_DATA não existe e não pode ser criada...\n"
+            exit 1
+        fi
+    fi
+
+    #check if the ticket is uniq
     while [ -d "$CONTAINER_POOL/$NEW_UUID" ]
     do
         NEW_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)
@@ -131,21 +92,24 @@ sendcontainer(){
     fi
 
     #escolhe um host para processar o container
-    printf "Definindo cliente para envio...\n"
+    #printf "Definindo cliente para envio...\n"
     chose_host;
-    printf "O container sera enviado para o cliente $HOST_DESTINO\n"
+    #printf "O container sera enviado para o cliente $HOST_DESTINO\n"
 
     #generate the ID of the container
     generate_id
-    printf "Ticket de acompanhamento: $NEW_UUID\n"
+    #printf "Ticket de acompanhamento: $NEW_UUID\n"
+    printf $NEW_UUID"\n"
 
     #copia para a pasta do container no pool
     mkdir $CONTAINER_POOL/$NEW_UUID
-    cp $CONTAINER $CONTAINER_POOL/$NEW_UUID/"container.tar.gz"
+    cp $CONTAINER $CONTAINER_POOL/$NEW_UUID/"container"
 
     #send the container
-    scp -q $CONTAINER_POOL/$NEW_UUID/"container.tar.gz" $HOST_DESTINO:/tmp/containerstoexecute/$NEW_UUID".tar.gz"
+    scp -q $CONTAINER_POOL/$NEW_UUID/"container" $HOST_DESTINO:/containerstoexecute/$NEW_UUID
 
+    #insert the execution in the "bd"
+    echo -e "$NEW_UUID\t$(date)\tSENT-RUNNING" >> $CONTAINER_DATA/"database"
 }
 
 case $1 in
