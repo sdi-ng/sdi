@@ -39,10 +39,12 @@ loaddata(){
     printf "\n"
     printf "Recebido em: "
     cat $CONTAINER_POOL"/"$TICKET"/date"
-    printf "Executado pelo cliente: "
-    cat $CONTAINER_POOL"/"$TICKET"/destination_host"
+    printf "Tempo limite de execução (seg): "
+    cat $CONTAINER_POOL/$TICKET/timelimit
     printf "Status: "
     cat $CONTAINER_POOL"/"$TICKET"/status"
+    #printf "Executado pelo cliente: "
+    #cat $CONTAINER_POOL"/"$TICKET"/destination_host"
 
     STATUS_CONT="$(cat $CONTAINER_POOL/$TICKET/status)"
 
@@ -51,6 +53,7 @@ loaddata(){
         cat $CONTAINER_POOL"/"$TICKET"/attempts"
         printf "Log: "
         cat $CONTAINER_POOL"/"$TICKET"/execution_log"
+        printf "\n"
     fi
 
     if [ $STATUS_CONT = "FATAL-ERROR" ]; then
@@ -58,6 +61,9 @@ loaddata(){
         cat $CONTAINER_POOL"/"$TICKET"/attempts"
         printf "Log: "
         cat $CONTAINER_POOL"/"$TICKET"/execution_log"
+        printf "Executado pelo cliente: "
+        cat $CONTAINER_POOL"/"$TICKET"/destination_host"
+        printf "\n"
     fi
 
     if [ $STATUS_CONT = "EXECUTED-OK" ]; then
@@ -69,6 +75,9 @@ loaddata(){
         printf $CONTAINER_POOL"/"$TICKET"/result"
         FILESIZE="$(stat -c%s $CONTAINER_POOL/$TICKET/result)"
         printf " ($FILESIZE bytes)\n"
+        printf "Executado pelo cliente: "
+        cat $CONTAINER_POOL"/"$TICKET"/destination_host"
+        printf "\n"
     fi
 
 }
