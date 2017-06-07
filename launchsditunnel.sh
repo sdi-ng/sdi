@@ -265,7 +265,12 @@ case $1 in
         ;;
     --killall)
         closeallhosts
-        # $PREFIX/socketclient $SOCKETPORT stop
+        
+        if $DOCKER_REGISTRY = 'true'; then
+            printf "Finalizando Docker Registry..."
+            docker stop registry
+            printf "Done...\n"
+        fi
         exit 0
         ;;
     --reload-po)

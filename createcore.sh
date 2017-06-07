@@ -26,7 +26,7 @@ enviacore(){
 CLASSES=$(ls $CLASSESDIR)
 CLASSESNUM=$(ls $CLASSESDIR | wc -l)
 
-printf "Sending core to clients...\n"
+printf "\nSending core to clients..."
 COUNT=0
 for CLASS in $CLASSES; do
     
@@ -42,10 +42,14 @@ done
 
 printf "done\n"
 
-sleep 1
+printf "Setando permissoes de execucao do core..."
 
-printf "Sending commands to iniciatialize cron jobs...\n"
+echo "chmod -R 777 /coresdi-client/" >> $PREFIX"/cmds/general"
+
+printf "done\n"
+
+printf "Sending commands to iniciatialize cron jobs..."
 
 echo "bash /coresdi-client/enablecron.sh" >> $PREFIX"/cmds/general"
 
-printf "done...\n"
+printf "done\n"

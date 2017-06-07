@@ -2,6 +2,14 @@
 
 PREFIX=$(dirname $0)
 
+
+if [ ! -e $PREFIX'/sdi.conf' ]; then
+    echo "ERROR: The $PREFIX/sdi.conf  file does not exist or can not be accessed"
+    exit 1
+fi
+
+source $PREFIX'/sdi.conf'
+
 function usage () {
     echo "Usage:"
     echo "  $0 [options]"
@@ -12,14 +20,16 @@ function usage () {
     echo -ne "  --restart\n\tRestart SDI\n"
     echo -ne "  --cleardata\n\tClear all data files\n"
     echo -ne "  --container=/full/patch/folder/container.tar.gz\n\tSend and execute a container\n"
+    echo -ne "  --comtar=/full/patch/file.tar.gz --tl=time_limit_in_seconds\n\tSend and execute a command inside a tar.gz\n"
     echo -ne "  --status=TICKET\n\tShow information about the execution of the container\n"
+    echo -ne "  --resume\n\tShow a resume for all containers executions\n"
     echo -ne "  --sync-data\n\tSyncronize fast data dir with data dir\n"
     echo -ne "  --sendimage=/full/patch/folder/image.tar.gz\n\tSend a docker image and install in all hosts\n"
-    echo -ne "  --senddockerfile=/full/patch/folder/Dockerfile\n\tSend a docker file to generate a image and install in all hosts\n"
+    echo -ne "  --senddockerfile=/full/patch/folder/file.tar.gz\n\tSend a package with the Dockerfile to generate a container and execute in a host\n"
 }
 
 TEMP=$(getopt -o hsScR \
-       --long 'help,start,stop,close:,restart,sync-data,cleardata,sendimage:,container:,status:,senddockerfile:' \
+       --long 'help,start,stop,close:,restart,sync-data,cleardata,comtar:,sendimage:,container:,tl:,status:,resume,senddockerfile:' \
        -n 'sdictl' -- "$@")
 
 eval set -- "$TEMP"
@@ -43,22 +53,28 @@ while true; do
             break ;;
         --cleardata)
             rm -r data/*
-            rm -r /tmp/sdi/*
+            rm -r $TMPDIR/*
             break ;;
         --container)
-            bash $PREFIX/sendcontainer.sh --container="$2"
+            bash $PREFIX/sendcontainer.sh --container="$2" --tl="$4"
+            break ;;
+        --comtar)
+            bash $PREFIX/sendcommandtar.sh --tar="$2" --tl="$4"
             break ;;
         --status)
             bash $PREFIX/status.sh --ticket="$2"
             break ;;
+        --resume)
+            bash $PREFIX/resume.sh
+            break ;;
         --sendimage)
             # CONTINUAR AQUI
             #printf "envia imagem $2"
-            bash $PREFIX/sendimage.sh --image="$2"
+            bash $PREFIX/sendimage.sh --image="$2" 
             break ;;
         --senddockerfile)
             # CONTINUAR AQUI
-            printf "envia dockerfile $2"
+            bash $PREFIX/senddockerfile.sh --file="$2"
             break ;;
         --sync-data)
             bash $PREFIX/sync.sh

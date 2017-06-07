@@ -97,4 +97,29 @@ for CLASS in $CLASSES; do
     sleep $LAUNCHDELAY
 done
 
+#send the core to the clients
+echo "DOCKER_REGISTRY_IP=$DOCKER_REGISTRY_IP" > $PREFIX/coresdi-client/config
+bash $PREFIX/createcore.sh
+
+
+#start docker registry if enable
+if $DOCKER_REGISTRY = 'true'; then
+    #fazer if pra ver se o container existe, se nao existe cria, se não so executa
+
+    printf "\nInicializando Docker Registry (localhost:5000)..."
+
+    if [ ! -f $TMPDIR/.dkregistry ]; then
+        docker run -d -p 5000:5000 --name registry registry:2
+        echo 1 > $TMPDIR/.dkregistry
+    else
+        docker start registry
+    fi 
+
+    echo "bash /coresdi-client/cfgdocker.sh" >> $CMDGENERAL
+    
+    printf "Docker Registry Done..."
+else
+    printf "WARNING: Docker Registry is not enabled. The function --createcontainer will not work!\n"
+fi
+
 printf "\nAll done.\n"
