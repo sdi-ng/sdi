@@ -33,18 +33,6 @@ usage()
     echo "  --container=/full/patch/container.tar.gz      Send and execute a docker container"
 }
 
-
-chose_host(){
-
-    # verifica se esta online
-    # verifica se suporta docker
-    # sistema de controle se esta ocupado ou com X (X < limit) containers em execucao
-
-    HOST_DESTINO="10.132.111.184"
-
-}
-
-
 generate_id(){
 
     # Source: https://gist.github.com/earthgecko/3089509
@@ -75,17 +63,13 @@ generate_id(){
 sendcontainer(){
 
     CONTAINER=$1
+    TIMELIMIT=$2
 
     #verifica se o container existe
     if [ ! -f $CONTAINER ]; then
         echo "ERRO: O container não existe ou não pode ser acessado..."
         exit 1
     fi
-
-    #escolhe um host para processar o container
-    #printf "Definindo cliente para envio...\n"
-    chose_host;
-    #printf "O container sera enviado para o cliente $HOST_DESTINO\n"
 
     #generate the ID of the container
     generate_id
@@ -96,19 +80,31 @@ sendcontainer(){
     mkdir $CONTAINER_POOL/$NEW_UUID
     cp $CONTAINER $CONTAINER_POOL/$NEW_UUID/"container"
 
-    #send the container
-    scp -q $CONTAINER_POOL/$NEW_UUID/"container" $HOST_DESTINO:/containerstoexecute/$NEW_UUID
-
     #insert the execution in the "bd"
     echo -e "$(date)" > $CONTAINER_POOL/$NEW_UUID/"date"
-    echo -e $HOST_DESTINO > $CONTAINER_POOL/$NEW_UUID/"destination_host"
-    echo -e "SENT-RUNNING" > $CONTAINER_POOL/$NEW_UUID/"status"
+    echo -e "IN-QUEUE" > $CONTAINER_POOL/$NEW_UUID/"status"
     echo -e 1 > $CONTAINER_POOL/$NEW_UUID/"attempts"
+    echo -e $TIMELIMIT > $CONTAINER_POOL/$NEW_UUID/"timelimit"
 }
 
 case $1 in
     --container=?*)
-        sendcontainer $(echo $1| cut -d'=' -f2)
+        case $2 in
+            --tl=?*)
+                TIMELIMIT=$(echo $2| cut -d'=' -f2)
+                if [ $TIMELIMIT = "--" ]; then
+                    printf "WARNING: Time limit option was not set! The default limit will be used (1 hour).\n"
+                    TIMELIMIT=3600
+                fi
+                ;;
+            *)
+                printf "WARNING: Time limit option was not set! The default limit will be used (1 hour).\n"
+                TIMELIMIT=3600
+                ;;
+        esac
+        sendcontainer $(echo $1| cut -d'=' -f2) $TIMELIMIT
+        #echo -e $(echo $1| cut -d'=' -f2)"\n"
+        #echo -e "$TIMELIMIT\n"
         exit 0
         ;;
     *)
