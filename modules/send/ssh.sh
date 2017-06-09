@@ -22,6 +22,10 @@ sdisend()
 
     source $SENDDIR'/ssh.conf'
     
+    for OPT in "${SSHOPT[@]}"; do
+        SSHOPTS="$SSHOPTS -o $OPT"
+    done
+    
     # Open the ssh tunnel
     ssh $SSHOPTS -p $SSHPORT -l $SDIUSER $HOST "bash -s" 2>&1
 }
