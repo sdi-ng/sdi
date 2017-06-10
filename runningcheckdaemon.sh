@@ -84,19 +84,72 @@ for CONTAINER in $CONTAINERS; do
 
         rsync -q $HOST_DEST:/data/$CONTAINER $CONTAINER_POOL/$CONTAINER/result > /dev/null
         rsync -q $HOST_DEST:/data/$CONTAINER.log $CONTAINER_POOL/$CONTAINER/execution_log > /dev/null
+        rsync -q $HOST_DEST:/data/$CONTAINER.logsys $CONTAINER_POOL/$CONTAINER/logsys > /dev/null
+        rsync -q $HOST_DEST:/data/$CONTAINER.status $CONTAINER_POOL/$CONTAINER/.statusexec > /dev/null
         
         if [ -s $CONTAINER_POOL/$CONTAINER/result ]; then
-            echo "EXECUTED-OK" > $CONTAINER_POOL/$CONTAINER/status
 
-            #diminui qtd de containers naquele host
-            QTD_CONT="$(cat $DATADIR/$HOST_DEST/.qtdcontainers)" 
-            let QTD_CONT=$QTD_CONT-1;
-            echo $QTD_CONT > $DATADIR/$HOST_DEST/.qtdcontainers
+            RUNN_RES="$(cat $CONTAINER_POOL/$CONTAINER/.statusexec)"
 
-            # remove os arquivos da maquina que executou
-            echo "rm /data/$CONTAINER /data/$CONTAINER.log" >> cmds/$HOST_DEST
-            # remove o container, ja foi executado
-            rm $CONTAINER_POOL/$CONTAINER/container
+            if [ $RUNN_RES = "0" ]; then
+
+                echo "EXECUTED-OK" > $CONTAINER_POOL/$CONTAINER/status
+
+                #diminui qtd de containers naquele host
+                QTD_CONT="$(cat $DATADIR/$HOST_DEST/.qtdcontainers)" 
+                let QTD_CONT=$QTD_CONT-1;
+                echo $QTD_CONT > $DATADIR/$HOST_DEST/.qtdcontainers
+
+                # remove os arquivos da maquina que executou
+                echo "rm /data/$CONTAINER /data/$CONTAINER.log" >> cmds/$HOST_DEST
+                # remove o container, ja foi executado
+                rm $CONTAINER_POOL/$CONTAINER/container
+            fi
+
+            TIME_INICIO="$(date -d "$(cat $CONTAINER_POOL/$CONTAINER/date)" +%s)"
+
+            TIME_AGORA="$(date +%s)"
+
+            TIME_LIMIT="$(cat $CONTAINER_POOL/$CONTAINER/timelimit)"
+
+            DIFERENCA="$(expr $TIME_AGORA - $TIME_INICIO)"
+
+            if [ $DIFERENCA -gt $TIME_LIMIT ]; then
+
+                ATTEMPTS="$(cat $CONTAINER_POOL/$CONTAINER/attempts)"
+
+                #passou do tempo limite de execucao
+                if [ $ATTEMPTS -eq $EXECUTION_ATTEMPTS ]; then
+                #ja foram feitas 3 tentativas de execucao, erro fatal
+                    echo "TIMEOUT" > $CONTAINER_POOL/$CONTAINER/status
+                    echo "rm /data/$CONTAINER /data/$CONTAINER.log" >> cmds/$HOST_DEST
+                    echo "docker stop $CONTAINER" >> cmds/$HOST_DEST
+                    rm $CONTAINER_POOL/$CONTAINER/container
+
+                    #diminui qtd de containers naquele host
+                    QTD_CONT="$(cat $DATADIR/$HOST_DEST/.qtdcontainers)" 
+                    let QTD_CONT=$QTD_CONT-1;
+                    echo $QTD_CONT > $DATADIR/$HOST_DEST/.qtdcontainers
+
+                else
+                    #alguma coisa para tentar novamente vai aqui (enviar outro host, etc...)
+                    echo "ERROR-TRYING-AGAIN" > $CONTAINER_POOL/$CONTAINER/status
+                    ATTEMPTS="$(($ATTEMPTS + 1))" 
+                    echo $ATTEMPTS > $CONTAINER_POOL/$CONTAINER/attempts
+                    echo "rm /data/$CONTAINER /data/$CONTAINER.log" >> cmds/$HOST_DEST
+                    echo "docker stop $CONTAINER" >> cmds/$HOST_DEST
+                    echo "TIME_LIMIT_EXED" >> $CONTAINER_POOL/$CONTAINER/error_logtime
+                    
+                    #diminui qtd de containers naquele host
+                    QTD_CONT="$(cat $DATADIR/$HOST_DEST/.qtdcontainers)" 
+                    let QTD_CONT=$QTD_CONT-1;
+                    echo $QTD_CONT > $DATADIR/$HOST_DEST/.qtdcontainers
+
+                    #manda outro host
+                    rm $CONTAINER_POOL/$CONTAINER/destination_host
+
+                fi
+            fi
 
         else
 
@@ -142,14 +195,14 @@ for CONTAINER in $CONTAINERS; do
 
                 DIFERENCA="$(expr $TIME_AGORA - $TIME_INICIO)"
 
-                if [ $DIFERENCA > $TIME_LIMIT ]; then
+                if [ $DIFERENCA -gt $TIME_LIMIT ]; then
 
                     ATTEMPTS="$(cat $CONTAINER_POOL/$CONTAINER/attempts)"
 
                     #passou do tempo limite de execucao
                     if [ $ATTEMPTS -eq $EXECUTION_ATTEMPTS ]; then
                     #ja foram feitas 3 tentativas de execucao, erro fatal
-                        echo "FATAL-ERROR" > $CONTAINER_POOL/$CONTAINER/status
+                        echo "TIMEOUT" > $CONTAINER_POOL/$CONTAINER/status
                         echo "rm /data/$CONTAINER /data/$CONTAINER.log" >> cmds/$HOST_DEST
                         echo "docker stop $CONTAINER" >> cmds/$HOST_DEST
                         rm $CONTAINER_POOL/$CONTAINER/container
@@ -166,7 +219,8 @@ for CONTAINER in $CONTAINERS; do
                         echo $ATTEMPTS > $CONTAINER_POOL/$CONTAINER/attempts
                         echo "rm /data/$CONTAINER /data/$CONTAINER.log" >> cmds/$HOST_DEST
                         echo "docker stop $CONTAINER" >> cmds/$HOST_DEST
-
+                        echo "TIME_LIMIT_EXED" >> $CONTAINER_POOL/$CONTAINER/error_logtime
+                        
                         #diminui qtd de containers naquele host
                         QTD_CONT="$(cat $DATADIR/$HOST_DEST/.qtdcontainers)" 
                         let QTD_CONT=$QTD_CONT-1;

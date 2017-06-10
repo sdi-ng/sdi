@@ -99,6 +99,7 @@ done
 
 #send the core to the clients
 echo "DOCKER_REGISTRY_IP=$DOCKER_REGISTRY_IP" > $PREFIX/coresdi-client/config
+echo "MAX_CONTAINERS_BY_HOST=1" >> $PREFIX/coresdi-client/config
 bash $PREFIX/createcore.sh
 
 
