@@ -24,6 +24,7 @@ executando=0;
 finalizados=0;
 erro=0;
 fila=0;
+timetou=0;
 
 COUNT=0
 for CONTAINER in $CONTAINERS; do
@@ -54,12 +55,19 @@ for CONTAINER in $CONTAINERS; do
 
     fi
 
+    if [ $STATUS_CONT = "TIMEOUT" ]; then
+
+        let timetou=$timetou+1;
+
+    fi
+
 done
 
 printf "Na fila de envio: "$fila"\n"
 printf "Em execução: "$executando"\n"
 printf "Executados com sucesso: "$finalizados"\n"
 printf "Não executados (erro fatal): "$erro"\n"
+printf "Tempo de execução excedido (timeout): "$timetou"\n"
 
 CLASSES=$(ls $CLASSESDIR)
 CONTAINERS=$(ls $CONTAINER_POOL)
