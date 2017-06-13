@@ -23,6 +23,3 @@ for arq in `ls /containerstoexecute/`; do
 	fi
 
 done
-
-
-docker run -v /data/:/compartilhada -ti -d --name teste2 -h teste exec:teste /inicia.sh teste2

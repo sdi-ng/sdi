@@ -18,7 +18,9 @@ fi
 enviacore(){
 
     for HOST in $*; do
-        scp -r -q $PREFIX"/coresdi-client" $HOST:/
+        printf "coresdi->$HOST\n"
+        scp -r -q -o StrictHostKeyChecking=no $PREFIX"/coresdi-client" $HOST:/
+        sleep 0.5
     done
 
 }
@@ -36,7 +38,7 @@ for CLASS in $CLASSES; do
 
     enviacore $HOSTS
 
-    sleep $LAUNCHDELAY
+    
 
 done
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+exit 0
+
 PREFIX=$(dirname $0)
 
 if [ ! -e $PREFIX'/config' ]; then

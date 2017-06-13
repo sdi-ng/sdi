@@ -85,6 +85,7 @@ sendcontainer(){
     echo -e "IN-QUEUE" > $CONTAINER_POOL/$NEW_UUID/"status"
     echo -e 1 > $CONTAINER_POOL/$NEW_UUID/"attempts"
     echo -e $TIMELIMIT > $CONTAINER_POOL/$NEW_UUID/"timelimit"
+    echo -e "container" > $CONTAINER_POOL/$NEW_UUID/"type"
 }
 
 case $1 in
