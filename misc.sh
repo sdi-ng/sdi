@@ -19,8 +19,12 @@ LOG()
 
 # Write $1 (string) into $2 (file) with the seconds since 1970
 PRINT()
-{
-    echo "$(date +%s) $1" >> $2
+{   
+    if [ -e "$2" ]; then
+        echo "$(date +%s) $1" >> "$2"
+    else
+        echo "$(date +%s) $1" > "$2"
+    fi
 }
 
 # Create a directory and ensure that it is accessible, or exit SDI
