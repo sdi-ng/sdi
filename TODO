@@ -4,6 +4,8 @@ Increments to make
 
 - link sdictl in /usr/share to use it anywhere
 - new sdiweb (responsive and with auth)
+- full documentation
+- sdi.conf is a mess, need to organize
 - refactor the:
   - sendimage.sh
   - senddockerfile.sh
