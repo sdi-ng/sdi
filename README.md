@@ -1,5 +1,5 @@
-SDI - An Instant Diagnose System v1.0.0.1
-================================
+
+# SDI - An Instant Diagnose System 
 
 SDI is a simple and scalable system to Diagnose Instantly huge (and small)
 networks. It provides a way to run diagnose scripts at hosts or any other
@@ -10,8 +10,16 @@ SDI is an Open Source project covered by the GNU General Public License v2.
 It was originally written by Bruno Ribas and is currently maintained by
 Bruno Ribas, Diego Pasqualin, Vinicius Ruoso and Vagner Kaefer Dos Santos.
 
-Goals
-~~~~~
+----------
+
+
+**Stable Version**: v1.0.0.1
+
+
+----------
+
+
+## Goals
 
 Our goals are mainly:
 - Write a simple and scalable diagnose system
@@ -20,17 +28,14 @@ Our goals are mainly:
 - Simple API to collect data, so the creator of the script should not know
   how to generate HTMLs and any other stuff, just GIVE information.
 
-Documentation && Howto
-~~~~~~~~~~~~~~~~~~~~~~
+## Documentation & Howto
+
 
 To see documentation, how to install and run SDI, you can access our wiki at https://github.com/sdi-ng/sdi/wiki
  - Help us improve our wiki =)
 
-Contact
-~~~~~~~
+## Contact
 
-The user discussion and development of SDI and most tools related to SDI
-takes place on the SDI mailing list - everyone is welcome to post bug
-reports, feature requests, comments and patches to sdi@c3sl.ufpr.br. To
-subscribe to the list, send an empty email to sdi-subscribe@c3sl.ufpr.br.
-The mailing list archives are available at http://listas.c3sl.ufpr.br/sdi
+
+Everyone is welcome to post bug reports, feature requests, comments and patches. 
+Use the [Issues](https://github.com/sdi-ng/sdi/issues) to contact us.
