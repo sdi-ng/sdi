@@ -1,11 +1,8 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description: This function defines and returns the vars 
-# available to users by API of SDI
-#
-#############################################################
+# This function defines and returns the vars available to users by API of
+# SDI
+
+
+#NAO VERIFICADO NADA ABAIXO
 
 getvars()
 {
@@ -72,7 +69,7 @@ PARSE()
     trap "RELOAD=true" USR1
 
     while read LINE; do
-        $PREFIX/socketclient $SOCKETPORT "acquire"
+        # $PREFIX/socketclient $SOCKETPORT "acquire"
 
         FIELD=$(echo $LINE | cut -d"+" -f1 |tr '[:upper:]' '[:lower:]')
         DATA=$(echo $LINE | cut -d"+" -f2- )
@@ -99,7 +96,7 @@ PARSE()
             test $ENABLED = false &&
             unset ${FIELD}_updatedata ${FIELD}_www &&
             PRINT "ERROR: $FIELD is not enabled." "$DATAPATH/$HOST.log" &&
-            $PREFIX/socketclient $SOCKETPORT "release" &&
+            # $PREFIX/socketclient $SOCKETPORT "release" &&
             continue
 
             # now sourced
@@ -107,7 +104,7 @@ PARSE()
             CACHE="$CACHE ${FIELD}_updatedata"
         else
             PRINT "$LINE" "$DATAPATH/$HOST.log"
-            $PREFIX/socketclient $SOCKETPORT "release"
+            # $PREFIX/socketclient $SOCKETPORT "release"
             continue
         fi
 
@@ -142,7 +139,7 @@ PARSE()
         done
         unset DATA PSTATE PSTATETYPE
 
-        $PREFIX/socketclient $SOCKETPORT "release"
+        # $PREFIX/socketclient $SOCKETPORT "release"
     done
     rm -f $PIDDIRSYS/$HOST.parserpid
 }

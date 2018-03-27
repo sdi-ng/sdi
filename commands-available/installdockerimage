@@ -1,0 +1,8 @@
+# INSTALL DOCKER IMAGE
+
+for arq in `ls /tmp/sdiimages/`; do
+  docker import /tmp/sdiimages/$arq sdi:$arq
+  rm /tmp/sdiimages/$arq
+done
+
+printf "INSTALLDOCKERIMAGE\n"

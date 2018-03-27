@@ -1,40 +1,34 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description:
-#
-#
-#############################################################
-
 #!/bin/bash
 
 PREFIX=$(dirname $0)
 
-# try to load configuration
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
+if [ ! -e $PREFIX'/sdi.conf' ]; then
+    echo "ERROR: The $PREFIX/sdi.conf  file does not exist or can not be accessed"
+    exit 1
+fi
+
+source $PREFIX'/sdi.conf'
+
+#test if config is loaded
 if test $? != 0; then
     echo "ERROR: failed to load $PREFIX/sdi.conf file"
     exit 1
 fi
 
-# Customizable variables, please refer to sdi.conf to change these values
-: ${SENDLIMIT:=1}
-: ${TMPDIR:=/tmp/sdi}
-: ${PIDDIR:=$TMPDIR/pids}
-: ${PIDDIRSYS:=$PIDDIR/system}
-: ${FIFODIR:=$TMPDIR/fifos}
 
 # merge ssh options
 for OPT in "${SSHOPT[@]}"; do
     SSHOPTS="$SSHOPTS -o $OPT"
 done
 
+
 # the sendfile fifo
 FILEFIFO="$FIFODIR/sendfile.fifo"
 FINISHFIFO="$FIFODIR/sendfile_finish.fifo"
 FILEBLOCK="$TMPDIR/sendfile.blocked"
-FINISH="/tmp/.sdi.sendfile.finish"
+FINISH="$TMPDIR/sdi.sendfile.finish"
+
+
 
 # create the pids folder
 mkdir -p $PIDDIRSYS
@@ -66,7 +60,6 @@ function transferend()
     done
 }
 
-
 # function to wait a scp ends
 # adictionaly removes PID from pids file
 function waittransferend()
@@ -76,38 +69,33 @@ function waittransferend()
     while test -d /proc/$PID; do
         sleep 0.5
     done
-    echo "$PID" >> $FINISHFIFO
+    echo $PID >> $FINISHFIFO
+
     echo 'echo $(date +%s) '$DESTINATION' >> '$FINISH'' >> $CMDDIR/$HOST
 }
-
 
 # this function will listen to the fifo and
 # will launch the files transfers
 function sendfiledeamon()
 {
+
     (tail -f $FILEFIFO & echo $! > $PIDDIRSYS/tailfifo.pid) |
-    while read HOST FILE DESTINATION LIMIT; do
+    while read HOST FILE DESTINATION; do
         # wait to send file
         RUNNING=$(cat $PIDDIRSYS/transfers.pid |wc -l)
-        while (( $RUNNING >= $SENDLIMIT )); do
-            sleep 10
-            RUNNING=$(cat $PIDDIRSYS/transfers.pid |wc -l)
-        done
+        #while (( $RUNNING >= $SENDLIMIT )); do
+        #    sleep 10
+        #    RUNNING=$(cat $PIDDIRSYS/transfers.pid |wc -l)
+        #done
 
         # check if host is blocked
         if grep -q "^$HOST$" $FILEBLOCK; then
             continue
         fi
 
-        # check limit
-        if (( $LIMIT == 0 )); then
-            LIMIT=""
-        else
-            LIMIT="-l$LIMIT"
-        fi
-
         # run scp
-        scp -q $SSHOPTS $LIMIT $FILE $SDIUSER@$HOST:$DESTINATION \
+        scp -q $SSHOPTS $FILE $HOST:$DESTINATION
+        #printf "scp -q $SSHOPTS $FILE $HOST:$DESTINATION\n"
         &> /dev/null &
 
         # send a waittransferend look to this proccess
@@ -121,3 +109,6 @@ function sendfiledeamon()
 transferend &
 sendfiledeamon &
 echo $! > $PIDDIRSYS/sendfiledaemon.pid
+
+
+

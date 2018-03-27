@@ -1,0 +1,21 @@
+installdockerimage_updatedata()
+{
+   UPDATA="$*"
+}
+
+installdockerimage_www()
+{
+    if test "$*" = "SUPPORT"; then
+        PSTATETYPE="support:true not_support:false"
+    else
+        PSTATETYPE="support:false not_support:true"
+    fi
+
+    PVALUE="$*"
+}
+
+getcolumninfo()
+{
+    WEBINTERFACE=false
+    COLNAME=nada_nada
+}

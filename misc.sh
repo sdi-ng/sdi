@@ -1,18 +1,11 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description:
-#
-#
-#############################################################
-
 #!/bin/bash
+
 PREFIX=$(dirname $0)
 
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf general)
+source $PREFIX'/sdi.conf'
+
 if test $? != 0; then
-    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    echo "ERROR: failed to load $PREFIX/sdi.conf file (mish.sh)"
     exit 1
 fi
 
@@ -26,8 +19,12 @@ LOG()
 
 # Write $1 (string) into $2 (file) with the seconds since 1970
 PRINT()
-{
-    echo "$(date +%s) $1" >> $2
+{   
+    if [ -e "$2" ]; then
+        echo "$(date +%s) $1" >> "$2"
+    else
+        echo "$(date +%s) $1" > "$2"
+    fi
 }
 
 # Create a directory and ensure that it is accessible, or exit SDI

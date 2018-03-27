@@ -1,28 +1,25 @@
-#############################################################
-# SDI is an open source project.
-# Licensed under the GNU General Public License v2.
-#
-# File Description:
-#
-#
-#############################################################
-
 #!/bin/bash
 
 PREFIX=$(dirname $0)
 
-# try to load configuration and sendfile function
-eval $($PREFIX/configsdiparser.py $PREFIX/sdi.conf all)
+if [ ! -e $PREFIX'/sdi.conf' ]; then
+    echo "ERROR: The $PREFIX/sdi.conf  file does not exist or can not be accessed"
+    exit 1
+fi
+
+source $PREFIX'/sdi.conf'
+
+#test if config is loaded
 if test $? != 0; then
-    echo "ERROR: failed to load $PREFIX/sdi.conf file"
+    echo "ERROR: failed to load $PREFIX/sdi.conf file (launchsditunnel.sh)"
     exit 1
-elif ! . $PREFIX/misc.sh; then
-    echo "ERROR: failed to load $PREFIX/misc.sh file"
+elif ! source $PREFIX/misc.sh; then
+    echo "ERROR: failed to load $PREFIX/misc.sh file (launchsditunnel.sh)"
     exit 1
-elif ! . $PREFIX/parser.sh; then
-    echo "ERROR: failed to load $PREFIX/parser.sh file"
+elif ! source $PREFIX/parser.sh; then
+    echo "ERROR: failed to load $PREFIX/parser.sh file (launchsditunnel.sh)"
     exit 1
-elif ! . $PREFIX/sendfile.sh; then
+elif ! source $PREFIX/sendfile.sh; then
     echo "WARNING: failed to load $PREFIX/sendfile.sh file"
     echo "WARNING: you will not be able to send files to hosts through SDI"
 fi
@@ -195,7 +192,7 @@ SDITUNNEL()
          tail -fq -n0 $CMDFILE $CMDGENERAL &\
          echo $! > $PIDDIRHOSTS/$HOST.tail)| sdisend $HOST;
         printf "STATUS+OFFLINE\n") | sdireceive $HOST | PARSE $HOST
-        $PREFIX/socketclient $SOCKETPORT "release"
+        #$PREFIX/socketclient $SOCKETPORT "release"
         kill $(cat $PIDDIRHOSTS/$HOST.tail) 2> /dev/null &&
         rm -f $PIDDIRHOSTS/$HOST.tail
         (test -f $TMPDIR/SDIFINISH || test -f $TMPDIR/${HOST}_FINISH) && break
@@ -210,6 +207,7 @@ LAUNCH ()
     #If there are SDI tunnels opened, the execution should be stopped
     unset HOSTSRUNNING
     unset HOSTSTOOPEN
+
     for HOST in $*; do
         if test -f $PIDDIRHOSTS/$HOST.sditunnel; then
             PID=$(cat $PIDDIRHOSTS/$HOST.sditunnel)
@@ -258,6 +256,8 @@ if test $# -eq 0 ; then
     exit 1
 fi
 
+
+
 case $1 in
     --kill=?*)
         closehost $(echo $1| cut -d'=' -f2)
@@ -265,7 +265,12 @@ case $1 in
         ;;
     --killall)
         closeallhosts
-        $PREFIX/socketclient $SOCKETPORT stop
+        
+        if $DOCKER_REGISTRY = 'true'; then
+            printf "Finalizando Docker Registry..."
+            docker stop registry
+            printf "Done...\n"
+        fi
         exit 0
         ;;
     --reload-po)

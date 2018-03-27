@@ -1,0 +1,12 @@
+# CHECK DOCKER SUPPORT
+
+DOCKER="$(docker version | cut -d: -f1 | sed -n '1p')"
+
+if [ $DOCKER = Client ] 
+then
+    SUPPORT='SUPPORT';
+else
+    SUPPORT="NOT_SUPPORT";
+fi
+
+printf "CHECKDOCKER+$SUPPORT\n"
