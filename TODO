@@ -1,0 +1,10 @@
+
+Increments to make
+#################################################
+
+- link sdictl in /usr/share to use it anywhere
+- new sdiweb (responsive and with auth)
+- refactor the:
+  - sendimage.sh
+  - senddockerfile.sh
+  - launchsdi.sh (send the core to the clients in the ssh tunnel opened)
